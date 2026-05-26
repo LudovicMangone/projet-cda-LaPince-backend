@@ -15,7 +15,7 @@ build/
 .tsbuildinfo
 
 .env
-.env.
+.env.*
 !.env.example
 
 *.sqlite

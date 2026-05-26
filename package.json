@@ -26,7 +26,7 @@
 		"test:integration": "vitest run **/*.integration.test.ts",
 		"check": "biome check --write ./src",
 		"prepare": "husky",
-	    "docker:up": "docker compose -f docker-compose-dev.yml up"
+		"docker:up": "docker compose -f docker-compose-dev.yml up"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",
