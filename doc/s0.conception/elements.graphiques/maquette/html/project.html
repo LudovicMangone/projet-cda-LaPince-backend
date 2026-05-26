@@ -1,0 +1,1605 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Week-end à Lisbonne · LaPince</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body class="min-h-screen">
+
+  <!-- @component <AppHeader breadcrumb={[...]} user={...}> -->
+  <!-- Breadcrumb intégré dans le header : porte la navigation de retour, libère le ProjectHeader -->
+  <header class="bg-white border-b border-zinc-200">
+    <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-3 min-w-0">
+        <a href="./projects.html" class="flex items-center gap-2 font-semibold flex-shrink-0">
+          <span class="inline-flex w-7 h-7 rounded bg-yellow-400 items-center justify-center">
+            <i data-lucide="landmark" class="w-4 h-4 text-zinc-950"></i>
+          </span>
+          LaPince
+        </a>
+      </div>
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <!-- @component <ThemeToggle /> : bascule mode nuit (non fonctionnel — placeholder maquette) -->
+        <button type="button" title="Mode nuit"
+          class="h-8 w-8 rounded-full border border-zinc-200 bg-white text-zinc-500 hover:text-zinc-950 hover:border-zinc-400 flex items-center justify-center transition">
+          <i data-lucide="moon" class="w-4 h-4"></i>
+        </button>
+        <button
+          class="h-8 w-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center text-xs font-medium">SL</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- @component <ProjectHeader project={...}> -->
+  <section>
+    <!-- max-w-5xl externe + mx-6 interne : la border-b est à la largeur des tableaux du <main> (qui ont px-6) -->
+    <div class="max-w-5xl mx-auto">
+      <div class="mx-6 pt-8 border-b border-zinc-200">
+
+        <div class="flex items-start justify-between gap-6">
+          <!-- @component <ProjectIcon icon="plane" /> : pastille jaune avec icône type, égaye la zone titre -->
+          <div class="flex items-center gap-3 min-w-0">
+            <span
+              class="inline-flex w-10 h-10 rounded-md bg-yellow-400 text-zinc-950 items-center justify-center flex-shrink-0">
+              <i data-lucide="plane" class="w-5 h-5"></i>
+            </span>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <h1 class="text-xl font-semibold tracking-tight">Week-end à Lisbonne</h1>
+              </div>
+              <p class="text-sm text-zinc-500 mt-1">3 jours entre amis.</p>
+            </div>
+          </div>
+
+          <!-- Masqué en mobile (< sm) : le stack de pastilles encombre l'en-tête sur petit écran -->
+          <div class="hidden sm:flex items-center gap-2">
+            <!-- @component <ParticipantStack participants={...} onInvite={...} /> : raccourci vers l'onglet Détail (gestion des participants) -->
+            <button data-tab-target="details" class="flex -space-x-2 group items-center pl-1"
+              title="Gérer les participants">
+              <span
+                class="w-9 h-9 rounded-full bg-zinc-950 text-zinc-50 text-xs flex items-center justify-center border-2 border-white font-medium shadow-sm">SL</span>
+              <span
+                class="w-9 h-9 rounded-full bg-yellow-400 text-zinc-950 text-xs flex items-center justify-center border-2 border-white font-medium shadow-sm">AL</span>
+              <span
+                class="w-9 h-9 rounded-full bg-zinc-300 text-zinc-700 text-xs flex items-center justify-center border-2 border-white font-medium shadow-sm">BO</span>
+              <span
+                class="w-9 h-9 rounded-full bg-zinc-600 text-zinc-50 text-xs flex items-center justify-center border-2 border-white font-medium shadow-sm">CH</span>
+              <span
+                class="w-9 h-9 rounded-full bg-white border-2 border-dashed border-zinc-300 text-zinc-400 flex items-center justify-center group-hover:border-zinc-950 group-hover:text-zinc-950 transition shadow-sm"
+                title="Inviter">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- @component <Tabs defaultValue="overview"> + <CloseToggle /> à droite -->
+        <nav class="mt-6 -mb-px flex items-end justify-between gap-3">
+          <!-- Mobile (< md) : select déroulant qui pilote le même state que les tabs -->
+          <select id="tab-select"
+            class="md:hidden h-9 mb-2 px-3 rounded-md border border-zinc-200 text-sm font-medium bg-white">
+            <option value="overview">Vue d'ensemble</option>
+            <option value="details">Détails</option>
+            <option value="expenses">Opérations (12)</option>
+          </select>
+
+          <!-- Desktop (md+) : tabs horizontaux -->
+          <div class="hidden md:flex items-end gap-1">
+            <button data-tab="overview"
+              class="tab-btn h-9 px-4 text-sm font-medium border-b-2 border-yellow-400 text-zinc-950">
+              Vue d'ensemble
+            </button>
+            <button data-tab="details"
+              class="tab-btn h-9 px-4 text-sm font-medium border-b-2 border-transparent text-zinc-500 hover:text-zinc-950">
+              Détails
+            </button>
+            <button data-tab="expenses"
+              class="tab-btn h-9 px-4 text-sm font-medium border-b-2 border-transparent text-zinc-500 hover:text-zinc-950">
+              Opérations <span class="text-zinc-400">(12)</span>
+            </button>
+          </div>
+
+          <!-- @component <CloseToggle> : bouton switch — archivage le projet et dégrise les Remboursements -->
+          <label for="close-toggle" class="mb-2 inline-flex items-center gap-2 cursor-pointer select-none">
+            <span class="text-xs font-medium text-zinc-700">Archiver</span>
+            <span class="relative inline-block w-10 h-5">
+              <input type="checkbox" id="close-toggle" class="sr-only peer" />
+              <span class="absolute inset-0 rounded-full bg-zinc-200 peer-checked:bg-yellow-400 transition"></span>
+              <span
+                class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition peer-checked:translate-x-5"></span>
+            </span>
+          </label>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <main class="max-w-5xl mx-auto px-6 py-8">
+
+    <!-- @component <ThresholdAlert onDismiss={...}> : bandeau pleine largeur quand un seuil budget est atteint -->
+    <div id="threshold-alert" class="mb-6 rounded-lg border border-yellow-300 bg-yellow-50 px-4 py-3 flex items-center gap-3">
+      <span class="inline-flex w-8 h-8 rounded-full bg-yellow-400 text-zinc-950 items-center justify-center flex-shrink-0">
+        <i data-lucide="triangle-alert" class="w-4 h-4"></i>
+      </span>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-medium text-yellow-900">Seuil d'alerte atteint</p>
+        <p class="text-xs text-yellow-800">Le budget « Hébergement » a dépassé 80 % du montant prévu — 847,50 € sur 1 000 €.</p>
+      </div>
+      <button id="dismiss-threshold-alert" type="button"
+        class="h-8 px-3 rounded-md border border-yellow-300 bg-white text-xs font-medium text-yellow-900 hover:bg-yellow-100 inline-flex items-center gap-1.5 flex-shrink-0 transition">
+        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+        Marquer comme lu
+      </button>
+    </div>
+
+    <!-- ============ TAB: VUE D'ENSEMBLE ============ -->
+    <!-- @component <OverviewTab project={...}> -->
+    <section data-panel="overview" class="space-y-6">
+
+      <!-- Grid 2 colonnes : à gauche Conso budget + Mes budgets ; à droite Balance pleine hauteur -->
+      <div class="grid lg:grid-cols-2 gap-6 items-stretch">
+
+        <!-- COLONNE GAUCHE -->
+        <div class="flex flex-col gap-6">
+
+          <!-- @component <BudgetBreakdown budget={...} categories={...}> : barre + icônes au survol -->
+          <div class="rounded-lg border border-zinc-200 p-6">
+            <div class="flex items-baseline justify-between mb-2">
+              <div class="flex items-baseline gap-2">
+                <span class="text-2xl font-semibold tracking-tight tabular-nums">847,50 €</span>
+                <span class="text-sm text-zinc-500 tabular-nums">/ 1 000 €</span>
+              </div>
+              <span class="text-xs font-medium text-zinc-500">85% utilisé</span>
+            </div>
+            <!-- @component <StackedBudgetBar segments={...} total={...}> -->
+            <div class="flex h-2.5 rounded-full overflow-hidden bg-zinc-100 mb-4">
+              <div class="bg-blue-500" style="width:32%"></div>
+              <div class="bg-violet-500" style="width:24%"></div>
+              <div class="bg-orange-500" style="width:12.84%"></div>
+              <div class="bg-pink-500" style="width:6.8%"></div>
+              <div class="bg-emerald-500" style="width:4.21%"></div>
+              <div class="bg-zinc-500" style="width:4.86%"></div>
+            </div>
+
+            <!-- @component <CategoryIcons> : icônes seules ; tooltip natif (title=) au survol = nom + encours -->
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="w-8 h-8 rounded-md bg-blue-500 text-white flex items-center justify-center cursor-help"
+                title="Hébergement · 320 €">
+                <i data-lucide="bed-double" class="w-4 h-4"></i>
+              </span>
+              <span class="w-8 h-8 rounded-md bg-violet-500 text-white flex items-center justify-center cursor-help"
+                title="Transport · 240 €">
+                <i data-lucide="train-front" class="w-4 h-4"></i>
+              </span>
+              <span class="w-8 h-8 rounded-md bg-orange-500 text-white flex items-center justify-center cursor-help"
+                title="Restauration · 128,40 €">
+                <i data-lucide="utensils" class="w-4 h-4"></i>
+              </span>
+              <span class="w-8 h-8 rounded-md bg-pink-500 text-white flex items-center justify-center cursor-help"
+                title="Activités · 68 €">
+                <i data-lucide="ticket" class="w-4 h-4"></i>
+              </span>
+              <span class="w-8 h-8 rounded-md bg-emerald-500 text-white flex items-center justify-center cursor-help"
+                title="Courses · 42,10 €">
+                <i data-lucide="shopping-basket" class="w-4 h-4"></i>
+              </span>
+              <span class="w-8 h-8 rounded-md bg-zinc-500 text-white flex items-center justify-center cursor-help"
+                title="Autre · 48,60 €">
+                <i data-lucide="tag" class="w-4 h-4"></i>
+              </span>
+            </div>
+          </div>
+
+          <!-- @component <MyBudgetsCard> : empty state si vide, sinon 3 lignes catégorie + cumulé/défini -->
+          <div class="rounded-lg border border-zinc-200 p-6">
+            <div class="flex items-center justify-between mb-3">
+              <h2 class="text-sm font-medium">Mes budgets</h2>
+              <button type="button" data-open-budget-modal
+                class="text-xs font-medium text-zinc-500 hover:text-zinc-950 transition">
+                Modifier
+              </button>
+            </div>
+
+            <!-- État vide (masqué par défaut puisqu'on a 3 budgets d'exemple) -->
+            <div id="my-budgets-empty" class="hidden py-4 text-center">
+              <p class="text-sm text-zinc-500 mb-2">Aucun budget défini pour le moment.</p>
+              <button type="button" data-open-budget-modal
+                class="text-sm font-medium text-zinc-950 underline underline-offset-2 hover:text-zinc-700">
+                Définir mes budgets
+              </button>
+            </div>
+
+            <!-- Liste de 3 budgets exemples -->
+            <ul id="my-budgets-list" class="space-y-3">
+              <li class="flex items-center gap-3 text-sm">
+                <span class="w-7 h-7 rounded-md bg-blue-500 text-white flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="bed-double" class="w-3.5 h-3.5"></i>
+                </span>
+                <span class="flex-1">Hébergement</span>
+                <span class="tabular-nums text-zinc-700"><span class="font-medium">320 €</span> <span
+                    class="text-zinc-400">/ 400 €</span></span>
+              </li>
+              <li class="flex items-center gap-3 text-sm">
+                <span
+                  class="w-7 h-7 rounded-md bg-violet-500 text-white flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="train-front" class="w-3.5 h-3.5"></i>
+                </span>
+                <span class="flex-1">Transport</span>
+                <span class="tabular-nums text-zinc-700"><span class="font-medium">240 €</span> <span
+                    class="text-zinc-400">/ 250 €</span></span>
+              </li>
+              <li class="flex items-center gap-3 text-sm">
+                <span
+                  class="w-7 h-7 rounded-md bg-orange-500 text-white flex items-center justify-center flex-shrink-0">
+                  <i data-lucide="utensils" class="w-3.5 h-3.5"></i>
+                </span>
+                <span class="flex-1">Restauration</span>
+                <span class="tabular-nums text-zinc-700"><span class="font-medium">128,40 €</span> <span
+                    class="text-zinc-400">/ 150 €</span></span>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- COLONNE DROITE : Balance — actif par défaut (les boutons Payé sont cliquables) -->
+        <div id="settlement-card"
+          class="rounded-lg border border-zinc-200 overflow-hidden h-full flex flex-col transition-opacity">
+          <div class="px-6 py-4 border-b border-zinc-200 flex items-baseline justify-between gap-2">
+            <h2 class="text-sm font-medium">Balance</h2>
+            <p class="text-xs text-zinc-500">3 transactions</p>
+          </div>
+          <ul class="divide-y divide-zinc-100">
+            <!-- @component <SettlementRow from={...} to={...} amount={...} onMarkPaid> -->
+            <li class="px-6 py-3 flex items-center gap-3">
+              <div class="flex items-center gap-1.5 flex-1 text-sm">
+                <span class="font-medium">Steve</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-400"></i>
+                <span class="font-medium">Alice</span>
+              </div>
+              <span class="text-sm font-semibold tabular-nums">45,20 €</span>
+            </li>
+            <li class="px-6 py-3 flex items-center gap-3">
+              <div class="flex items-center gap-1.5 flex-1 text-sm">
+                <span class="font-medium">Chloé</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-400"></i>
+                <span class="font-medium">Bob</span>
+              </div>
+              <span class="text-sm font-semibold tabular-nums">120,78 €</span>
+            </li>
+            <li class="px-6 py-3 flex items-center gap-3">
+              <div class="flex items-center gap-1.5 flex-1 text-sm">
+                <span class="font-medium">Chloé</span>
+                <i data-lucide="arrow-right" class="w-3.5 h-3.5 text-zinc-400"></i>
+                <span class="font-medium">Steve</span>
+              </div>
+              <span class="text-sm font-semibold tabular-nums">60,00 €</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============ TAB: DÉTAIL ============ -->
+    <!-- @component <DetailsTab project={...}> : formulaire d'édition du projet + galerie pièces jointes -->
+    <section data-panel="details" class="hidden">
+
+      <!-- 2 colonnes : formulaire d'édition à gauche, pièces jointes à droite -->
+      <div class="grid lg:grid-cols-2 gap-6 items-start">
+
+        <!-- @component <ProjectForm mode="edit"> : mêmes champs que la modale Nouveau projet, pré-remplis -->
+        <form id="details-form" class="rounded-lg border border-zinc-200 p-6 space-y-5">
+
+          <!-- @component <Field label="Nom"> -->
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">Nom du projet</label>
+            <input type="text" value="Week-end à Lisbonne" required
+              class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+          </div>
+
+          <div class="space-y-1.5">
+            <label for="project-description" class="text-sm font-medium">Description <span
+                class="text-zinc-400 font-normal">(optionnel)</span></label>
+            <textarea id="project-description" rows="3" placeholder="Raconte ce projet en quelques mots…"
+              class="w-full px-3 py-2 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400 resize-y">3 jours entre amis à Lisbonne — vols pris à l'avance, Airbnb partagé à 4, et beaucoup de pastéis de nata.</textarea>
+          </div>
+
+          <!-- @component <TypePicker selected="plane" /> : dropdown icône + libellé -->
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">Type</label>
+            <div class="relative" data-type-dropdown>
+              <button type="button" data-type-trigger
+                class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm bg-white flex items-center justify-between gap-2 hover:border-zinc-400 transition">
+                <span class="flex items-center gap-2">
+                  <span class="inline-flex w-6 h-6 rounded bg-yellow-400 text-zinc-950 items-center justify-center"
+                    data-type-selected-icon>
+                    <i data-lucide="plane" class="w-3.5 h-3.5"></i>
+                  </span>
+                  <span class="font-medium" data-type-selected-label>Voyage</span>
+                </span>
+                <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-400"></i>
+              </button>
+              <ul data-type-menu
+                class="hidden absolute z-10 mt-1 w-full bg-white rounded-md border border-zinc-200 shadow-lg overflow-hidden">
+                <li>
+                  <button type="button" data-type-option data-icon="plane" data-label="Voyage"
+                    class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                    <i data-lucide="plane" class="w-4 h-4 text-zinc-600"></i> Voyage
+                  </button>
+                </li>
+                <li>
+                  <button type="button" data-type-option data-icon="home" data-label="Maison / Coloc"
+                    class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                    <i data-lucide="home" class="w-4 h-4 text-zinc-600"></i> Maison / Coloc
+                  </button>
+                </li>
+                <li>
+                  <button type="button" data-type-option data-icon="cake" data-label="Anniversaire"
+                    class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                    <i data-lucide="cake" class="w-4 h-4 text-zinc-600"></i> Anniversaire
+                  </button>
+                </li>
+                <li>
+                  <button type="button" data-type-option data-icon="utensils" data-label="Repas / Sortie"
+                    class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                    <i data-lucide="utensils" class="w-4 h-4 text-zinc-600"></i> Repas / Sortie
+                  </button>
+                </li>
+                <li>
+                  <button type="button" data-type-option data-icon="briefcase" data-label="Pro / Travail"
+                    class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                    <i data-lucide="briefcase" class="w-4 h-4 text-zinc-600"></i> Pro / Travail
+                  </button>
+                </li>
+                <li>
+                  <button type="button" data-type-option data-icon="more-horizontal" data-label="Autre"
+                    class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                    <i data-lucide="more-horizontal" class="w-4 h-4 text-zinc-600"></i> Autre
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- @component <Field label="Budget" type="currency"> -->
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">Budget global <span
+                class="text-zinc-400 font-normal">(optionnel)</span></label>
+            <div class="relative">
+              <input type="number" value="1000" placeholder="1000"
+                class="w-full h-10 pl-3 pr-8 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+            </div>
+          </div>
+
+          <!-- @component <BudgetAlert> : checkbox à gauche + slider inline à droite (même pattern que la modale Nouveau projet) -->
+          <div class="flex items-center gap-4">
+            <label class="flex items-center gap-2 cursor-pointer select-none flex-shrink-0">
+              <input type="checkbox" id="alert-toggle" checked
+                class="h-4 w-4 rounded border-zinc-300 text-zinc-950 accent-zinc-950" />
+              <span class="text-sm font-medium">Activer un seuil d'alerte</span>
+            </label>
+            <div id="alert-slider" class="flex flex-1 items-center gap-3 min-w-0">
+              <input type="range" min="0" max="100" value="80" id="alert-range"
+                class="flex-1 accent-yellow-400 cursor-pointer" />
+              <span class="text-xs font-medium tabular-nums text-zinc-900 w-12 text-right" id="alert-value">80 %</span>
+            </div>
+          </div>
+
+          <!-- @component <FormFooter> : révélé uniquement quand un champ a été modifié (dirty state) -->
+          <div id="details-form-footer"
+            class="hidden flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+            <button type="button" id="details-cancel-btn"
+              class="h-9 px-4 rounded-md border border-zinc-200 text-sm font-medium hover:bg-zinc-50 inline-flex items-center transition">
+              Annuler
+            </button>
+            <button type="submit"
+              class="h-9 px-4 rounded-md bg-zinc-950 text-zinc-50 text-sm font-medium hover:bg-zinc-800 inline-flex items-center transition">
+              Enregistrer
+            </button>
+          </div>
+        </form>
+
+        <!-- @component <ParticipantsBuilder> : titre Participants — bouton Ajouter placé en dehors de la carte -->
+        <div class="space-y-3">
+          <div class="rounded-lg border border-zinc-200 p-6 space-y-4">
+            <div class="flex items-center justify-between gap-2">
+              <h2 class="text-sm font-medium">Participants</h2>
+              <!-- En-tête de colonne aligné avec l'input montant (w-32) + croix (w-10) sur les lignes en-dessous -->
+              <span class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider w-32 text-right mr-12">Budget max</span>
+            </div>
+            <ul id="details-participants-rows" class="space-y-2">
+              <!-- Lignes pré-remplies depuis les participants existants -->
+              <li class="flex items-center gap-2">
+                <input type="text" value="Steve"
+                  class="flex-1 h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+                <div class="relative w-32 flex-shrink-0">
+                  <input type="number" min="0" step="1" value="250"
+                    class="w-full h-10 pl-3 pr-7 rounded-md border border-zinc-200 text-sm text-right tabular-nums" />
+                  <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+                </div>
+                <button type="button" title="Retirer" data-remove-participant-row
+                  class="h-10 w-10 rounded-md text-zinc-400 hover:text-red-600 hover:bg-zinc-50 flex items-center justify-center flex-shrink-0 transition">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </li>
+              <li class="flex items-center gap-2">
+                <input type="text" value="Alice"
+                  class="flex-1 h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+                <div class="relative w-32 flex-shrink-0">
+                  <input type="number" min="0" step="1" value="250"
+                    class="w-full h-10 pl-3 pr-7 rounded-md border border-zinc-200 text-sm text-right tabular-nums" />
+                  <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+                </div>
+                <button type="button" title="Retirer" data-remove-participant-row
+                  class="h-10 w-10 rounded-md text-zinc-400 hover:text-red-600 hover:bg-zinc-50 flex items-center justify-center flex-shrink-0 transition">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </li>
+              <li class="flex items-center gap-2">
+                <input type="text" value="Bob"
+                  class="flex-1 h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+                <div class="relative w-32 flex-shrink-0">
+                  <input type="number" min="0" step="1" value="250"
+                    class="w-full h-10 pl-3 pr-7 rounded-md border border-zinc-200 text-sm text-right tabular-nums" />
+                  <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+                </div>
+                <button type="button" title="Retirer" data-remove-participant-row
+                  class="h-10 w-10 rounded-md text-zinc-400 hover:text-red-600 hover:bg-zinc-50 flex items-center justify-center flex-shrink-0 transition">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </li>
+              <li class="flex items-center gap-2">
+                <input type="text" value="Chloé"
+                  class="flex-1 h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+                <div class="relative w-32 flex-shrink-0">
+                  <input type="number" min="0" step="1" value="250"
+                    class="w-full h-10 pl-3 pr-7 rounded-md border border-zinc-200 text-sm text-right tabular-nums" />
+                  <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+                </div>
+                <button type="button" title="Retirer" data-remove-participant-row
+                  class="h-10 w-10 rounded-md text-zinc-400 hover:text-red-600 hover:bg-zinc-50 flex items-center justify-center flex-shrink-0 transition">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Bouton Ajouter — placé en dehors de la carte Participants -->
+          <button type="button" id="details-add-participant-row"
+            class="w-full py-2.5 border-2 border-dashed border-zinc-300 hover:border-zinc-500 hover:bg-zinc-50 rounded-md text-sm text-zinc-500 hover:text-zinc-950 flex items-center justify-center gap-2 transition bg-transparent">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            Ajouter un participant
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ TAB: DÉPENSES ============ -->
+    <!-- @component <ExpensesTab expenses={...}> -->
+    <section data-panel="expenses" class="hidden">
+      <!-- @component <ExpenseFilters value onChange> : segmented control + recherche, même pattern que ProjectFilters -->
+      <div class="flex items-center justify-between mb-3 gap-3">
+        <div class="inline-flex h-9 p-1 rounded-md bg-zinc-100 text-sm overflow-x-auto" role="tablist">
+          <button data-cat="all"
+            class="cat-filter h-7 px-3 rounded font-medium transition bg-white text-zinc-950 shadow-sm whitespace-nowrap">
+            Toutes <span class="ml-1 text-xs text-zinc-500 font-normal">5</span>
+          </button>
+          <button data-cat="hebergement"
+            class="cat-filter h-7 px-3 rounded font-medium transition text-zinc-500 hover:text-zinc-950 inline-flex items-center gap-1.5 whitespace-nowrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Hébergement
+          </button>
+          <button data-cat="transport"
+            class="cat-filter h-7 px-3 rounded font-medium transition text-zinc-500 hover:text-zinc-950 inline-flex items-center gap-1.5 whitespace-nowrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span> Transport
+          </button>
+          <button data-cat="restauration"
+            class="cat-filter h-7 px-3 rounded font-medium transition text-zinc-500 hover:text-zinc-950 inline-flex items-center gap-1.5 whitespace-nowrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Restauration
+          </button>
+          <button data-cat="activites"
+            class="cat-filter h-7 px-3 rounded font-medium transition text-zinc-500 hover:text-zinc-950 inline-flex items-center gap-1.5 whitespace-nowrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-pink-500"></span> Activités
+          </button>
+          <button data-cat="courses"
+            class="cat-filter h-7 px-3 rounded font-medium transition text-zinc-500 hover:text-zinc-950 inline-flex items-center gap-1.5 whitespace-nowrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Courses
+          </button>
+          <button data-cat="autre"
+            class="cat-filter h-7 px-3 rounded font-medium transition text-zinc-500 hover:text-zinc-950 inline-flex items-center gap-1.5 whitespace-nowrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-zinc-500"></span> Autre
+          </button>
+        </div>
+        <!-- @component <Button variant="accent"> : ouvre l'ExpenseDialog — remplace la zone de recherche -->
+        <button type="button" data-open-expense-modal
+          class="h-9 px-4 rounded-md bg-yellow-400 text-zinc-950 text-sm font-medium hover:bg-yellow-300 inline-flex items-center gap-2 transition flex-shrink-0">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          Nouvelle opération
+        </button>
+      </div>
+
+      <!-- @component <ExpensesTable expenses={...}> : PJ retiré, Bénéficiaires ajouté, Montant aligné à droite -->
+      <section class="rounded-lg border border-zinc-200 overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-zinc-50 border-b border-zinc-200">
+            <tr class="text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <th class="px-6 py-3">Description</th>
+              <th class="px-6 py-3 hidden sm:table-cell">Date</th>
+              <th class="px-6 py-3 hidden lg:table-cell">Payé par</th>
+              <th class="px-6 py-3 hidden md:table-cell">Bénéficiaires</th>
+              <th class="px-6 py-3 text-right">Montant</th>
+            </tr>
+          </thead>
+          <tbody id="expenses-list" class="divide-y divide-zinc-100">
+
+            <!-- @component <ExpenseRow expense={...}> : icône catégorie en tête de description -->
+            <tr data-category="restauration" class="expense-item hover:bg-zinc-50 transition cursor-pointer">
+              <td class="px-6 py-3">
+                <div class="flex items-center gap-3">
+                  <span
+                    class="inline-flex w-8 h-8 rounded-md bg-orange-500 text-white items-center justify-center flex-shrink-0">
+                    <i data-lucide="utensils" class="w-4 h-4"></i>
+                  </span>
+                  <p class="font-medium">Dîner Time Out Market</p>
+                </div>
+              </td>
+              <td class="px-6 py-3 hidden sm:table-cell text-zinc-500 text-xs">17 mai</td>
+              <td class="px-6 py-3 hidden lg:table-cell">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-6 h-6 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center font-medium">AL</span>
+                  <span class="text-xs">Alice</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 hidden md:table-cell">
+                <!-- @component <ParticipantStack> : pastilles bénéficiaires, même style que le header projet -->
+                <div class="flex -space-x-1.5">
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-950 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">SL</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center border-2 border-white font-medium">AL</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-700 text-[10px] flex items-center justify-center border-2 border-white font-medium">BO</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-600 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">CH</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 text-right font-medium tabular-nums">128,40 €</td>
+            </tr>
+
+            <tr data-category="hebergement" class="expense-item hover:bg-zinc-50 transition cursor-pointer">
+              <td class="px-6 py-3">
+                <div class="flex items-center gap-3">
+                  <span
+                    class="inline-flex w-8 h-8 rounded-md bg-blue-500 text-white items-center justify-center flex-shrink-0">
+                    <i data-lucide="bed-double" class="w-4 h-4"></i>
+                  </span>
+                  <p class="font-medium">Airbnb 2 nuits</p>
+                </div>
+              </td>
+              <td class="px-6 py-3 hidden sm:table-cell text-zinc-500 text-xs">16 mai</td>
+              <td class="px-6 py-3 hidden lg:table-cell">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-950 text-zinc-50 text-[10px] flex items-center justify-center font-medium">SL</span>
+                  <span class="text-xs">Steve</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 hidden md:table-cell">
+                <div class="flex -space-x-1.5">
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-950 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">SL</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center border-2 border-white font-medium">AL</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-700 text-[10px] flex items-center justify-center border-2 border-white font-medium">BO</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-600 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">CH</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 text-right font-medium tabular-nums">320,00 €</td>
+            </tr>
+
+            <tr data-category="transport" class="expense-item hover:bg-zinc-50 transition cursor-pointer">
+              <td class="px-6 py-3">
+                <div class="flex items-center gap-3">
+                  <span
+                    class="inline-flex w-8 h-8 rounded-md bg-violet-500 text-white items-center justify-center flex-shrink-0">
+                    <i data-lucide="train-front" class="w-4 h-4"></i>
+                  </span>
+                  <p class="font-medium">Train aller-retour</p>
+                </div>
+              </td>
+              <td class="px-6 py-3 hidden sm:table-cell text-zinc-500 text-xs">16 mai</td>
+              <td class="px-6 py-3 hidden lg:table-cell">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-700 text-[10px] flex items-center justify-center font-medium">BO</span>
+                  <span class="text-xs">Bob</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 hidden md:table-cell">
+                <div class="flex -space-x-1.5">
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-950 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">SL</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center border-2 border-white font-medium">AL</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-700 text-[10px] flex items-center justify-center border-2 border-white font-medium">BO</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 text-right font-medium tabular-nums">240,00 €</td>
+            </tr>
+
+            <tr data-category="courses" class="expense-item hover:bg-zinc-50 transition cursor-pointer">
+              <td class="px-6 py-3">
+                <div class="flex items-center gap-3">
+                  <span
+                    class="inline-flex w-8 h-8 rounded-md bg-emerald-500 text-white items-center justify-center flex-shrink-0">
+                    <i data-lucide="shopping-basket" class="w-4 h-4"></i>
+                  </span>
+                  <p class="font-medium">Courses petit-déjeuner</p>
+                </div>
+              </td>
+              <td class="px-6 py-3 hidden sm:table-cell text-zinc-500 text-xs">17 mai</td>
+              <td class="px-6 py-3 hidden lg:table-cell">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-600 text-zinc-50 text-[10px] flex items-center justify-center font-medium">CH</span>
+                  <span class="text-xs">Chloé</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 hidden md:table-cell">
+                <div class="flex -space-x-1.5">
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-950 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">SL</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center border-2 border-white font-medium">AL</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-700 text-[10px] flex items-center justify-center border-2 border-white font-medium">BO</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-600 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">CH</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 text-right font-medium tabular-nums">42,10 €</td>
+            </tr>
+
+            <tr data-category="activites" class="expense-item hover:bg-zinc-50 transition cursor-pointer">
+              <td class="px-6 py-3">
+                <div class="flex items-center gap-3">
+                  <span
+                    class="inline-flex w-8 h-8 rounded-md bg-pink-500 text-white items-center justify-center flex-shrink-0">
+                    <i data-lucide="ticket" class="w-4 h-4"></i>
+                  </span>
+                  <p class="font-medium">Tickets musée + tram</p>
+                </div>
+              </td>
+              <td class="px-6 py-3 hidden sm:table-cell text-zinc-500 text-xs">17 mai</td>
+              <td class="px-6 py-3 hidden lg:table-cell">
+                <div class="flex items-center gap-2">
+                  <span
+                    class="w-6 h-6 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center font-medium">AL</span>
+                  <span class="text-xs">Alice</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 hidden md:table-cell">
+                <div class="flex -space-x-1.5">
+                  <span
+                    class="w-6 h-6 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center border-2 border-white font-medium">AL</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-700 text-[10px] flex items-center justify-center border-2 border-white font-medium">BO</span>
+                </div>
+              </td>
+              <td class="px-6 py-3 text-right font-medium tabular-nums">68,00 €</td>
+            </tr>
+          </tbody>
+
+          <!-- Pied de tableau : Total dans Bénéficiaires + valeur dans Montant (la plus à droite) -->
+          <tfoot class="bg-zinc-50 border-t border-zinc-200">
+            <tr class="text-xs font-medium text-zinc-700">
+              <td class="px-6 py-3" colspan="3"></td>
+              <td class="px-6 py-3 hidden md:table-cell text-right">Total</td>
+              <td class="px-6 py-3 text-right tabular-nums">798,50 €</td>
+            </tr>
+          </tfoot>
+        </table>
+      </section>
+    </section>
+  </main>
+
+  <!-- @component <AttachmentDialog open onOpenChange> : modale pièces jointes (existantes + import) -->
+  <!-- @component <BudgetDialog open onOpenChange> : édition / ajout dynamique des budgets par catégorie -->
+  <div id="budget-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div id="budget-modal-backdrop" class="absolute inset-0 bg-zinc-950/50"></div>
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between">
+        <h2 class="text-base font-semibold tracking-tight">Mes budgets</h2>
+        <button id="close-budget-modal" class="text-zinc-400 hover:text-zinc-950 p-1 rounded transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form class="p-6 space-y-4">
+        <!-- Header avec CTA Ajouter un budget -->
+        <div class="flex items-center justify-between">
+          <button type="button" id="add-budget-row"
+            class="h-8 px-3 rounded-md bg-yellow-400 text-zinc-950 text-xs font-medium hover:bg-yellow-300 inline-flex items-center gap-1.5 transition flex-shrink-0">
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+            Ajouter un budget
+          </button>
+        </div>
+
+        <!-- Lignes dynamiques : catégorie (select) + montant + retrait -->
+        <ul id="budget-rows" class="space-y-2">
+          <!-- 3 lignes pré-remplies par défaut (édition) -->
+          <li class="flex items-center gap-2">
+            <select class="flex-1 h-10 px-3 rounded-md border border-zinc-200 text-sm bg-white">
+              <option>Hébergement</option>
+              <option>Transport</option>
+              <option>Restauration</option>
+              <option>Activités</option>
+              <option>Courses</option>
+              <option>Autre</option>
+            </select>
+            <div class="relative w-32 flex-shrink-0">
+              <input type="number" min="0" step="1" value="400"
+                class="w-full h-10 pl-3 pr-7 rounded-md border border-zinc-200 text-sm text-right tabular-nums" />
+              <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+            </div>
+            <button type="button" title="Retirer" data-remove-budget-row
+              class="h-10 w-10 rounded-md text-zinc-400 hover:text-red-600 hover:bg-zinc-50 flex items-center justify-center flex-shrink-0 transition">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </li>
+          <li class="flex items-center gap-2">
+            <select class="flex-1 h-10 px-3 rounded-md border border-zinc-200 text-sm bg-white">
+              <option>Transport</option>
+              <option>Hébergement</option>
+              <option>Restauration</option>
+              <option>Activités</option>
+              <option>Courses</option>
+              <option>Autre</option>
+            </select>
+            <div class="relative w-32 flex-shrink-0">
+              <input type="number" min="0" step="1" value="250"
+                class="w-full h-10 pl-3 pr-7 rounded-md border border-zinc-200 text-sm text-right tabular-nums" />
+              <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+            </div>
+            <button type="button" title="Retirer" data-remove-budget-row
+              class="h-10 w-10 rounded-md text-zinc-400 hover:text-red-600 hover:bg-zinc-50 flex items-center justify-center flex-shrink-0 transition">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </li>
+          <li class="flex items-center gap-2">
+            <select class="flex-1 h-10 px-3 rounded-md border border-zinc-200 text-sm bg-white">
+              <option>Restauration</option>
+              <option>Hébergement</option>
+              <option>Transport</option>
+              <option>Activités</option>
+              <option>Courses</option>
+              <option>Autre</option>
+            </select>
+            <div class="relative w-32 flex-shrink-0">
+              <input type="number" min="0" step="1" value="150"
+                class="w-full h-10 pl-3 pr-7 rounded-md border border-zinc-200 text-sm text-right tabular-nums" />
+              <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+            </div>
+            <button type="button" title="Retirer" data-remove-budget-row
+              class="h-10 w-10 rounded-md text-zinc-400 hover:text-red-600 hover:bg-zinc-50 flex items-center justify-center flex-shrink-0 transition">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </li>
+        </ul>
+      </form>
+
+      <div class="px-6 py-4 border-t border-zinc-200 flex items-center justify-end gap-2 bg-zinc-50">
+        <button id="cancel-budget-modal" type="button"
+          class="h-9 px-4 rounded-md border border-zinc-200 bg-white text-sm font-medium hover:bg-zinc-50 inline-flex items-center transition">
+          Annuler
+        </button>
+        <button type="submit"
+          class="h-9 px-4 rounded-md bg-zinc-950 text-zinc-50 text-sm font-medium hover:bg-zinc-800 inline-flex items-center transition">
+          Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="attachment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div id="attachment-modal-backdrop" class="absolute inset-0 bg-zinc-950/50"></div>
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between">
+        <h2 class="text-base font-semibold tracking-tight">Pièces jointes</h2>
+        <button id="close-attachment-modal" class="text-zinc-400 hover:text-zinc-950 p-1 rounded transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <!-- Liste des pièces déjà chargées -->
+        <div class="space-y-2">
+          <p class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Chargées</p>
+          <div class="flex items-center gap-3 p-3 rounded-md border border-zinc-200">
+            <span class="w-10 h-10 rounded-md bg-blue-500 text-white flex items-center justify-center flex-shrink-0">
+              <i data-lucide="image" class="w-5 h-5"></i>
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate">recu-airbnb.jpg</p>
+              <p class="text-xs text-zinc-500">2,4 Mo · ajoutée le 16 mai</p>
+            </div>
+            <button title="Télécharger"
+              class="text-zinc-400 hover:text-zinc-950 p-1.5 rounded hover:bg-zinc-100 transition">
+              <i data-lucide="download" class="w-4 h-4"></i>
+            </button>
+            <button title="Supprimer"
+              class="text-zinc-400 hover:text-red-600 p-1.5 rounded hover:bg-zinc-100 transition">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <div class="flex items-center gap-3 p-3 rounded-md border border-zinc-200">
+            <span class="w-10 h-10 rounded-md bg-zinc-100 text-zinc-700 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="file-text" class="w-5 h-5"></i>
+            </span>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium truncate">facture-airbnb.pdf</p>
+              <p class="text-xs text-zinc-500">124 Ko · ajoutée le 16 mai</p>
+            </div>
+            <button title="Télécharger"
+              class="text-zinc-400 hover:text-zinc-950 p-1.5 rounded hover:bg-zinc-100 transition">
+              <i data-lucide="download" class="w-4 h-4"></i>
+            </button>
+            <button title="Supprimer"
+              class="text-zinc-400 hover:text-red-600 p-1.5 rounded hover:bg-zinc-100 transition">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Import : même picker que dans ExpenseDialog -->
+        <div class="space-y-2 pt-2 border-t border-zinc-100">
+          <p class="text-[10px] font-medium text-zinc-500 uppercase tracking-wider">Ajouter</p>
+          <div class="flex items-center gap-2">
+            <label
+              class="h-10 px-3 flex-1 rounded-md border border-dashed border-zinc-300 text-sm text-zinc-500 hover:text-zinc-950 hover:border-zinc-500 hover:bg-zinc-50 flex items-center justify-center gap-2 cursor-pointer transition">
+              <i data-lucide="camera" class="w-4 h-4"></i>
+              Photo
+              <input type="file" accept="image/*" capture="environment" class="hidden" />
+            </label>
+            <label
+              class="h-10 px-3 flex-1 rounded-md border border-dashed border-zinc-300 text-sm text-zinc-500 hover:text-zinc-950 hover:border-zinc-500 hover:bg-zinc-50 flex items-center justify-center gap-2 cursor-pointer transition">
+              <i data-lucide="paperclip" class="w-4 h-4"></i>
+              Fichier
+              <input type="file" accept="image/*,application/pdf" multiple class="hidden" />
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- @component <ParticipantDialog open onOpenChange participant={...}> : édition d'un participant existant -->
+  <div id="participant-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div id="participant-modal-backdrop" class="absolute inset-0 bg-zinc-950/50"></div>
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between">
+        <h2 id="participant-modal-title" class="text-base font-semibold tracking-tight">Modifier le participant</h2>
+        <button id="close-participant-modal" class="text-zinc-400 hover:text-zinc-950 p-1 rounded transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <form class="p-6 space-y-5">
+        <!-- Avatar + nom -->
+        <div class="flex items-center gap-3">
+          <span id="participant-modal-avatar"
+            class="w-12 h-12 rounded-full bg-yellow-400 text-zinc-950 text-sm flex items-center justify-center font-medium flex-shrink-0">AL</span>
+          <div class="flex-1 space-y-1.5">
+            <label class="text-sm font-medium">Nom</label>
+            <input id="participant-modal-name" type="text"
+              class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium">Email</label>
+          <input id="participant-modal-email" type="email"
+            class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+        </div>
+
+        <!-- Budget + Rôle sur une ligne -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">Budget</label>
+            <div class="relative">
+              <input id="participant-modal-budget" type="number" min="0" step="1" placeholder="auto"
+                class="w-full h-10 pl-3 pr-8 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400 placeholder:italic" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">Rôle</label>
+            <select id="participant-modal-role"
+              class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm bg-white">
+              <option value="creator">Percepteur</option>
+              <option value="member">Donateur</option>
+              <option value="guest">Invité</option>
+            </select>
+          </div>
+        </div>
+      </form>
+      <!-- Footer : retirer (gauche, destructif) / annuler + enregistrer (droite) -->
+      <div class="px-6 py-4 border-t border-zinc-200 flex items-center justify-between gap-2 bg-zinc-50">
+        <button type="button"
+          class="h-9 px-4 rounded-md text-red-600 text-sm font-medium hover:bg-red-50 inline-flex items-center gap-2 transition">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+          Retirer
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="cancel-participant-modal" type="button"
+            class="h-9 px-4 rounded-md border border-zinc-200 bg-white text-sm font-medium hover:bg-zinc-50 inline-flex items-center transition">
+            Annuler
+          </button>
+          <button type="submit"
+            class="h-9 px-4 rounded-md bg-zinc-950 text-zinc-50 text-sm font-medium hover:bg-zinc-800 inline-flex items-center transition">
+            Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- @component <InviteDialog open onOpenChange> : modale d'invitation (lien + email) -->
+  <div id="invite-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4">
+    <div id="invite-modal-backdrop" class="absolute inset-0 bg-zinc-950/50"></div>
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+      <div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between">
+        <h2 class="text-base font-semibold tracking-tight">Inviter des participants</h2>
+        <button id="close-invite-modal" class="text-zinc-400 hover:text-zinc-950 p-1 rounded transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-5">
+        <!-- Lien d'invitation -->
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <i data-lucide="link" class="w-4 h-4 text-zinc-500"></i>
+            <p class="text-sm font-medium">Lien d'invitation</p>
+          </div>
+          <p class="text-xs text-zinc-500">Toute personne avec ce lien peut rejoindre le projet.</p>
+          <div class="flex items-center gap-1 bg-zinc-50 border border-zinc-200 rounded-md p-1.5">
+            <input type="text" readonly value="https://lapince.app/join/wXk-7mP-3qB"
+              class="flex-1 min-w-0 bg-transparent px-2 text-xs font-mono text-zinc-700 focus:outline-none" />
+            <button title="Copier le lien"
+              class="h-7 w-7 rounded flex-shrink-0 flex items-center justify-center text-zinc-500 hover:text-zinc-950 hover:bg-zinc-200 transition">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Séparateur visuel -->
+        <div class="flex items-center gap-3">
+          <div class="flex-1 h-px bg-zinc-200"></div>
+          <span class="text-[10px] uppercase tracking-wider text-zinc-400">ou</span>
+          <div class="flex-1 h-px bg-zinc-200"></div>
+        </div>
+
+        <!-- Envoyer par email -->
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <i data-lucide="mail" class="w-4 h-4 text-zinc-500"></i>
+            <p class="text-sm font-medium">Envoyer par email</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="email" placeholder="ami@exemple.fr"
+              class="flex-1 h-9 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+            <button type="button"
+              class="h-9 px-4 rounded-md bg-zinc-950 text-zinc-50 text-sm font-medium hover:bg-zinc-800 inline-flex items-center gap-2 transition">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              Envoyer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- @component <ExpenseDialog open onOpenChange> : modale shadcn Dialog -->
+  <div id="expense-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4">
+    <!-- Backdrop -->
+    <div id="expense-modal-backdrop" class="absolute inset-0 bg-zinc-950/50"></div>
+
+    <!-- Dialog content -->
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between">
+        <h2 class="text-base font-semibold tracking-tight">Nouvelle opération</h2>
+        <button id="close-expense-modal" class="text-zinc-400 hover:text-zinc-950 p-1 rounded transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- @component <ExpenseForm> : version modale -->
+      <form class="p-6 space-y-5">
+
+        <!-- Description + montant -->
+        <div class="grid grid-cols-5 gap-3">
+          <div class="col-span-3 space-y-1.5">
+            <label class="text-sm font-medium">Description</label>
+            <input type="text" placeholder="Dîner Time Out Market" required
+              class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+          </div>
+          <div class="col-span-2 space-y-1.5">
+            <label class="text-sm font-medium">Montant</label>
+            <div class="relative">
+              <input type="number" step="0.01" placeholder="128,40" required id="expense-total"
+                class="w-full h-10 pl-3 pr-8 rounded-md border border-zinc-200 text-sm text-right font-medium placeholder:text-zinc-400" />
+              <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Catégorie + date -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">Catégorie</label>
+            <select class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm bg-white">
+              <option>Restauration</option>
+              <option>Hébergement</option>
+              <option>Transport</option>
+              <option>Courses</option>
+              <option>Activités</option>
+              <option>Autre</option>
+              <option value="new">+ Nouvelle catégorie…</option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">Date</label>
+            <input type="date" value="2026-05-17" class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm" />
+          </div>
+        </div>
+
+        <!-- Payé par (dropdown participant : avatar + nom) -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium">Payé par</label>
+          <div class="relative" data-paidby-dropdown>
+            <button type="button" data-paidby-trigger
+              class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm bg-white flex items-center justify-between gap-2 hover:border-zinc-400 transition">
+              <span class="flex items-center gap-2">
+                <span
+                  class="w-6 h-6 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center font-medium"
+                  data-paidby-selected-avatar>AL</span>
+                <span class="font-medium" data-paidby-selected-label>Alice</span>
+              </span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-400"></i>
+            </button>
+            <ul data-paidby-menu
+              class="hidden absolute z-10 mt-1 w-full bg-white rounded-md border border-zinc-200 shadow-lg overflow-hidden">
+              <li>
+                <button type="button" data-paidby-option data-initials="SL" data-name="Steve"
+                  data-avatar-class="bg-zinc-950 text-zinc-50"
+                  class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-950 text-zinc-50 text-[10px] flex items-center justify-center font-medium">SL</span>
+                  Steve <span class="text-xs text-zinc-500 font-normal">(toi)</span>
+                </button>
+              </li>
+              <li>
+                <button type="button" data-paidby-option data-initials="AL" data-name="Alice"
+                  data-avatar-class="bg-yellow-400 text-zinc-950"
+                  class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                  <span
+                    class="w-6 h-6 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center font-medium">AL</span>
+                  Alice
+                </button>
+              </li>
+              <li>
+                <button type="button" data-paidby-option data-initials="BO" data-name="Bob"
+                  data-avatar-class="bg-zinc-300 text-zinc-700"
+                  class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-700 text-[10px] flex items-center justify-center font-medium">BO</span>
+                  Bob
+                </button>
+              </li>
+              <li>
+                <button type="button" data-paidby-option data-initials="CH" data-name="Chloé"
+                  data-avatar-class="bg-zinc-600 text-zinc-50"
+                  class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                  <span
+                    class="w-6 h-6 rounded-full bg-zinc-600 text-zinc-50 text-[10px] flex items-center justify-center font-medium">CH</span>
+                  Chloé
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- @component <ExpenseSplit> : sélection des participants + répartition mixte
+             Règle : un participant coché sans montant reçoit (Montant total − somme des montants saisis) ÷ nb cochés non saisis.
+             Si un montant est saisi, il est figé pour ce participant. -->
+        <div class="space-y-2">
+          <div class="flex items-baseline justify-between">
+            <label class="text-sm font-medium">Participants</label>
+            <span class="text-xs text-zinc-500">Coche les concernés, fixe un montant si besoin.</span>
+          </div>
+          <ul id="expense-split-rows"
+            class="rounded-md border border-zinc-200 divide-y divide-zinc-100 overflow-hidden">
+            <li class="px-3 py-2 flex items-center gap-3 expense-split-row">
+              <label class="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
+                <input type="checkbox" checked data-split-include
+                  class="h-4 w-4 rounded border-zinc-300 text-zinc-950 accent-zinc-950" />
+                <span
+                  class="w-7 h-7 rounded-full bg-zinc-950 text-zinc-50 text-[10px] flex items-center justify-center font-medium flex-shrink-0">SL</span>
+                <span class="text-sm truncate">Steve <span class="text-xs text-zinc-500 font-normal">(toi)</span></span>
+              </label>
+              <div class="relative w-28 flex-shrink-0">
+                <input type="number" min="0" step="0.01" data-split-amount placeholder="auto"
+                  class="w-full h-8 pl-2 pr-6 rounded-md border border-zinc-200 text-xs text-right tabular-nums placeholder:text-zinc-400 placeholder:italic" />
+                <span class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-400">€</span>
+              </div>
+            </li>
+            <li class="px-3 py-2 flex items-center gap-3 expense-split-row">
+              <label class="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
+                <input type="checkbox" checked data-split-include
+                  class="h-4 w-4 rounded border-zinc-300 text-zinc-950 accent-zinc-950" />
+                <span
+                  class="w-7 h-7 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center font-medium flex-shrink-0">AL</span>
+                <span class="text-sm truncate">Alice</span>
+              </label>
+              <div class="relative w-28 flex-shrink-0">
+                <input type="number" min="0" step="0.01" data-split-amount placeholder="auto"
+                  class="w-full h-8 pl-2 pr-6 rounded-md border border-zinc-200 text-xs text-right tabular-nums placeholder:text-zinc-400 placeholder:italic" />
+                <span class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-400">€</span>
+              </div>
+            </li>
+            <li class="px-3 py-2 flex items-center gap-3 expense-split-row">
+              <label class="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
+                <input type="checkbox" checked data-split-include
+                  class="h-4 w-4 rounded border-zinc-300 text-zinc-950 accent-zinc-950" />
+                <span
+                  class="w-7 h-7 rounded-full bg-zinc-300 text-zinc-700 text-[10px] flex items-center justify-center font-medium flex-shrink-0">BO</span>
+                <span class="text-sm truncate">Bob</span>
+              </label>
+              <div class="relative w-28 flex-shrink-0">
+                <input type="number" min="0" step="0.01" data-split-amount placeholder="auto"
+                  class="w-full h-8 pl-2 pr-6 rounded-md border border-zinc-200 text-xs text-right tabular-nums placeholder:text-zinc-400 placeholder:italic" />
+                <span class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-400">€</span>
+              </div>
+            </li>
+            <li class="px-3 py-2 flex items-center gap-3 expense-split-row">
+              <label class="flex items-center gap-2 cursor-pointer flex-1 min-w-0">
+                <input type="checkbox" data-split-include
+                  class="h-4 w-4 rounded border-zinc-300 text-zinc-950 accent-zinc-950" />
+                <span
+                  class="w-7 h-7 rounded-full bg-zinc-600 text-zinc-50 text-[10px] flex items-center justify-center font-medium flex-shrink-0">CH</span>
+                <span class="text-sm truncate">Chloé</span>
+              </label>
+              <div class="relative w-28 flex-shrink-0">
+                <input type="number" min="0" step="0.01" data-split-amount placeholder="auto" disabled
+                  class="w-full h-8 pl-2 pr-6 rounded-md border border-zinc-200 text-xs text-right tabular-nums placeholder:text-zinc-400 placeholder:italic disabled:bg-zinc-50 disabled:text-zinc-400" />
+                <span class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-zinc-400">€</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </form>
+
+      <!-- Footer modal -->
+      <div class="px-6 py-4 border-t border-zinc-200 flex items-center justify-end gap-2 bg-zinc-50">
+        <button id="cancel-expense-modal" type="button"
+          class="h-9 px-4 rounded-md border border-zinc-200 bg-white text-sm font-medium hover:bg-zinc-50 inline-flex items-center transition">
+          Annuler
+        </button>
+        <button type="submit"
+          class="h-9 px-4 rounded-md bg-zinc-950 text-zinc-50 text-sm font-medium hover:bg-zinc-800 inline-flex items-center gap-2 transition">
+          Créer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <span class="demo-badge">Maquette v3</span>
+  <script>
+    lucide.createIcons();
+
+    // Mini logique de Tabs — sera remplacé par @radix-ui/react-tabs côté React
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('[data-panel]');
+    function activate(name) {
+      tabBtns.forEach(b => {
+        const active = b.dataset.tab === name;
+        b.classList.toggle('border-yellow-400', active);
+        b.classList.toggle('text-zinc-950', active);
+        b.classList.toggle('border-transparent', !active);
+        b.classList.toggle('text-zinc-500', !active);
+      });
+      panels.forEach(p => p.classList.toggle('hidden', p.dataset.panel !== name));
+    }
+    tabBtns.forEach(b => b.addEventListener('click', () => activate(b.dataset.tab)));
+    document.querySelectorAll('[data-tab-target]').forEach(b =>
+      b.addEventListener('click', () => activate(b.dataset.tabTarget))
+    );
+
+    // Toggle "Archiver" : bascule le label off/on. La carte Balance reste active dans les deux états.
+    const closeToggle = document.getElementById('close-toggle');
+    const closeLabel = closeToggle?.closest('label')?.querySelector('span:first-child');
+    closeToggle?.addEventListener('change', () => {
+      const archived = closeToggle.checked;
+      if (closeLabel) closeLabel.textContent = archived ? 'Archivé' : 'Archiver';
+      // Grise tout le projet via une classe sur body (cf. styles.css .is-archived).
+      // Le toggle reste cliquable car filter n'intercepte pas les events.
+      document.body.classList.toggle('is-archived', archived);
+    });
+
+    // Filtre des opérations (segmented control) — sera useState + filter() en React
+    const catBtns = document.querySelectorAll('.cat-filter');
+    const expenseItems = document.querySelectorAll('.expense-item');
+
+    let currentCat = 'all';
+
+    function refreshExpenses() {
+      catBtns.forEach(b => {
+        const active = b.dataset.cat === currentCat;
+        b.classList.toggle('bg-white', active);
+        b.classList.toggle('text-zinc-950', active);
+        b.classList.toggle('shadow-sm', active);
+        b.classList.toggle('text-zinc-500', !active);
+      });
+      expenseItems.forEach(item => {
+        const show = currentCat === 'all' || item.dataset.category === currentCat;
+        item.classList.toggle('hidden', !show);
+      });
+    }
+
+    catBtns.forEach(b => b.addEventListener('click', () => { currentCat = b.dataset.cat; refreshExpenses(); }));
+
+    // Filtre participants par rôle (segmented control) — même pattern que ProjectFilters
+    const roleFilterBtns = document.querySelectorAll('.role-filter');
+    const participantRows = document.querySelectorAll('.participant-row');
+    let currentRoleFilter = 'all';
+    function refreshParticipants() {
+      roleFilterBtns.forEach(b => {
+        const active = b.dataset.roleFilter === currentRoleFilter;
+        b.classList.toggle('bg-white', active);
+        b.classList.toggle('text-zinc-950', active);
+        b.classList.toggle('shadow-sm', active);
+        b.classList.toggle('text-zinc-500', !active);
+      });
+      participantRows.forEach(r => {
+        // "member" inclut creator + member ; "guest" → guest ; "all" → tout
+        const role = r.dataset.role;
+        const show =
+          currentRoleFilter === 'all' ||
+          (currentRoleFilter === 'member' && (role === 'member' || role === 'creator')) ||
+          (currentRoleFilter === 'guest' && role === 'guest');
+        r.classList.toggle('hidden', !show);
+      });
+    }
+    roleFilterBtns.forEach(b => b.addEventListener('click', () => { currentRoleFilter = b.dataset.roleFilter; refreshParticipants(); }));
+
+    // Modale "Inviter des participants" — déclenchée par tout bouton marqué data-open-invite-modal
+    // (boutons Inviter dans la table, lignes des invités sans compte)
+    const inviteModal = document.getElementById('invite-modal');
+    const openInviteModal = () => inviteModal.classList.remove('hidden');
+    const closeInviteModal = () => inviteModal.classList.add('hidden');
+    document.querySelectorAll('[data-open-invite-modal]').forEach(b => b.addEventListener('click', openInviteModal));
+    document.getElementById('close-invite-modal')?.addEventListener('click', closeInviteModal);
+    document.getElementById('invite-modal-backdrop')?.addEventListener('click', closeInviteModal);
+
+    // Modale "Nouvelle opération" — déclenchée par le bouton dashed sous le tableau
+    const modal = document.getElementById('expense-modal');
+    const openModal = () => modal.classList.remove('hidden');
+    const closeModal = () => modal.classList.add('hidden');
+    document.querySelectorAll('[data-open-expense-modal]').forEach(b => b.addEventListener('click', openModal));
+    document.getElementById('close-expense-modal')?.addEventListener('click', closeModal);
+    document.getElementById('cancel-expense-modal')?.addEventListener('click', closeModal);
+    document.getElementById('expense-modal-backdrop')?.addEventListener('click', closeModal);
+
+    // ExpenseSplit : sélection + répartition
+    // - Coche = inclure le participant (l'input montant devient actif)
+    // - Montant saisi = part figée
+    // - Montant vide = part auto = (Total − somme saisies) / nb cochés sans saisie
+    const expenseTotal = document.getElementById('expense-total');
+    const splitRows = document.querySelectorAll('.expense-split-row');
+    function recalcSplit() {
+      const total = parseFloat(expenseTotal?.value) || 0;
+      let fixedSum = 0;
+      const autoRows = [];
+      splitRows.forEach(row => {
+        const check = row.querySelector('[data-split-include]');
+        const amount = row.querySelector('[data-split-amount]');
+        amount.disabled = !check.checked;
+        if (!check.checked) {
+          amount.value = '';
+          amount.placeholder = '—';
+          return;
+        }
+        const v = parseFloat(amount.value);
+        if (!isNaN(v) && v >= 0 && amount.value.trim() !== '') {
+          fixedSum += v;
+        } else {
+          autoRows.push(amount);
+        }
+      });
+      const remaining = Math.max(0, total - fixedSum);
+      const auto = autoRows.length > 0 && total > 0 ? (remaining / autoRows.length) : 0;
+      autoRows.forEach(inp => {
+        inp.placeholder = total > 0 ? auto.toFixed(2).replace('.', ',') + ' €' : 'auto';
+      });
+    }
+    expenseTotal?.addEventListener('input', recalcSplit);
+    splitRows.forEach(row => {
+      row.querySelector('[data-split-include]')?.addEventListener('change', recalcSplit);
+      row.querySelector('[data-split-amount]')?.addEventListener('input', recalcSplit);
+    });
+    recalcSplit();
+
+    // Modale "Pièces jointes" — déclenchée par les chips paperclip dans le tableau des opérations
+    const attachmentModal = document.getElementById('attachment-modal');
+    const openAttachmentModal = () => attachmentModal.classList.remove('hidden');
+    const closeAttachmentModal = () => attachmentModal.classList.add('hidden');
+    document.querySelectorAll('[data-open-attachment-modal]').forEach(b => b.addEventListener('click', openAttachmentModal));
+    document.getElementById('close-attachment-modal')?.addEventListener('click', closeAttachmentModal);
+    document.getElementById('attachment-modal-backdrop')?.addEventListener('click', closeAttachmentModal);
+
+    // Modale "Mes budgets" — ajout dynamique d'une ligne (catégorie + montant) à chaque clic sur "Ajouter un budget"
+    const budgetModal = document.getElementById('budget-modal');
+    const openBudgetModal = () => budgetModal.classList.remove('hidden');
+    const closeBudgetModal = () => budgetModal.classList.add('hidden');
+    document.querySelectorAll('[data-open-budget-modal]').forEach(b => b.addEventListener('click', openBudgetModal));
+    document.getElementById('close-budget-modal')?.addEventListener('click', closeBudgetModal);
+    document.getElementById('cancel-budget-modal')?.addEventListener('click', closeBudgetModal);
+    document.getElementById('budget-modal-backdrop')?.addEventListener('click', closeBudgetModal);
+
+    // Retrait d'une ligne existante (croix)
+    const wireRemoveBudgetRow = (btn) => btn.addEventListener('click', () => btn.closest('li')?.remove());
+    document.querySelectorAll('[data-remove-budget-row]').forEach(wireRemoveBudgetRow);
+
+    // Ajout d'une nouvelle ligne au clic sur "Ajouter un budget"
+    document.getElementById('add-budget-row')?.addEventListener('click', () => {
+      const rows = document.getElementById('budget-rows');
+      const li = document.createElement('li');
+      li.className = 'flex items-center gap-2';
+      li.innerHTML = `
+        <select class="flex-1 h-10 px-3 rounded-md border border-zinc-200 text-sm bg-white">
+          <option value="" disabled selected>Choisir une catégorie</option>
+          <option>Hébergement</option>
+          <option>Transport</option>
+          <option>Restauration</option>
+          <option>Activités</option>
+          <option>Courses</option>
+          <option>Autre</option>
+        </select>
+        <div class="relative w-32 flex-shrink-0">
+          <input type="number" min="0" step="1" placeholder="Montant" class="w-full h-10 pl-3 pr-7 rounded-md border border-zinc-200 text-sm text-right tabular-nums placeholder:text-zinc-400" />
+          <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+        </div>
+        <button type="button" title="Retirer" data-remove-budget-row
+          class="h-10 w-10 rounded-md text-zinc-400 hover:text-red-600 hover:bg-zinc-50 flex items-center justify-center flex-shrink-0 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      `;
+      rows.appendChild(li);
+      wireRemoveBudgetRow(li.querySelector('[data-remove-budget-row]'));
+      lucide.createIcons();
+      li.querySelector('select')?.focus();
+    });
+
+    // Helper : un clic sur une ligne ouvre la modale ; les contrôles internes (bouton, input, lien, select, label)
+    // stoppent la propagation pour rester actionnables sans déclencher l'ouverture.
+    const isInnerControl = (el) => !!el.closest('button, input, select, textarea, label, a');
+
+    // Clic sur une ligne de opération → ouvre l'ExpenseDialog (préchargée côté React)
+    document.querySelectorAll('.expense-item').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if (isInnerControl(e.target)) return;
+        openModal();
+      });
+    });
+
+    // Modale "Modifier le participant" — pré-remplie depuis la ligne cliquée
+    const participantModal = document.getElementById('participant-modal');
+    const openParticipantModal = () => participantModal.classList.remove('hidden');
+    const closeParticipantModal = () => participantModal.classList.add('hidden');
+    document.getElementById('close-participant-modal')?.addEventListener('click', closeParticipantModal);
+    document.getElementById('cancel-participant-modal')?.addEventListener('click', closeParticipantModal);
+    document.getElementById('participant-modal-backdrop')?.addEventListener('click', closeParticipantModal);
+
+    const pmTitle = document.getElementById('participant-modal-title');
+    const pmAvatar = document.getElementById('participant-modal-avatar');
+    const pmName = document.getElementById('participant-modal-name');
+    const pmEmail = document.getElementById('participant-modal-email');
+    const pmBudget = document.getElementById('participant-modal-budget');
+    const pmRole = document.getElementById('participant-modal-role');
+
+    // Mode "Modifier" : pré-remplit depuis la ligne cliquée
+    document.querySelectorAll('.participant-row').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if (isInnerControl(e.target)) return;
+        const avatar = row.querySelector('td:first-child span');
+        const nameText = row.querySelector('td:first-child p')?.textContent.trim() || '';
+        const email = row.querySelector('td:nth-child(2)')?.textContent.trim() || '';
+        const budget = row.querySelector('[data-participant-budget]')?.value || '';
+        if (pmTitle) pmTitle.textContent = 'Modifier le donateur';
+        if (avatar && pmAvatar) {
+          pmAvatar.className = avatar.className.replace(/w-\d+ h-\d+/, 'w-12 h-12').replace('text-xs', 'text-sm');
+          pmAvatar.textContent = avatar.textContent;
+        }
+        if (pmName) pmName.value = nameText.replace(/\s*\(toi\)\s*$/, '');
+        if (pmEmail) pmEmail.value = email;
+        if (pmBudget) pmBudget.value = budget;
+        if (pmRole) pmRole.value = row.dataset.role || 'member';
+        openParticipantModal();
+      });
+    });
+
+    // Mode "Ajouter" : ouvre la même modale avec champs vides + titre adapté
+    document.getElementById('add-participant-btn')?.addEventListener('click', () => {
+      if (pmTitle) pmTitle.textContent = 'Ajouter un donateur';
+      if (pmAvatar) { pmAvatar.className = 'w-12 h-12 rounded-full bg-zinc-100 text-zinc-400 text-sm flex items-center justify-center font-medium flex-shrink-0'; pmAvatar.textContent = '?'; }
+      if (pmName) pmName.value = '';
+      if (pmEmail) pmEmail.value = '';
+      if (pmBudget) pmBudget.value = '';
+      if (pmRole) pmRole.value = 'member';
+      openParticipantModal();
+    });
+
+    // Budget par participant : placeholder = (budget effectif - somme déclarée) / nb non renseignés.
+    // Si la somme déclarée dépasse le budget initial, le budget effectif devient cette somme
+    // (le budget global affiché est alors remplacé). Sera porté côté React par un useMemo.
+    const INITIAL_BUDGET = 1000;
+    const budgetInputs = document.querySelectorAll('[data-participant-budget]');
+    const globalBudgetDisplay = document.getElementById('global-budget-display');
+    const fmtEUR = n => n.toLocaleString('fr-FR') + ' €';
+    function recalcParticipantBudgets() {
+      let declared = 0;
+      const unfilled = [];
+      budgetInputs.forEach(inp => {
+        const v = parseFloat(inp.value);
+        if (!isNaN(v) && v >= 0 && inp.value.trim() !== '') {
+          declared += v;
+        } else {
+          unfilled.push(inp);
+        }
+      });
+      const effectiveBudget = Math.max(INITIAL_BUDGET, declared);
+      const remaining = effectiveBudget - declared;
+      const auto = unfilled.length > 0 ? Math.round(remaining / unfilled.length) : 0;
+      unfilled.forEach(inp => { inp.placeholder = auto + ' €'; });
+      if (globalBudgetDisplay) globalBudgetDisplay.textContent = fmtEUR(effectiveBudget);
+    }
+    budgetInputs.forEach(inp => inp.addEventListener('input', recalcParticipantBudgets));
+    recalcParticipantBudgets();
+
+    // Dropdown Type (icône + libellé) dans l'onglet Détail — sera remplacé par <Select> shadcn en React
+    document.querySelectorAll('[data-type-dropdown]').forEach(dropdown => {
+      const trigger = dropdown.querySelector('[data-type-trigger]');
+      const menu = dropdown.querySelector('[data-type-menu]');
+      const selectedIcon = dropdown.querySelector('[data-type-selected-icon]');
+      const selectedLabel = dropdown.querySelector('[data-type-selected-label]');
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+      });
+
+      dropdown.querySelectorAll('[data-type-option]').forEach(opt => {
+        opt.addEventListener('click', () => {
+          selectedIcon.innerHTML = '<i data-lucide="' + opt.dataset.icon + '" class="w-3.5 h-3.5"></i>';
+          selectedLabel.textContent = opt.dataset.label;
+          lucide.createIcons();
+          menu.classList.add('hidden');
+        });
+      });
+    });
+    document.addEventListener('click', (e) => {
+      document.querySelectorAll('[data-type-dropdown]').forEach(d => {
+        if (!d.contains(e.target)) d.querySelector('[data-type-menu]')?.classList.add('hidden');
+      });
+    });
+
+    // Alerte budget : show/hide du slider via la checkbox + maj de la valeur affichée
+    const alertToggle = document.getElementById('alert-toggle');
+    const alertSlider = document.getElementById('alert-slider');
+    const alertRange = document.getElementById('alert-range');
+    const alertValue = document.getElementById('alert-value');
+    alertToggle?.addEventListener('change', () => {
+      alertSlider.classList.toggle('hidden', !alertToggle.checked);
+    });
+    alertRange?.addEventListener('input', () => {
+      alertValue.textContent = alertRange.value + ' %';
+    });
+
+    // Détail : footer Annuler/Enregistrer révélé uniquement si un champ a changé (dirty state).
+    const detailsForm = document.getElementById('details-form');
+    const detailsFormFooter = document.getElementById('details-form-footer');
+    const detailsCancelBtn = document.getElementById('details-cancel-btn');
+    const showDetailsFooter = () => detailsFormFooter?.classList.remove('hidden');
+    const hideDetailsFooter = () => detailsFormFooter?.classList.add('hidden');
+    detailsForm?.querySelectorAll('input, textarea').forEach(el => {
+      el.addEventListener('input', showDetailsFooter);
+      el.addEventListener('change', showDetailsFooter);
+    });
+    // Le TypePicker n'est pas un <input> : capter le clic sur les options
+    detailsForm?.querySelectorAll('[data-type-option]').forEach(opt => {
+      opt.addEventListener('click', showDetailsFooter);
+    });
+    detailsCancelBtn?.addEventListener('click', hideDetailsFooter);
+    detailsForm?.addEventListener('submit', (e) => { e.preventDefault(); hideDetailsFooter(); });
+
+    // Détail · ParticipantsBuilder : ajout / retrait dynamique d'une ligne (nom + montant) — marque le form dirty.
+    const detailsParticipantsRows = document.getElementById('details-participants-rows');
+    const wireDetailsRemove = (btn) => btn.addEventListener('click', () => {
+      btn.closest('li')?.remove();
+      showDetailsFooter();
+    });
+    detailsParticipantsRows?.querySelectorAll('[data-remove-participant-row]').forEach(wireDetailsRemove);
+
+    document.getElementById('details-add-participant-row')?.addEventListener('click', () => {
+      const li = document.createElement('li');
+      li.className = 'flex items-center gap-2';
+      li.innerHTML = `
+        <input type="text" placeholder="Nom du participant"
+          class="flex-1 h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+        <div class="relative w-32 flex-shrink-0">
+          <input type="number" min="0" step="1" placeholder="Montant"
+            class="w-full h-10 pl-3 pr-7 rounded-md border border-zinc-200 text-sm text-right tabular-nums placeholder:text-zinc-400" />
+          <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+        </div>
+        <button type="button" title="Retirer" data-remove-participant-row
+          class="h-10 w-10 rounded-md text-zinc-400 hover:text-red-600 hover:bg-zinc-50 flex items-center justify-center flex-shrink-0 transition">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
+      `;
+      detailsParticipantsRows.appendChild(li);
+      wireDetailsRemove(li.querySelector('[data-remove-participant-row]'));
+      // Les nouveaux inputs déclenchent aussi le dirty state
+      li.querySelectorAll('input').forEach(el => {
+        el.addEventListener('input', showDetailsFooter);
+      });
+      lucide.createIcons();
+      li.querySelector('input[type="text"]')?.focus();
+      showDetailsFooter();
+    });
+
+    // Dropdown "Payé par" (avatar + nom) — sera remplacé par <Select> shadcn en React
+    document.querySelectorAll('[data-paidby-dropdown]').forEach(dropdown => {
+      const trigger = dropdown.querySelector('[data-paidby-trigger]');
+      const menu = dropdown.querySelector('[data-paidby-menu]');
+      const selectedAvatar = dropdown.querySelector('[data-paidby-selected-avatar]');
+      const selectedLabel = dropdown.querySelector('[data-paidby-selected-label]');
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+      });
+
+      dropdown.querySelectorAll('[data-paidby-option]').forEach(opt => {
+        opt.addEventListener('click', () => {
+          selectedAvatar.className = 'w-6 h-6 rounded-full text-[10px] flex items-center justify-center font-medium ' + opt.dataset.avatarClass;
+          selectedAvatar.textContent = opt.dataset.initials;
+          selectedLabel.textContent = opt.dataset.name;
+          menu.classList.add('hidden');
+        });
+      });
+    });
+    document.addEventListener('click', (e) => {
+      document.querySelectorAll('[data-paidby-dropdown]').forEach(d => {
+        if (!d.contains(e.target)) d.querySelector('[data-paidby-menu]')?.classList.add('hidden');
+      });
+    });
+
+    // Bandeau d'alerte de seuil : « Marquer comme lu » retire le bandeau
+    document.getElementById('dismiss-threshold-alert')?.addEventListener('click', () => {
+      document.getElementById('threshold-alert')?.remove();
+    });
+  </script>
+</body>
+
+</html>

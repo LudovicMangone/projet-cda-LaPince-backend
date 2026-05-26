@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Créer un compte · LaPince</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body class="min-h-screen">
+
+  <!-- @component <AuthSplitLayout> : panneau de marque sombre à gauche + formulaire à droite -->
+  <div class="grid lg:grid-cols-[600px_1fr] min-h-screen">
+
+    <!-- Panneau gauche (caché en mobile) : branding + tagline + bénéfices -->
+    <aside class="hidden lg:flex flex-col bg-zinc-950 text-zinc-50 p-12 xl:p-16 justify-between">
+      <a href="./index.html" class="inline-flex items-center gap-2 font-semibold text-lg">
+        <span class="inline-flex w-8 h-8 rounded bg-yellow-400 items-center justify-center">
+          <i data-lucide="landmark" class="w-4 h-4 text-zinc-950"></i>
+        </span>
+        LaPince
+      </a>
+
+      <div class="space-y-8">
+        <h1 class="text-4xl xl:text-5xl font-semibold tracking-tight leading-tight">
+          Reprenez le contrôle de votre&nbsp;budget.
+        </h1>
+        <ul class="space-y-4 text-zinc-300">
+          <li class="flex items-start gap-3">
+            <i data-lucide="check" class="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0"></i>
+            Suivi des dépenses en temps réel
+          </li>
+          <li class="flex items-start gap-3">
+            <i data-lucide="check" class="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0"></i>
+            Objectifs d'épargne
+          </li>
+          <li class="flex items-start gap-3">
+            <i data-lucide="check" class="w-5 h-5 text-yellow-400 mt-0.5 flex-shrink-0"></i>
+            Accès aux budgets communs
+          </li>
+        </ul>
+      </div>
+
+      <p class="text-xs text-zinc-500">© 2026 LaPince</p>
+    </aside>
+
+    <!-- Panneau droit : slider Connexion/Inscription + formulaire actif -->
+    <main class="flex items-center justify-center p-6 lg:p-12">
+      <div class="w-full max-w-md">
+
+        <!-- @component <AuthSlider> : segmented control qui bascule entre Connexion et Inscription -->
+        <div class="inline-flex h-10 p-1 rounded-md bg-zinc-100 text-sm mb-8 w-full" role="tablist">
+          <button data-auth-tab="login"
+            class="auth-tab flex-1 h-8 rounded font-medium transition bg-white text-zinc-950 shadow-sm">
+            Connexion
+          </button>
+          <button data-auth-tab="register"
+            class="auth-tab flex-1 h-8 rounded font-medium transition text-zinc-500 hover:text-zinc-950">
+            Inscription
+          </button>
+        </div>
+
+        <!-- @component <LoginForm> -->
+        <form data-auth-panel="login" action="./projects.html" class="space-y-5">
+          <header>
+            <h2 class="text-2xl font-semibold tracking-tight">Bon retour parmi nous</h2>
+            <p class="text-sm text-zinc-500 mt-1">Connectez-vous à votre compte.</p>
+          </header>
+
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">Adresse email</label>
+            <input type="email" placeholder="lapince@famille.fr"
+              class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+          </div>
+
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label class="text-sm font-medium">Mot de passe</label>
+              <a href="#" class="text-xs text-zinc-500 hover:text-zinc-900 underline-offset-4 hover:underline">Mot de passe oublié ?</a>
+            </div>
+            <input type="password" placeholder="••••••••"
+              class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+          </div>
+
+          <button type="submit"
+            class="w-full h-10 rounded-md bg-zinc-950 text-zinc-50 text-sm font-medium hover:bg-zinc-800 transition">
+            Se connecter
+          </button>
+
+          <p class="text-sm text-zinc-500 text-center">
+            Pas encore de compte ?
+            <button type="button" data-auth-tab="register"
+              class="font-medium text-zinc-900 underline-offset-4 hover:underline bg-transparent">
+              S'inscrire ici
+            </button>
+          </p>
+        </form>
+
+        <!-- @component <RegisterForm> -->
+        <form data-auth-panel="register" action="./projects.html" class="space-y-5 hidden">
+          <header>
+            <h2 class="text-2xl font-semibold tracking-tight">Créer un compte</h2>
+            <p class="text-sm text-zinc-500 mt-1">30 secondes, pas de carte bancaire.</p>
+          </header>
+
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">Nom</label>
+            <input type="text" placeholder="Dupuis"
+              class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">Adresse email</label>
+            <input type="email" placeholder="lapince@famille.fr"
+              class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-sm font-medium">Mot de passe</label>
+            <input type="password" placeholder="Min. 8 caractères"
+              class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+          </div>
+
+          <button type="submit"
+            class="w-full h-10 rounded-md bg-zinc-950 text-zinc-50 text-sm font-medium hover:bg-zinc-800 transition">
+            S'inscrire
+          </button>
+
+          <p class="text-sm text-zinc-500 text-center">
+            Déjà un compte ?
+            <button type="button" data-auth-tab="login"
+              class="font-medium text-zinc-900 underline-offset-4 hover:underline bg-transparent">
+              Connexion ici
+            </button>
+          </p>
+        </form>
+
+      </div>
+    </main>
+
+  </div>
+
+  <span class="demo-badge">Maquette v3</span>
+  <script>
+    lucide.createIcons();
+
+    // AuthSlider : bascule Connexion ⇄ Inscription. Tab actif = bg blanc + texte zinc-950 + shadow.
+    // Tous les boutons data-auth-tab basculent le panneau (incluant les liens textuels "S'inscrire ici" / "Connexion ici").
+    const panels = document.querySelectorAll('[data-auth-panel]');
+    function activateAuth(name) {
+      document.querySelectorAll('[role="tablist"] [data-auth-tab]').forEach(b => {
+        const active = b.dataset.authTab === name;
+        b.classList.toggle('bg-white', active);
+        b.classList.toggle('text-zinc-950', active);
+        b.classList.toggle('shadow-sm', active);
+        b.classList.toggle('text-zinc-500', !active);
+      });
+      panels.forEach(p => p.classList.toggle('hidden', p.dataset.authPanel !== name));
+    }
+    document.querySelectorAll('[data-auth-tab]').forEach(b =>
+      b.addEventListener('click', () => activateAuth(b.dataset.authTab))
+    );
+
+    // Initialisation : on lit le nom du fichier pour déterminer l'onglet par défaut.
+    // login.html → login (déjà l'état HTML par défaut)
+    // register.html → register
+    if (location.pathname.endsWith('register.html')) activateAuth('register');
+  </script>
+</body>
+
+</html>

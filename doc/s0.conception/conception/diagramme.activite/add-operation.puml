@@ -1,0 +1,67 @@
+@startuml
+
+start
+
+:Utilisateur saisit une dépense;
+
+:Frontend React envoie POST /operations;
+
+:Vérifier existence du projet;
+
+if (Projet trouvé ?) then (Non)
+
+    :Retourner erreur 404;
+    :Afficher "Projet introuvable";
+
+    stop
+
+else (Oui)
+
+    :Vérifier montant;
+
+    if (Montant valide ?) then (Non)
+
+        :Retourner erreur 400;
+        :Afficher "Montant invalide";
+
+        stop
+
+    else (Oui)
+
+        :Récupérer participants du projet;
+
+        :Calculer répartitions;
+
+        :INSERT opération;
+
+        if (Insertion opération réussie ?) then (Non)
+
+            :Retourner erreur 500;
+            :Afficher "Création impossible";
+
+            stop
+
+        else (Oui)
+
+            :INSERT répartitions;
+
+            if (Insertion répartitions réussie ?) then (Non)
+
+                :Retourner erreur 500;
+                :Afficher "Répartition impossible";
+
+                stop
+
+            else (Oui)
+
+                :Retourner succès 201;
+                :Afficher dépense créée;
+
+            endif
+        endif
+    endif
+endif
+
+stop
+
+@enduml

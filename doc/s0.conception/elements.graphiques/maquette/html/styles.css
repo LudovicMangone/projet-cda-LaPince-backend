@@ -1,0 +1,79 @@
+/* shadcn-like design tokens — palette zinc + accent yellow */
+:root {
+  --background: #ffffff;
+  --foreground: #09090b;        /* zinc-950 */
+  --muted: #f4f4f5;             /* zinc-100 */
+  --muted-foreground: #71717a;  /* zinc-500 */
+  --border: #e4e4e7;            /* zinc-200 */
+  --input: #e4e4e7;
+  --primary: #09090b;
+  --primary-foreground: #fafafa;
+  --accent: #facc15;            /* yellow-400 */
+  --accent-foreground: #09090b;
+  --destructive: #dc2626;
+  --radius: 0.5rem;
+}
+
+* { font-feature-settings: "rlig" 1, "calt" 1; }
+
+body {
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, #fbfbfc 0%, #f3f3f5 100%);
+  background-attachment: fixed;
+  color: var(--foreground);
+  min-height: 100vh;
+}
+
+/* Cartes : fond blanc + ombre douce pour trancher élégamment avec le fond dégradé.
+   Les cartes accent (yellow-50/zinc-950…) ont leur propre bg qui prévaut grâce à Tailwind. */
+.rounded-lg.border.border-zinc-200 {
+  background-color: #ffffff;
+}
+.rounded-lg.border,
+.rounded-lg.border-2 {
+  box-shadow: 0 1px 2px rgba(9, 9, 11, 0.04), 0 1px 3px rgba(9, 9, 11, 0.06);
+}
+
+/* Focus ring shadcn-style */
+input:focus-visible, select:focus-visible, textarea:focus-visible,
+button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+
+/* Petit badge "maquette" */
+.demo-badge {
+  position: fixed;
+  bottom: 12px;
+  right: 12px;
+  background: #09090b;
+  color: #fafafa;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  font-family: ui-monospace, monospace;
+  z-index: 100;
+}
+
+/* État archivé : tout le projet vire en niveaux de gris atténués.
+   Filter purement visuel — le toggle Archiver reste cliquable pour revenir en arrière. */
+body.is-archived {
+  filter: grayscale(0.6) opacity(0.65);
+  transition: filter 0.25s ease;
+}
+
+/* Mini chevron pour les boutons */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  font-size: 10px;
+  font-family: ui-monospace, monospace;
+  color: var(--muted-foreground);
+}

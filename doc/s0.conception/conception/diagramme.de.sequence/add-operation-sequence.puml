@@ -1,0 +1,75 @@
+@startuml
+
+actor Utilisateur
+
+participant "React Frontend" as Front
+participant "Express API" as API
+database "PostgreSQL" as DB
+
+Utilisateur -> Front : Saisit une dépense
+activate Front
+
+Front -> API : POST /operations
+activate API
+
+API -> DB : Vérifier projet
+activate DB
+
+DB --> API : Résultat projet
+deactivate DB
+
+alt Projet introuvable
+
+    API --> Front : 404 Projet introuvable
+
+    Front --> Utilisateur : Projet introuvable
+
+else Projet trouvé
+
+    API -> API : Vérifier montant
+
+    alt Montant invalide
+
+        API --> Front : 400 Montant invalide
+
+        Front --> Utilisateur : Montant invalide
+
+    else Montant valide
+
+        API -> DB : Récupérer participants projet
+        activate DB
+
+        DB --> API : Liste participants
+        deactivate DB
+
+        API -> API : Calculer répartitions
+
+        API -> DB : INSERT opération + répartitions
+        activate DB
+
+        alt Erreur insertion
+
+            DB --> API : Échec insertion
+
+            API --> Front : 500 Création impossible
+
+            Front --> Utilisateur : Création impossible
+
+        else Données enregistrées
+
+            DB --> API : Opération et répartitions enregistrées
+            deactivate DB
+
+            API --> Front : 201 Opération créée
+            deactivate API
+
+            Front --> Utilisateur : Dépense affichée
+            deactivate Front
+
+        end
+
+    end
+
+end
+
+@enduml

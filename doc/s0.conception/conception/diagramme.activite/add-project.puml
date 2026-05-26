@@ -1,0 +1,51 @@
+@startuml
+
+start
+
+:Utilisateur remplit le formulaire projet;
+
+:Frontend React envoie POST /projects;
+
+if (Utilisateur authentifié ?) then (Non)
+
+    :Retourner erreur 401;
+    :Afficher "Accès refusé";
+
+    stop
+
+else (Oui)
+
+    :Valider les données;
+
+    if (Données valides ?) then (Non)
+
+        :Retourner erreur 400;
+        :Afficher "Formulaire invalide";
+
+        stop
+
+    else (Oui)
+
+        :Enregistrer projet en base;
+
+        if (Insertion réussie ?) then (Non)
+
+            :Retourner erreur 500;
+            :Afficher "Création impossible";
+
+            stop
+
+        else (Oui)
+
+            :Retourner succès 201;
+            :Afficher projet créé;
+
+        endif
+
+    endif
+
+endif
+
+stop
+
+@enduml

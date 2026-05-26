@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Les projets · LaPince</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="min-h-screen">
+
+  <!-- @component <AppHeader user={...}> -->
+  <header class="bg-white border-b border-zinc-200">
+    <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+      <!-- @component <Logo /> : sur la home, le logo n'est pas un lien (pas de self-link) -->
+      <div class="flex items-center gap-2 font-semibold">
+        <span class="inline-flex w-7 h-7 rounded bg-yellow-400 items-center justify-center">
+          <i data-lucide="landmark" class="w-4 h-4 text-zinc-950"></i>
+        </span>
+        LaPince
+      </div>
+
+      <!-- @component <UserMenu user={...}> -->
+      <div class="flex items-center gap-2">
+        <!-- @component <ThemeToggle /> : bascule mode nuit (non fonctionnel — placeholder maquette) -->
+        <button type="button" title="Mode nuit"
+          class="h-8 w-8 rounded-full border border-zinc-200 bg-white text-zinc-500 hover:text-zinc-950 hover:border-zinc-400 flex items-center justify-center transition">
+          <i data-lucide="moon" class="w-4 h-4"></i>
+        </button>
+        <!-- @component <DropdownMenu> : menu utilisateur sur l'avatar -->
+        <div class="relative" data-user-dropdown>
+          <button type="button" data-user-trigger
+            class="h-8 w-8 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center text-xs font-medium hover:border-zinc-400 transition">
+            SL
+          </button>
+          <div data-user-menu class="hidden absolute right-0 z-20 mt-2 w-52 bg-white rounded-md border border-zinc-200 shadow-lg overflow-hidden">
+            <div class="px-3 py-2.5 border-b border-zinc-100">
+              <p class="text-sm font-medium leading-tight">Steve Le Veilleur</p>
+              <p class="text-xs text-zinc-500 truncate">steve@le-veilleur.fr</p>
+            </div>
+            <a href="./login.html"
+              class="w-full px-3 py-2.5 text-sm flex items-center gap-2 text-red-600 hover:bg-zinc-50 transition">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+              Déconnexion
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-10">
+
+    <!-- @component <PageHeader title="..." action={...}> -->
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight">Les projets</h1>
+        <p class="text-sm text-zinc-500 mt-1">Bienvenue, Steve.</p>
+      </div>
+      <!-- @component <Button variant="accent"> : CTA principal sur fond accent jaune — ouvre la modale ProjectDialog -->
+      <button id="open-project-modal"
+        class="h-9 px-4 rounded-md bg-yellow-400 text-zinc-950 text-sm font-medium hover:bg-yellow-300 inline-flex items-center gap-2 transition">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        Nouveau projet
+      </button>
+    </div>
+
+    <!-- @component <UserStats stats={...}> : chiffres clés perso -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+
+      <!-- @component <StatCard label icon value /> -->
+      <div class="rounded-lg border border-zinc-200 p-5">
+        <div class="flex items-center gap-2 text-zinc-500 mb-2">
+          <i data-lucide="folder" class="w-3.5 h-3.5"></i>
+          <p class="text-xs font-medium">Projets actives</p>
+        </div>
+        <p class="text-2xl font-semibold tracking-tight">3</p>
+      </div>
+
+      <div class="rounded-lg border border-zinc-200 p-5">
+        <div class="flex items-center gap-2 text-zinc-500 mb-2">
+          <i data-lucide="arrow-down-left" class="w-3.5 h-3.5"></i>
+          <p class="text-xs font-medium">Tu dois</p>
+        </div>
+        <p class="text-2xl font-semibold tracking-tight">45,20 €</p>
+      </div>
+
+      <div class="rounded-lg border border-zinc-200 p-5">
+        <div class="flex items-center gap-2 text-zinc-500 mb-2">
+          <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i>
+          <p class="text-xs font-medium">On te doit</p>
+        </div>
+        <p class="text-2xl font-semibold tracking-tight">128,40 €</p>
+      </div>
+
+      <!-- Carte mise en valeur : solde net -->
+      <div class="rounded-lg border-2 border-yellow-400 bg-yellow-50 p-5">
+        <div class="flex items-center gap-2 text-yellow-900 mb-2">
+          <i data-lucide="wallet" class="w-3.5 h-3.5"></i>
+          <p class="text-xs font-medium">Solde net</p>
+        </div>
+        <p class="text-2xl font-semibold tracking-tight text-yellow-900">+83,20 €</p>
+      </div>
+    </section>
+
+    <!-- @component <ProjectFilters value onChange> : segmented control + recherche à droite -->
+    <div class="flex items-center justify-between mb-3 gap-3">
+      <div class="inline-flex h-9 p-1 rounded-md bg-zinc-100 text-sm" role="tablist">
+        <button data-filter="active"
+          class="filter-btn h-7 px-3 rounded font-medium transition bg-white text-zinc-950 shadow-sm">
+          Actifs <span class="ml-1 text-xs text-zinc-500 font-normal">3</span>
+        </button>
+        <button data-filter="archived"
+          class="filter-btn h-7 px-3 rounded font-medium transition text-zinc-500 hover:text-zinc-950">
+          Archivés <span class="ml-1 text-xs text-zinc-400 font-normal">1</span>
+        </button>
+        <button data-filter="all"
+          class="filter-btn h-7 px-3 rounded font-medium transition text-zinc-500 hover:text-zinc-950">
+          Tous
+        </button>
+      </div>
+      <!-- @component <SearchInput /> : recherche par nom de projet -->
+      <div class="hidden sm:block relative flex-shrink-0">
+        <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+        <input id="project-search" type="search" placeholder="Rechercher"
+          class="h-9 pl-8 pr-3 rounded-md border border-zinc-200 text-sm w-48 bg-white placeholder:text-zinc-400" />
+      </div>
+    </div>
+
+    <!-- @component <ProjectsTable projects={...} filter={...}> -->
+    <section class="rounded-lg border border-zinc-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-zinc-50 border-b border-zinc-200">
+          <tr class="text-left text-xs font-medium text-zinc-500 uppercase tracking-wider">
+            <th class="px-6 py-3">Projet</th>
+            <th class="px-6 py-3 hidden md:table-cell">Participants</th>
+            <th class="px-6 py-3 hidden lg:table-cell">Budget</th>
+            <th class="px-6 py-3 text-center hidden sm:table-cell">Alerte</th>
+            <th class="px-6 py-3 text-right hidden sm:table-cell">Ton solde</th>
+            <th class="w-10"></th>
+          </tr>
+        </thead>
+        <tbody id="projects-tbody" class="divide-y divide-zinc-100">
+
+          <!-- @component <ProjectRow project={...}> -->
+          <tr data-status="active" class="project-row hover:bg-zinc-50 transition cursor-pointer" onclick="window.location='./project.html'">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3 min-w-0">
+                <!-- @component <ProjectIcon icon="plane" /> : pastille jaune avec icône type -->
+                <span class="inline-flex w-9 h-9 rounded-md bg-yellow-400 text-zinc-950 items-center justify-center flex-shrink-0">
+                  <i data-lucide="plane" class="w-4 h-4"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="font-medium truncate">Week-end à Lisbonne</p>
+                  <p class="text-xs text-zinc-500 mt-0.5">12 dépenses · mis à jour il y a 2 h</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 hidden md:table-cell">
+              <!-- @component <ParticipantStack count={4} /> -->
+              <div class="flex items-center gap-2">
+                <div class="flex -space-x-1.5">
+                  <div class="w-6 h-6 rounded-full bg-zinc-950 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">SL</div>
+                  <div class="w-6 h-6 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center border-2 border-white font-medium">AL</div>
+                  <div class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-700 text-[10px] flex items-center justify-center border-2 border-white font-medium">BO</div>
+                  <div class="w-6 h-6 rounded-full bg-zinc-600 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">CH</div>
+                </div>
+                <span class="text-xs text-zinc-500">4</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 hidden lg:table-cell">
+              <!-- @component <BudgetBar spent total compact /> -->
+              <div class="w-40">
+                <div class="flex items-baseline justify-between text-xs mb-1">
+                  <span class="font-medium">847,50 €</span>
+                  <span class="text-zinc-500">/ 1 000 €</span>
+                </div>
+                <div class="h-1 bg-zinc-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-zinc-950 w-[85%] rounded-full"></div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-center hidden sm:table-cell">
+              <!-- @component <AlertBadge count={1} /> : pastille numérotée (seuils budget dépassés) -->
+              <span class="relative inline-flex items-center justify-center" title="1 alerte budget">
+                <i data-lucide="bell" class="w-4 h-4 text-zinc-400"></i>
+                <span class="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold flex items-center justify-center">1</span>
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right hidden sm:table-cell">
+              <!-- @component <BalanceLabel value={-45.20} /> -->
+              <span class="text-sm font-semibold text-yellow-900 bg-yellow-100 border border-yellow-200 px-2 py-0.5 rounded">
+                −45,20 €
+              </span>
+            </td>
+            <td class="px-4 py-4 text-zinc-300">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </td>
+          </tr>
+
+          <tr data-status="active" class="project-row hover:bg-zinc-50 transition cursor-pointer" onclick="window.location='./project.html'">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="inline-flex w-9 h-9 rounded-md bg-yellow-400 text-zinc-950 items-center justify-center flex-shrink-0">
+                  <i data-lucide="home" class="w-4 h-4"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="font-medium truncate">Coloc rue Pasteur</p>
+                  <p class="text-xs text-zinc-500 mt-0.5">47 dépenses · mis à jour hier</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 hidden md:table-cell">
+              <div class="flex items-center gap-2">
+                <div class="flex -space-x-1.5">
+                  <div class="w-6 h-6 rounded-full bg-zinc-950 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">SL</div>
+                  <div class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-700 text-[10px] flex items-center justify-center border-2 border-white font-medium">MA</div>
+                  <div class="w-6 h-6 rounded-full bg-zinc-600 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">JU</div>
+                </div>
+                <span class="text-xs text-zinc-500">3</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 hidden lg:table-cell">
+              <div class="w-40">
+                <div class="flex items-baseline justify-between text-xs mb-1">
+                  <span class="font-medium">2 340 €</span>
+                  <span class="text-zinc-500">/ 2 000 €</span>
+                </div>
+                <div class="h-1 bg-zinc-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-yellow-400 w-full rounded-full"></div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-center hidden sm:table-cell">
+              <span class="relative inline-flex items-center justify-center" title="2 alertes budget">
+                <i data-lucide="bell" class="w-4 h-4 text-zinc-400"></i>
+                <span class="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold flex items-center justify-center">2</span>
+              </span>
+            </td>
+            <td class="px-6 py-4 text-right hidden sm:table-cell">
+              <span class="text-sm font-semibold text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded">
+                +128,40 €
+              </span>
+            </td>
+            <td class="px-4 py-4 text-zinc-300">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </td>
+          </tr>
+
+          <tr data-status="active" class="project-row hover:bg-zinc-50 transition cursor-pointer" onclick="window.location='./project.html'">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="inline-flex w-9 h-9 rounded-md bg-yellow-400 text-zinc-950 items-center justify-center flex-shrink-0">
+                  <i data-lucide="cake" class="w-4 h-4"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="font-medium truncate">Anniversaire Léa</p>
+                  <p class="text-xs text-zinc-500 mt-0.5">4 dépenses · mis à jour il y a 3 jours</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 hidden md:table-cell">
+              <div class="flex items-center gap-2">
+                <div class="flex -space-x-1.5">
+                  <div class="w-6 h-6 rounded-full bg-zinc-950 text-zinc-50 text-[10px] flex items-center justify-center border-2 border-white font-medium">SL</div>
+                  <div class="w-6 h-6 rounded-full bg-yellow-400 text-zinc-950 text-[10px] flex items-center justify-center border-2 border-white font-medium">LE</div>
+                  <div class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-700 text-[10px] flex items-center justify-center border-2 border-white font-medium">PA</div>
+                  <div class="w-6 h-6 rounded-full bg-zinc-200 text-zinc-600 text-[10px] flex items-center justify-center border-2 border-white font-medium">+3</div>
+                </div>
+                <span class="text-xs text-zinc-500">6</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 hidden lg:table-cell">
+              <div class="w-40">
+                <div class="flex items-baseline justify-between text-xs mb-1">
+                  <span class="font-medium">180 €</span>
+                  <span class="text-zinc-500">/ 500 €</span>
+                </div>
+                <div class="h-1 bg-zinc-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-zinc-950 w-[36%] rounded-full"></div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-center hidden sm:table-cell">
+              <span class="text-sm text-zinc-300">—</span>
+            </td>
+            <td class="px-6 py-4 text-right hidden sm:table-cell">
+              <span class="text-sm font-medium text-zinc-500">
+                Équilibré
+              </span>
+            </td>
+            <td class="px-4 py-4 text-zinc-300">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </td>
+          </tr>
+
+          <!-- Projet archivé (masqué par défaut) -->
+          <tr data-status="archived" class="project-row hover:bg-zinc-50 transition cursor-pointer hidden" onclick="window.location='./project.html'">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="inline-flex w-9 h-9 rounded-md bg-zinc-200 text-zinc-500 items-center justify-center flex-shrink-0">
+                  <i data-lucide="utensils" class="w-4 h-4"></i>
+                </span>
+                <div class="min-w-0">
+                  <p class="font-medium truncate text-zinc-500">Dîner annuel 2025
+                    <span class="ml-2 text-[10px] uppercase tracking-wider font-medium text-zinc-500 bg-zinc-100 border border-zinc-200 px-1.5 py-0.5 rounded">Archivé</span>
+                  </p>
+                  <p class="text-xs text-zinc-400 mt-0.5">8 dépenses · clôturé le 12 déc. 2025</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 hidden md:table-cell">
+              <div class="flex items-center gap-2">
+                <div class="flex -space-x-1.5">
+                  <div class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-600 text-[10px] flex items-center justify-center border-2 border-white font-medium">SL</div>
+                  <div class="w-6 h-6 rounded-full bg-zinc-300 text-zinc-600 text-[10px] flex items-center justify-center border-2 border-white font-medium">RO</div>
+                  <div class="w-6 h-6 rounded-full bg-zinc-200 text-zinc-500 text-[10px] flex items-center justify-center border-2 border-white font-medium">+5</div>
+                </div>
+                <span class="text-xs text-zinc-400">7</span>
+              </div>
+            </td>
+            <td class="px-6 py-4 hidden lg:table-cell">
+              <div class="w-40">
+                <div class="flex items-baseline justify-between text-xs mb-1">
+                  <span class="font-medium text-zinc-500">412 €</span>
+                  <span class="text-zinc-400">/ 500 €</span>
+                </div>
+                <div class="h-1 bg-zinc-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-zinc-300 w-[82%] rounded-full"></div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 text-center hidden sm:table-cell">
+              <span class="text-sm text-zinc-300">—</span>
+            </td>
+            <td class="px-6 py-4 text-right hidden sm:table-cell">
+              <span class="text-sm font-medium text-zinc-400">
+                Soldé
+              </span>
+            </td>
+            <td class="px-4 py-4 text-zinc-300">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- @component <EmptyState> : affiché quand aucun projet ne matche le filtre -->
+      <div id="empty-state" class="hidden px-6 py-16 text-center">
+        <span class="inline-flex w-10 h-10 rounded-md bg-zinc-100 items-center justify-center text-zinc-400 mb-3">
+          <i data-lucide="folder-x" class="w-5 h-5"></i>
+        </span>
+        <p class="text-sm font-medium">Aucun projet</p>
+        <p class="text-xs text-zinc-500 mt-1">Aucun projet ne correspond à ce filtre.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- @component <ProjectDialog open onOpenChange> : modale shadcn Dialog pour créer un projet -->
+  <div id="project-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4">
+    <!-- Backdrop -->
+    <div id="project-modal-backdrop" class="absolute inset-0 bg-zinc-950/50"></div>
+
+    <!-- Dialog content -->
+    <div class="relative bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="px-6 py-4 border-b border-zinc-200 flex items-center justify-between">
+        <h2 class="text-base font-semibold tracking-tight">Nouveau projet</h2>
+        <button id="close-project-modal" class="text-zinc-400 hover:text-zinc-950 p-1 rounded transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- @component <ProjectForm> : version modale -->
+      <form action="./project.html" class="p-6 space-y-5">
+
+        <!-- @component <Field label="Nom"> -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium">Nom de le projet</label>
+          <input type="text" placeholder="Week-end à Lisbonne" required
+            class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium">Description <span class="text-zinc-400 font-normal">(optionnel)</span></label>
+          <textarea rows="3" placeholder="3 jours entre amis."
+            class="w-full px-3 py-2 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400"></textarea>
+        </div>
+
+        <!-- @component <TypePicker selected="plane" /> : dropdown icône + libellé -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium">Type</label>
+          <div class="relative" data-type-dropdown>
+            <button type="button" data-type-trigger
+              class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm bg-white flex items-center justify-between gap-2 hover:border-zinc-400 transition">
+              <span class="flex items-center gap-2">
+                <span class="inline-flex w-6 h-6 rounded bg-yellow-400 text-zinc-950 items-center justify-center" data-type-selected-icon>
+                  <i data-lucide="plane" class="w-3.5 h-3.5"></i>
+                </span>
+                <span class="font-medium" data-type-selected-label>Voyage</span>
+              </span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-zinc-400"></i>
+            </button>
+            <ul data-type-menu class="hidden absolute z-10 mt-1 w-full bg-white rounded-md border border-zinc-200 shadow-lg overflow-hidden">
+              <li>
+                <button type="button" data-type-option data-icon="plane" data-label="Voyage"
+                  class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                  <i data-lucide="plane" class="w-4 h-4 text-zinc-600"></i> Voyage
+                </button>
+              </li>
+              <li>
+                <button type="button" data-type-option data-icon="home" data-label="Maison / Coloc"
+                  class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                  <i data-lucide="home" class="w-4 h-4 text-zinc-600"></i> Maison / Coloc
+                </button>
+              </li>
+              <li>
+                <button type="button" data-type-option data-icon="cake" data-label="Anniversaire"
+                  class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                  <i data-lucide="cake" class="w-4 h-4 text-zinc-600"></i> Anniversaire
+                </button>
+              </li>
+              <li>
+                <button type="button" data-type-option data-icon="utensils" data-label="Repas / Sortie"
+                  class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                  <i data-lucide="utensils" class="w-4 h-4 text-zinc-600"></i> Repas / Sortie
+                </button>
+              </li>
+              <li>
+                <button type="button" data-type-option data-icon="briefcase" data-label="Pro / Travail"
+                  class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                  <i data-lucide="briefcase" class="w-4 h-4 text-zinc-600"></i> Pro / Travail
+                </button>
+              </li>
+              <li>
+                <button type="button" data-type-option data-icon="more-horizontal" data-label="Autre"
+                  class="w-full px-3 py-2 text-sm flex items-center gap-2 hover:bg-zinc-50 transition">
+                  <i data-lucide="more-horizontal" class="w-4 h-4 text-zinc-600"></i> Autre
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- @component <Field label="Budget" type="currency"> -->
+        <div class="space-y-1.5">
+          <label class="text-sm font-medium">Budget global <span class="text-zinc-400 font-normal">(optionnel)</span></label>
+          <div class="relative">
+            <input type="number" placeholder="1000"
+              class="w-full h-10 pl-3 pr-8 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+          </div>
+        </div>
+
+        <!-- @component <BudgetAlert> : checkbox à gauche + slider inline à droite (révélé au check) -->
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2 cursor-pointer select-none flex-shrink-0">
+            <input type="checkbox" id="alert-toggle" class="h-4 w-4 rounded border-zinc-300 text-zinc-950 accent-zinc-950" />
+            <span class="text-sm font-medium">Activer un seuil d'alerte</span>
+          </label>
+          <div id="alert-slider" class="hidden flex flex-1 items-center gap-3 min-w-0">
+            <input type="range" min="0" max="100" value="80" id="alert-range"
+              class="flex-1 accent-yellow-400 cursor-pointer" />
+            <span class="text-xs font-medium tabular-nums text-zinc-900 w-12 text-right" id="alert-value">80 %</span>
+          </div>
+        </div>
+
+        <!-- @component <ParticipantsBuilder> : bouton qui ajoute dynamiquement une ligne (nom + montant) -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="text-sm font-medium">Participants <span class="text-zinc-400 font-normal">(optionnel)</span></label>
+            <button type="button" id="add-participant-row"
+              class="text-xs font-medium text-zinc-700 hover:text-zinc-950 inline-flex items-center gap-1 transition">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              Ajouter un participant
+            </button>
+          </div>
+          <ul id="participants-rows" class="space-y-2"></ul>
+        </div>
+
+        <!-- @component <FormFooter> -->
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+          <button id="cancel-project-modal" type="button"
+            class="h-9 px-4 rounded-md border border-zinc-200 bg-white text-sm font-medium hover:bg-zinc-50 inline-flex items-center transition">
+            Annuler
+          </button>
+          <button type="submit"
+            class="h-9 px-4 rounded-md bg-zinc-950 text-zinc-50 text-sm font-medium hover:bg-zinc-800 inline-flex items-center gap-2 transition">
+            Créer le projet
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <span class="demo-badge">Maquette v3</span>
+  <script>
+    lucide.createIcons();
+
+    // Modale "Nouveau projet" — sera remplacée par <Dialog> shadcn en React
+    const projectModal = document.getElementById('project-modal');
+    const openProjectModal = () => projectModal.classList.remove('hidden');
+    const closeProjectModal = () => projectModal.classList.add('hidden');
+    document.getElementById('open-project-modal')?.addEventListener('click', openProjectModal);
+    document.getElementById('close-project-modal')?.addEventListener('click', closeProjectModal);
+    document.getElementById('cancel-project-modal')?.addEventListener('click', closeProjectModal);
+    document.getElementById('project-modal-backdrop')?.addEventListener('click', closeProjectModal);
+
+    // Alerte budget : afficher le slider quand la case est cochée + mettre à jour la valeur affichée
+    const alertToggle = document.getElementById('alert-toggle');
+    const alertSlider = document.getElementById('alert-slider');
+    const alertRange = document.getElementById('alert-range');
+    const alertValue = document.getElementById('alert-value');
+    alertToggle?.addEventListener('change', () => {
+      alertSlider.classList.toggle('hidden', !alertToggle.checked);
+    });
+    alertRange?.addEventListener('input', () => {
+      alertValue.textContent = alertRange.value + ' %';
+    });
+
+    // ParticipantsBuilder : chaque clic ajoute une ligne (nom + montant + suppression)
+    const addParticipantRowBtn = document.getElementById('add-participant-row');
+    const participantsRows = document.getElementById('participants-rows');
+    addParticipantRowBtn?.addEventListener('click', () => {
+      const li = document.createElement('li');
+      li.className = 'flex items-center gap-2';
+      li.innerHTML = `
+        <input type="text" placeholder="Nom du participant"
+          class="flex-1 h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+        <div class="relative w-32 flex-shrink-0">
+          <input type="number" min="0" step="1" placeholder="Montant"
+            class="w-full h-10 pl-3 pr-7 rounded-md border border-zinc-200 text-sm text-right tabular-nums placeholder:text-zinc-400" />
+          <span class="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+        </div>
+        <button type="button" title="Retirer"
+          class="h-10 w-10 rounded-md text-zinc-400 hover:text-red-600 hover:bg-zinc-50 flex items-center justify-center flex-shrink-0 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      `;
+      participantsRows.appendChild(li);
+      li.querySelector('button')?.addEventListener('click', () => li.remove());
+      lucide.createIcons();
+      li.querySelector('input[type="text"]')?.focus();
+    });
+
+    // Dropdown Type (icône + libellé) — sera remplacé par <Select> shadcn en React
+    document.querySelectorAll('[data-type-dropdown]').forEach(dropdown => {
+      const trigger = dropdown.querySelector('[data-type-trigger]');
+      const menu = dropdown.querySelector('[data-type-menu]');
+      const selectedIcon = dropdown.querySelector('[data-type-selected-icon]');
+      const selectedLabel = dropdown.querySelector('[data-type-selected-label]');
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+      });
+
+      dropdown.querySelectorAll('[data-type-option]').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const icon = opt.dataset.icon;
+          const label = opt.dataset.label;
+          selectedIcon.innerHTML = '<i data-lucide="' + icon + '" class="w-3.5 h-3.5"></i>';
+          selectedLabel.textContent = label;
+          lucide.createIcons();
+          menu.classList.add('hidden');
+        });
+      });
+    });
+    document.addEventListener('click', (e) => {
+      document.querySelectorAll('[data-type-dropdown]').forEach(d => {
+        if (!d.contains(e.target)) d.querySelector('[data-type-menu]')?.classList.add('hidden');
+      });
+    });
+
+    // Menu utilisateur (avatar) — sera remplacé par <DropdownMenu> shadcn en React
+    document.querySelectorAll('[data-user-dropdown]').forEach(dropdown => {
+      const trigger = dropdown.querySelector('[data-user-trigger]');
+      const menu = dropdown.querySelector('[data-user-menu]');
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        menu.classList.toggle('hidden');
+      });
+    });
+    document.addEventListener('click', (e) => {
+      document.querySelectorAll('[data-user-dropdown]').forEach(d => {
+        if (!d.contains(e.target)) d.querySelector('[data-user-menu]')?.classList.add('hidden');
+      });
+    });
+
+    // Filtre par statut + recherche — sera remplacé par useState + filter() côté React
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const rows = document.querySelectorAll('.project-row');
+    const emptyState = document.getElementById('empty-state');
+    const searchInput = document.getElementById('project-search');
+
+    let currentFilter = 'active';
+    let currentSearch = '';
+
+    function refreshProjects() {
+      filterBtns.forEach(b => {
+        const active = b.dataset.filter === currentFilter;
+        b.classList.toggle('bg-white', active);
+        b.classList.toggle('text-zinc-950', active);
+        b.classList.toggle('shadow-sm', active);
+        b.classList.toggle('text-zinc-500', !active);
+      });
+
+      let visible = 0;
+      rows.forEach(r => {
+        const matchStatus = currentFilter === 'all' || r.dataset.status === currentFilter;
+        const matchSearch = !currentSearch || r.textContent.toLowerCase().includes(currentSearch);
+        const show = matchStatus && matchSearch;
+        r.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+      emptyState.classList.toggle('hidden', visible > 0);
+    }
+
+    filterBtns.forEach(b => b.addEventListener('click', () => { currentFilter = b.dataset.filter; refreshProjects(); }));
+    searchInput?.addEventListener('input', () => { currentSearch = searchInput.value.toLowerCase().trim(); refreshProjects(); });
+  </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+@startuml
+
+actor Utilisateur
+
+participant "React Frontend" as Front
+participant "Express API" as API
+database "PostgreSQL" as DB
+
+Utilisateur -> Front : Remplit le formulaire projet
+activate Front
+
+Front -> API : POST /projects
+activate API
+
+alt Utilisateur non authentifié
+
+    API --> Front : 401 Accès refusé
+
+    Front --> Utilisateur : Accès refusé
+
+else Utilisateur authentifié
+
+    API -> API : Vérifier données
+    activate API
+
+    alt Données invalides
+
+        API --> Front : 400 Formulaire invalide
+
+        Front --> Utilisateur : Formulaire invalide
+
+    else Données valides
+
+        API -> DB : INSERT projet
+        activate DB
+
+        alt Erreur base de données
+
+            DB --> API : Échec insertion
+
+            API --> Front : 500 Création impossible
+
+            Front --> Utilisateur : Création impossible
+
+        else Projet créé
+
+            DB --> API : Projet enregistré
+    deactivate API
+        deactivate DB
+
+            API --> Front : 201 Projet créé
+deactivate API
+
+            Front --> Utilisateur : Projet affiché
+deactivate Front
+
+        end
+
+    end
+
+end
+
+
+@enduml

@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Carte des écrans & charte · LaPince v2</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body class="min-h-screen">
+
+  <!-- @component <AppHeader> -->
+  <header class="bg-white border-b border-zinc-200">
+    <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-2 font-semibold">
+        <span class="inline-flex w-7 h-7 rounded bg-yellow-400 items-center justify-center">
+          <i data-lucide="landmark" class="w-4 h-4 text-zinc-950"></i>
+        </span>
+        LaPince
+        <span class="text-xs font-normal text-zinc-500 ml-2">Maquette v3 · MVP</span>
+      </div>
+      <a href="./login.html"
+        class="h-8 px-4 rounded-md bg-zinc-950 text-zinc-50 text-sm font-medium hover:bg-zinc-800 inline-flex items-center transition">
+        Démarrer la démo
+      </a>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-6 py-12 space-y-14">
+
+    <!-- ============ INTRO ============ -->
+    <section>
+      <h1 class="text-3xl font-semibold tracking-tight">Carte des écrans & charte graphique</h1>
+      <p class="text-zinc-500 mt-2 max-w-2xl">
+        5 écrans, 5 modales, un système visuel cohérent autour du jaune accent et de l'échelle zinc.
+        Toute la navigation tient dans une seule page de détail à 4 onglets.
+      </p>
+      <a href="./charte.html"
+        class="mt-4 inline-flex h-9 px-4 rounded-md bg-zinc-950 text-zinc-50 text-sm font-medium hover:bg-zinc-800 items-center gap-2 transition">
+        <i data-lucide="palette" class="w-4 h-4"></i>
+        Charte graphique &amp; lien shadcn
+      </a>
+    </section>
+
+    <!-- ============ ÉCRANS ============ -->
+    <section>
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-xs font-mono text-zinc-400">01</span>
+        <h2 class="text-sm font-medium uppercase tracking-wider">Écrans</h2>
+      </div>
+
+      <!-- Authentification -->
+      <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Authentification</p>
+      <div class="grid sm:grid-cols-2 gap-3 mb-6">
+        <a href="./login.html"
+          class="rounded-lg border border-zinc-200 p-5 hover:border-zinc-950 transition flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-md bg-zinc-100 items-center justify-center text-zinc-700">
+            <i data-lucide="log-in" class="w-4 h-4"></i>
+          </span>
+          <div class="flex-1">
+            <p class="text-sm font-medium">Connexion</p>
+            <p class="text-xs text-zinc-500 mt-0.5 font-mono">login.html</p>
+          </div>
+          <i data-lucide="arrow-up-right" class="w-4 h-4 text-zinc-400"></i>
+        </a>
+
+        <a href="./register.html"
+          class="rounded-lg border border-zinc-200 p-5 hover:border-zinc-950 transition flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-md bg-zinc-100 items-center justify-center text-zinc-700">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+          </span>
+          <div class="flex-1">
+            <p class="text-sm font-medium">Inscription</p>
+            <p class="text-xs text-zinc-500 mt-0.5 font-mono">register.html</p>
+          </div>
+          <i data-lucide="arrow-up-right" class="w-4 h-4 text-zinc-400"></i>
+        </a>
+      </div>
+
+      <!-- Espace projets -->
+      <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Espace projets</p>
+      <div class="grid sm:grid-cols-2 gap-3 mb-6">
+        <a href="./projects.html"
+          class="rounded-lg border border-zinc-200 p-5 hover:border-zinc-950 transition flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-md bg-zinc-100 items-center justify-center text-zinc-700">
+            <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          </span>
+          <div class="flex-1">
+            <p class="text-sm font-medium">Mes projets</p>
+            <p class="text-xs text-zinc-500 mt-0.5 font-mono">projects.html</p>
+            <p class="text-xs text-zinc-500 mt-1">Liste filtrable (Actifs / Archivés / Tous) + recherche · KPI personnels</p>
+          </div>
+          <i data-lucide="arrow-up-right" class="w-4 h-4 text-zinc-400"></i>
+        </a>
+
+        <a href="./project.html"
+          class="rounded-lg border-2 border-yellow-400 bg-yellow-50 p-5 transition flex items-center gap-3 relative">
+          <span class="absolute top-3 right-3 text-[9px] uppercase tracking-wider font-bold bg-zinc-950 text-yellow-400 px-2 py-0.5 rounded">Cœur de l'app</span>
+          <span class="inline-flex w-9 h-9 rounded-md bg-zinc-950 items-center justify-center text-yellow-400 flex-shrink-0">
+            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          </span>
+          <div class="flex-1 pr-24">
+            <p class="text-sm font-medium">Détail projet</p>
+            <p class="text-xs text-zinc-700 mt-0.5 font-mono">project.html</p>
+            <p class="text-xs text-zinc-700 mt-1">4 onglets : Vue d'ensemble · Détail · Dépenses · Participants · toggle Clôturer</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Annexes -->
+      <p class="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Annexes</p>
+      <div class="grid sm:grid-cols-2 gap-3">
+        <a href="./project-new.html"
+          class="rounded-lg border border-zinc-200 p-5 hover:border-zinc-950 transition flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-md bg-zinc-100 items-center justify-center text-zinc-700">
+            <i data-lucide="folder-plus" class="w-4 h-4"></i>
+          </span>
+          <div class="flex-1">
+            <p class="text-sm font-medium">Nouvelle projet <span class="text-xs text-zinc-400 font-normal">(legacy)</span></p>
+            <p class="text-xs text-zinc-500 mt-0.5 font-mono">project-new.html</p>
+            <p class="text-xs text-zinc-500 mt-1">Conservée pour deep-link. Le flux nominal passe par la modale.</p>
+          </div>
+          <i data-lucide="arrow-up-right" class="w-4 h-4 text-zinc-400"></i>
+        </a>
+
+        <a href="./_map.html"
+          class="rounded-lg border border-dashed border-zinc-300 p-5 hover:border-zinc-500 transition flex items-center gap-3">
+          <span class="inline-flex w-9 h-9 rounded-md bg-zinc-100 items-center justify-center text-zinc-700">
+            <i data-lucide="map" class="w-4 h-4"></i>
+          </span>
+          <div class="flex-1">
+            <p class="text-sm font-medium">Carte des écrans (cette page)</p>
+            <p class="text-xs text-zinc-500 mt-0.5 font-mono">_map.html</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ============ MODALES ============ -->
+    <section>
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-xs font-mono text-zinc-400">02</span>
+        <h2 class="text-sm font-medium uppercase tracking-wider">Modales</h2>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div class="rounded-lg border border-zinc-200 p-5">
+          <div class="flex items-center gap-2 mb-1">
+            <i data-lucide="plus-circle" class="w-4 h-4 text-yellow-600"></i>
+            <p class="text-sm font-medium">ProjectDialog</p>
+          </div>
+          <p class="text-xs text-zinc-500">Créer / éditer un projet. Ouverte depuis projects.html.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 p-5">
+          <div class="flex items-center gap-2 mb-1">
+            <i data-lucide="receipt" class="w-4 h-4 text-yellow-600"></i>
+            <p class="text-sm font-medium">ExpenseDialog</p>
+          </div>
+          <p class="text-xs text-zinc-500">Saisir une dépense. Ouverte par le CTA jaune et par clic sur une ligne.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 p-5">
+          <div class="flex items-center gap-2 mb-1">
+            <i data-lucide="user-plus" class="w-4 h-4 text-yellow-600"></i>
+            <p class="text-sm font-medium">ParticipantDialog</p>
+          </div>
+          <p class="text-xs text-zinc-500">Ajouter / éditer un donateur (titre dynamique). Clic sur ligne ou CTA.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 p-5">
+          <div class="flex items-center gap-2 mb-1">
+            <i data-lucide="link" class="w-4 h-4 text-yellow-600"></i>
+            <p class="text-sm font-medium">InviteDialog</p>
+          </div>
+          <p class="text-xs text-zinc-500">Lien d'invitation à copier + envoi email. Triggers multiples.</p>
+        </div>
+        <div class="rounded-lg border border-zinc-200 p-5">
+          <div class="flex items-center gap-2 mb-1">
+            <i data-lucide="paperclip" class="w-4 h-4 text-yellow-600"></i>
+            <p class="text-sm font-medium">AttachmentDialog</p>
+          </div>
+          <p class="text-xs text-zinc-500">Pièces jointes d'une dépense. Chargées + import (photo / fichier).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CHARTE GRAPHIQUE ============ -->
+    <section>
+      <div class="flex items-center gap-2 mb-4">
+        <span class="text-xs font-mono text-zinc-400">03</span>
+        <h2 class="text-sm font-medium uppercase tracking-wider">Charte graphique</h2>
+      </div>
+
+      <!-- Palette principale -->
+      <div class="rounded-lg border border-zinc-200 p-6 mb-4">
+        <h3 class="text-sm font-medium mb-1">Palette principale</h3>
+        <p class="text-xs text-zinc-500 mb-4">Jaune accent unique + échelle de gris zinc. Fond global en dégradé léger pour faire ressortir les cartes blanches.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+          <div>
+            <div class="h-14 rounded-md bg-yellow-400 border border-yellow-500"></div>
+            <p class="text-xs font-medium mt-1.5">Accent</p>
+            <p class="text-[10px] text-zinc-500 font-mono">yellow-400</p>
+          </div>
+          <div>
+            <div class="h-14 rounded-md bg-yellow-50 border border-yellow-200"></div>
+            <p class="text-xs font-medium mt-1.5">Accent doux</p>
+            <p class="text-[10px] text-zinc-500 font-mono">yellow-50</p>
+          </div>
+          <div>
+            <div class="h-14 rounded-md bg-zinc-950"></div>
+            <p class="text-xs font-medium mt-1.5">Texte / Primaire</p>
+            <p class="text-[10px] text-zinc-500 font-mono">zinc-950</p>
+          </div>
+          <div>
+            <div class="h-14 rounded-md bg-zinc-500"></div>
+            <p class="text-xs font-medium mt-1.5">Texte secondaire</p>
+            <p class="text-[10px] text-zinc-500 font-mono">zinc-500</p>
+          </div>
+          <div>
+            <div class="h-14 rounded-md bg-zinc-200"></div>
+            <p class="text-xs font-medium mt-1.5">Bordure</p>
+            <p class="text-[10px] text-zinc-500 font-mono">zinc-200</p>
+          </div>
+          <div>
+            <div class="h-14 rounded-md bg-zinc-50 border border-zinc-200"></div>
+            <p class="text-xs font-medium mt-1.5">Fond doux</p>
+            <p class="text-[10px] text-zinc-500 font-mono">zinc-50</p>
+          </div>
+          <div>
+            <div class="h-14 rounded-md border border-zinc-200" style="background:linear-gradient(180deg,#fbfbfc 0%,#f3f3f5 100%)"></div>
+            <p class="text-xs font-medium mt-1.5">Fond app</p>
+            <p class="text-[10px] text-zinc-500 font-mono">gradient body</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Catégories : icône + couleur -->
+      <div class="rounded-lg border border-zinc-200 p-6 mb-4">
+        <h3 class="text-sm font-medium mb-1">Catégories de dépense</h3>
+        <p class="text-xs text-zinc-500 mb-4">Chaque catégorie associe une icône lucide et un duo de couleur. Réutilisé dans la barre de budget, la légende et les chips en tête de ligne.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-md bg-blue-100 text-blue-700 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="bed-double" class="w-4 h-4"></i>
+            </span>
+            <div class="min-w-0">
+              <p class="text-xs font-medium">Hébergement</p>
+              <p class="text-[10px] text-zinc-500 font-mono">blue-100 / 700</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-md bg-violet-100 text-violet-700 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="train-front" class="w-4 h-4"></i>
+            </span>
+            <div class="min-w-0">
+              <p class="text-xs font-medium">Transport</p>
+              <p class="text-[10px] text-zinc-500 font-mono">violet-100 / 700</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-md bg-orange-100 text-orange-700 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="utensils" class="w-4 h-4"></i>
+            </span>
+            <div class="min-w-0">
+              <p class="text-xs font-medium">Restauration</p>
+              <p class="text-[10px] text-zinc-500 font-mono">orange-100 / 700</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-md bg-pink-100 text-pink-700 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="ticket" class="w-4 h-4"></i>
+            </span>
+            <div class="min-w-0">
+              <p class="text-xs font-medium">Activités</p>
+              <p class="text-[10px] text-zinc-500 font-mono">pink-100 / 700</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-md bg-emerald-100 text-emerald-700 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="shopping-basket" class="w-4 h-4"></i>
+            </span>
+            <div class="min-w-0">
+              <p class="text-xs font-medium">Courses</p>
+              <p class="text-[10px] text-zinc-500 font-mono">emerald-100 / 700</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-md bg-zinc-100 text-zinc-600 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="tag" class="w-4 h-4"></i>
+            </span>
+            <div class="min-w-0">
+              <p class="text-xs font-medium">Autre</p>
+              <p class="text-[10px] text-zinc-500 font-mono">zinc-100 / 600</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Typographie + radius + ombres -->
+      <div class="grid sm:grid-cols-3 gap-4 mb-4">
+        <div class="rounded-lg border border-zinc-200 p-6">
+          <h3 class="text-sm font-medium mb-3">Typographie</h3>
+          <p class="text-2xl font-semibold tracking-tight">Aa</p>
+          <p class="text-[10px] text-zinc-500 font-mono mt-1">ui-sans-serif system</p>
+          <ul class="text-xs space-y-1.5 mt-3 text-zinc-700">
+            <li><span class="text-zinc-400 font-mono mr-1">3xl</span> Titres de page</li>
+            <li><span class="text-zinc-400 font-mono mr-1">xl</span> Titres de projet</li>
+            <li><span class="text-zinc-400 font-mono mr-1">2xl</span> KPI &amp; montants</li>
+            <li><span class="text-zinc-400 font-mono mr-1">sm</span> Corps de texte</li>
+            <li><span class="text-zinc-400 font-mono mr-1">xs</span> Méta / labels</li>
+            <li><span class="text-zinc-400 font-mono mr-1">10px</span> Eyebrows (uppercase tracking-wider)</li>
+          </ul>
+          <p class="text-xs text-zinc-500 mt-3">Les chiffres utilisent <code class="bg-zinc-100 px-1 rounded text-[10px]">tabular-nums</code>.</p>
+        </div>
+
+        <div class="rounded-lg border border-zinc-200 p-6">
+          <h3 class="text-sm font-medium mb-3">Radius</h3>
+          <div class="flex items-end gap-2 mb-3">
+            <div class="w-12 h-12 rounded bg-zinc-100 border border-zinc-200"></div>
+            <div class="w-12 h-12 rounded-md bg-zinc-100 border border-zinc-200"></div>
+            <div class="w-12 h-12 rounded-lg bg-zinc-100 border border-zinc-200"></div>
+            <div class="w-12 h-12 rounded-full bg-zinc-100 border border-zinc-200"></div>
+          </div>
+          <ul class="text-xs space-y-1 text-zinc-700">
+            <li><span class="text-zinc-400 font-mono">rounded</span> chips de cat. dans la barre</li>
+            <li><span class="text-zinc-400 font-mono">rounded-md</span> boutons, inputs</li>
+            <li><span class="text-zinc-400 font-mono">rounded-lg</span> cartes</li>
+            <li><span class="text-zinc-400 font-mono">rounded-full</span> avatars, badges</li>
+          </ul>
+        </div>
+
+        <div class="rounded-lg border border-zinc-200 p-6">
+          <h3 class="text-sm font-medium mb-3">Élévation</h3>
+          <div class="space-y-3">
+            <div class="rounded-md border border-zinc-200 p-3 bg-white">
+              <p class="text-xs font-medium">Carte standard</p>
+              <p class="text-[10px] text-zinc-500 font-mono mt-0.5">shadow auto via styles.css</p>
+            </div>
+            <div class="rounded-md p-3 bg-white shadow-xl">
+              <p class="text-xs font-medium">Modale</p>
+              <p class="text-[10px] text-zinc-500 font-mono mt-0.5">shadow-xl</p>
+            </div>
+            <div class="rounded-md p-3 bg-zinc-50 border border-zinc-200">
+              <p class="text-xs font-medium">En-tête de table</p>
+              <p class="text-[10px] text-zinc-500 font-mono mt-0.5">bg-zinc-50</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutons -->
+      <div class="rounded-lg border border-zinc-200 p-6 mb-4">
+        <h3 class="text-sm font-medium mb-1">Boutons</h3>
+        <p class="text-xs text-zinc-500 mb-4">CTA principal = jaune accent. Soumission de formulaire = noir. Outline pour les actions secondaires. Dashed pour les ajouts/imports.</p>
+        <div class="flex flex-wrap items-center gap-3">
+          <button class="h-9 px-4 rounded-md bg-yellow-400 text-zinc-950 text-sm font-medium hover:bg-yellow-300 inline-flex items-center gap-2 transition">
+            <i data-lucide="plus" class="w-4 h-4"></i> Accent
+          </button>
+          <button class="h-9 px-4 rounded-md bg-zinc-950 text-zinc-50 text-sm font-medium hover:bg-zinc-800 inline-flex items-center transition">
+            Primaire
+          </button>
+          <button class="h-9 px-4 rounded-md border border-zinc-200 bg-white text-sm font-medium hover:bg-zinc-50 inline-flex items-center transition">
+            Outline
+          </button>
+          <button class="h-9 px-4 rounded-md text-red-600 text-sm font-medium hover:bg-red-50 inline-flex items-center gap-2 transition">
+            <i data-lucide="trash-2" class="w-4 h-4"></i> Destructif
+          </button>
+          <button class="h-9 px-4 rounded-md border-2 border-dashed border-zinc-300 hover:border-zinc-500 text-sm text-zinc-500 hover:text-zinc-950 bg-transparent inline-flex items-center gap-2 transition">
+            <i data-lucide="plus" class="w-4 h-4"></i> Dashed
+          </button>
+          <button class="h-8 w-8 rounded-full border border-zinc-200 bg-white text-zinc-500 hover:text-zinc-950 hover:border-zinc-400 flex items-center justify-center transition">
+            <i data-lucide="moon" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Badges + rôles -->
+      <div class="grid sm:grid-cols-2 gap-4 mb-4">
+        <div class="rounded-lg border border-zinc-200 p-6">
+          <h3 class="text-sm font-medium mb-1">Rôles participants</h3>
+          <p class="text-xs text-zinc-500 mb-4">Trois statuts. Le Percepteur (créateur du projet) n'est pas amovible.</p>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-900 font-medium border border-yellow-200">Percepteur</span>
+            <span class="inline-flex items-center gap-1 text-xs pl-2.5 pr-1 py-0.5 rounded-full bg-zinc-100 text-zinc-700 font-medium border border-zinc-200">
+              Donateur
+              <button class="rounded-full hover:bg-zinc-200 text-zinc-400 hover:text-zinc-900 p-0.5 transition">
+                <i data-lucide="x" class="w-3 h-3"></i>
+              </button>
+            </span>
+            <button class="h-8 px-3 rounded-md bg-yellow-400 text-zinc-950 text-xs font-medium hover:bg-yellow-300 inline-flex items-center gap-1.5 transition">
+              <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+              Inviter
+            </button>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-zinc-200 p-6">
+          <h3 class="text-sm font-medium mb-1">Soldes / statuts</h3>
+          <p class="text-xs text-zinc-500 mb-4">Solde négatif en jaune (attention), positif/neutre en zinc.</p>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-sm font-semibold text-yellow-900 bg-yellow-100 border border-yellow-200 px-2 py-0.5 rounded">−45,20 €</span>
+            <span class="text-sm font-semibold text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded">+128,40 €</span>
+            <span class="text-sm font-medium text-zinc-500">Équilibré</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-900 font-medium border border-yellow-200">À régler</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600 font-medium border border-zinc-200">En attente</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Avatars -->
+      <div class="rounded-lg border border-zinc-200 p-6 mb-4">
+        <h3 class="text-sm font-medium mb-1">Avatars</h3>
+        <p class="text-xs text-zinc-500 mb-4">Initiales sur fond coloré. 4 variantes assignées en rotation. État pending = zinc-100 atténué.</p>
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="w-10 h-10 rounded-full bg-zinc-950 text-zinc-50 text-xs flex items-center justify-center font-medium">SL</span>
+          <span class="w-10 h-10 rounded-full bg-yellow-400 text-zinc-950 text-xs flex items-center justify-center font-medium">AL</span>
+          <span class="w-10 h-10 rounded-full bg-zinc-300 text-zinc-700 text-xs flex items-center justify-center font-medium">BO</span>
+          <span class="w-10 h-10 rounded-full bg-zinc-600 text-zinc-50 text-xs flex items-center justify-center font-medium">CH</span>
+          <span class="w-10 h-10 rounded-full bg-zinc-100 text-zinc-500 text-xs flex items-center justify-center font-medium">??</span>
+          <!-- Stack -->
+          <div class="flex -space-x-2">
+            <span class="w-9 h-9 rounded-full bg-zinc-950 text-zinc-50 text-xs flex items-center justify-center border-2 border-white font-medium shadow-sm">SL</span>
+            <span class="w-9 h-9 rounded-full bg-yellow-400 text-zinc-950 text-xs flex items-center justify-center border-2 border-white font-medium shadow-sm">AL</span>
+            <span class="w-9 h-9 rounded-full bg-zinc-300 text-zinc-700 text-xs flex items-center justify-center border-2 border-white font-medium shadow-sm">BO</span>
+            <span class="w-9 h-9 rounded-full bg-white border-2 border-dashed border-zinc-300 text-zinc-400 flex items-center justify-center shadow-sm">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inputs / segmented -->
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div class="rounded-lg border border-zinc-200 p-6 space-y-3">
+          <h3 class="text-sm font-medium">Inputs</h3>
+          <input type="text" placeholder="Texte" class="w-full h-10 px-3 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+          <div class="relative">
+            <input type="number" placeholder="Montant" class="w-full h-10 pl-3 pr-8 rounded-md border border-zinc-200 text-sm placeholder:text-zinc-400" />
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">€</span>
+          </div>
+          <div class="relative">
+            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400"></i>
+            <input type="search" placeholder="Rechercher" class="w-full h-9 pl-8 pr-3 rounded-md border border-zinc-200 text-sm bg-white placeholder:text-zinc-400" />
+          </div>
+          <input type="range" min="0" max="100" value="80" class="w-full accent-yellow-400 cursor-pointer" />
+          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+            <span class="text-xs font-medium text-zinc-700">Toggle</span>
+            <span class="relative inline-block w-10 h-5">
+              <input type="checkbox" checked class="sr-only peer" />
+              <span class="absolute inset-0 rounded-full bg-zinc-200 peer-checked:bg-yellow-400 transition"></span>
+              <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-sm transition peer-checked:translate-x-5"></span>
+            </span>
+          </label>
+        </div>
+
+        <div class="rounded-lg border border-zinc-200 p-6 space-y-3">
+          <h3 class="text-sm font-medium">Filtres segmentés</h3>
+          <p class="text-xs text-zinc-500">Même pattern dans toutes les listes (Projets, Dépenses, Participants).</p>
+          <div class="inline-flex h-9 p-1 rounded-md bg-zinc-100 text-sm">
+            <button class="h-7 px-3 rounded font-medium bg-white text-zinc-950 shadow-sm">Tous <span class="ml-1 text-xs text-zinc-500 font-normal">4</span></button>
+            <button class="h-7 px-3 rounded font-medium text-zinc-500 hover:text-zinc-950">Donateurs <span class="ml-1 text-xs text-zinc-400 font-normal">3</span></button>
+            <button class="h-7 px-3 rounded font-medium text-zinc-500 hover:text-zinc-950">Invités <span class="ml-1 text-xs text-zinc-400 font-normal">1</span></button>
+          </div>
+          <p class="text-xs text-zinc-500 pt-2">Active : <code class="bg-zinc-100 px-1 rounded text-[10px]">bg-white text-zinc-950 shadow-sm</code></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ COMPOSANTS REACT ============ -->
+    <section class="rounded-lg border border-zinc-200 p-6">
+      <div class="flex items-center gap-2 mb-1">
+        <i data-lucide="component" class="w-4 h-4"></i>
+        <h2 class="text-sm font-medium">Composants React anticipés</h2>
+      </div>
+      <p class="text-xs text-zinc-500 mb-4">Les marqueurs <code class="text-xs bg-zinc-100 px-1.5 py-0.5 rounded">@component</code> dans le HTML indiquent les futurs composants à extraire.</p>
+
+      <div class="grid md:grid-cols-3 gap-6 text-xs">
+        <div>
+          <p class="font-medium text-zinc-950 mb-2">UI primitives (shadcn)</p>
+          <ul class="space-y-1 text-zinc-600 font-mono">
+            <li>&lt;Button variant /&gt;</li>
+            <li>&lt;Input /&gt;</li>
+            <li>&lt;Textarea /&gt;</li>
+            <li>&lt;Label /&gt;</li>
+            <li>&lt;Card /&gt;</li>
+            <li>&lt;Dialog /&gt;</li>
+            <li>&lt;Tabs /&gt;</li>
+            <li>&lt;Avatar /&gt;</li>
+            <li>&lt;Badge /&gt;</li>
+            <li>&lt;Select /&gt;</li>
+            <li>&lt;Switch /&gt;</li>
+            <li>&lt;Slider /&gt;</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-medium text-zinc-950 mb-2">Layouts</p>
+          <ul class="space-y-1 text-zinc-600 font-mono">
+            <li>&lt;AppHeader /&gt;</li>
+            <li>&lt;AuthLayout /&gt;</li>
+            <li>&lt;PageHeader /&gt;</li>
+            <li>&lt;ProjectHeader /&gt;</li>
+            <li>&lt;BackLink /&gt;</li>
+            <li>&lt;ThemeToggle /&gt;</li>
+          </ul>
+          <p class="font-medium text-zinc-950 mt-4 mb-2">Dialogs</p>
+          <ul class="space-y-1 text-zinc-600 font-mono">
+            <li>&lt;ProjectDialog /&gt;</li>
+            <li>&lt;ExpenseDialog /&gt;</li>
+            <li>&lt;ParticipantDialog /&gt;</li>
+            <li>&lt;InviteDialog /&gt;</li>
+            <li>&lt;AttachmentDialog /&gt;</li>
+          </ul>
+        </div>
+        <div>
+          <p class="font-medium text-zinc-950 mb-2">Métier</p>
+          <ul class="space-y-1 text-zinc-600 font-mono">
+            <li>&lt;ProjectCard /&gt;</li>
+            <li>&lt;ProjectFilters /&gt;</li>
+            <li>&lt;StatCards /&gt;</li>
+            <li>&lt;BudgetBreakdown /&gt;</li>
+            <li>&lt;CategoryLegend /&gt;</li>
+            <li>&lt;ExpenseRow /&gt;</li>
+            <li>&lt;ExpenseFilters /&gt;</li>
+            <li>&lt;TypePicker /&gt;</li>
+            <li>&lt;PaidByPicker /&gt;</li>
+            <li>&lt;BudgetAlert /&gt;</li>
+            <li>&lt;AttachmentPicker /&gt;</li>
+            <li>&lt;AttachmentChip /&gt;</li>
+            <li>&lt;ParticipantsTable /&gt;</li>
+            <li>&lt;BudgetInput /&gt;</li>
+            <li>&lt;RoleBadge /&gt;</li>
+            <li>&lt;SettlementCard /&gt;</li>
+            <li>&lt;CloseToggle /&gt;</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>lucide.createIcons();</script>
+</body>
+
+</html>
