@@ -18,14 +18,19 @@
 		"doc": "doc"
 	},
 	"scripts": {
+		"dev": "tsx watch src/app.ts ",
 		"lint": "biome lint ./src",
 		"lint:fix": "biome lint --write ./src",
 		"format": "biome format --write ./src",
+		"test:unit": "vitest run **/*.unit.test.ts",
+		"test:integration": "vitest run **/*.integration.test.ts",
 		"check": "biome check --write ./src",
-		"prepare": "husky"
+		"prepare": "husky",
+	    "docker:up": "docker compose -f docker-compose-dev.yml up"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",
+		"@types/express": "^5.0.6",
 		"@types/node": "^25.9.1",
 		"@types/pg": "^8.20.0",
 		"husky": "^9.1.7",
@@ -42,8 +47,8 @@
 		"express": "^5.2.1",
 		"helmet": "^8.2.0",
 		"jsonwebtoken": "^9.0.3",
-		"nodemon": "^3.1.14",
 		"pg": "^8.21.0",
+		"vitest": "^4.1.7",
 		"zod": "^4.4.3"
 	}
 }
