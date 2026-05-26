@@ -22,6 +22,8 @@
 		"lint": "biome lint ./src",
 		"lint:fix": "biome lint --write ./src",
 		"format": "biome format --write ./src",
+		"test:unit": "vitest run **/*.unit.test.ts",
+		"test:integration": "vitest run **/*.integration.test.ts",
 		"check": "biome check --write ./src",
 		"prepare": "husky"
 	},
@@ -45,6 +47,7 @@
 		"helmet": "^8.2.0",
 		"jsonwebtoken": "^9.0.3",
 		"pg": "^8.21.0",
+		"vitest": "^4.1.7",
 		"zod": "^4.4.3"
 	}
 }
