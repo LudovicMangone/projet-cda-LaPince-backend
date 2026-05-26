@@ -1,0 +1,49 @@
+{
+	"name": "projet-cda-lapince-backend",
+	"version": "1.0.0",
+	"description": "",
+	"homepage": "https://github.com/O-clock-Helsinki/projet-cda-LaPince-backend#readme",
+	"bugs": {
+		"url": "https://github.com/O-clock-Helsinki/projet-cda-LaPince-backend/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/O-clock-Helsinki/projet-cda-LaPince-backend.git"
+	},
+	"license": "ISC",
+	"author": "",
+	"type": "module",
+	"main": "index.js",
+	"directories": {
+		"doc": "doc"
+	},
+	"scripts": {
+		"lint": "biome lint ./src",
+		"lint:fix": "biome lint --write ./src",
+		"format": "biome format --write ./src",
+		"check": "biome check --write ./src",
+		"prepare": "husky"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^2.4.15",
+		"@types/node": "^25.9.1",
+		"@types/pg": "^8.20.0",
+		"husky": "^9.1.7",
+		"prisma": "^6.19.3",
+		"tsx": "^4.22.3",
+		"typescript": "^5.9.3"
+	},
+	"dependencies": {
+		"@prisma/adapter-pg": "^7.8.0",
+		"@prisma/client": "^7.8.0",
+		"argon2": "^0.44.0",
+		"cors": "^2.8.6",
+		"dotenv": "^17.4.2",
+		"express": "^5.2.1",
+		"helmet": "^8.2.0",
+		"jsonwebtoken": "^9.0.3",
+		"nodemon": "^3.1.14",
+		"pg": "^8.21.0",
+		"zod": "^4.4.3"
+	}
+}
