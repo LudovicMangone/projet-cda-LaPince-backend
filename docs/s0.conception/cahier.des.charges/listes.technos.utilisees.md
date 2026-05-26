@@ -27,7 +27,7 @@
 | ----------- | ------- | ------------------------------------------------------------------------------------------------------------------------- |
 | Node.js     | 24 LTS  | Runtime JavaScript serveur, dernière version stable. Choix volontaire de ne pas utiliser Node 26 car version trop récente |
 | Express     | 5       | Framework HTTP pour le routing, les middlewares et les contrôleurs                                                        |
-| Prisma      | 7       | ORM pour la modélisation de données, les migrations et les requêtes                                                       |
+| Prisma      | 6       | ORM pour la modélisation de données, les migrations et les requêtes                                                       |
 | PostgreSQL  | 18      | Base de données relationnelle adaptée aux relations complexes et aux besoins d’agrégation                                 |
 | TypeScript  | 5       | Sécurisation du code back-end grâce au typage statique et meilleure maintenabilité du projet                              |
 
@@ -52,6 +52,7 @@
 * cors pour la gestion des accès cross-origin
 * helmet pour la sécurité HTTP (headers)
 * Zod pour la validation des données entrantes optimisée pour TypeScript
-* nodemon pour le rechargement automatique en développement et se prémunir des problèmes de volumes avec Docker
+* Vitest v4 pour les tests
+* Adminer pour la visualisation de la BDD
 * Git et GitHub pour le versionning et la collaboration
 * Docker pour la conteneurisation de l’environnement de développement et de déploiement potentiel
