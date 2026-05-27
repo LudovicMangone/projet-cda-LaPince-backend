@@ -42,7 +42,7 @@ export class ConflictError extends HttpError {
 }
 
 // Too many attempts of request :
-export class TooManyRequestError extends HttpError {
+export class TooManyRequestsError extends HttpError {
 	constructor(message: string) {
 		super(message, { status: 429 });
 	}

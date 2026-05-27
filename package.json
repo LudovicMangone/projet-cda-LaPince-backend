@@ -26,11 +26,14 @@
 		"test:integration": "vitest run **/*.integration.test.ts",
 		"check": "biome check --write ./src",
 		"prepare": "husky",
-		"docker:up": "docker compose -f docker-compose-dev.yml up"
+		"docker:up": "docker compose -f docker-compose-dev.yml up",
+		"docker:down": "docker compose -f docker-compose-dev.yml down"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",
+		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.6",
+		"@types/express-xss-sanitizer": "^2.0.0",
 		"@types/node": "^25.9.1",
 		"@types/pg": "^8.20.0",
 		"husky": "^9.1.7",
@@ -45,6 +48,8 @@
 		"cors": "^2.8.6",
 		"dotenv": "^17.4.2",
 		"express": "^5.2.1",
+		"express-rate-limit": "^8.5.2",
+		"express-xss-sanitizer": "^2.0.2",
 		"helmet": "^8.2.0",
 		"jsonwebtoken": "^9.0.3",
 		"pg": "^8.21.0",
