@@ -1,5 +1,5 @@
+import type { NextFunction, Request, Response } from "express";
 import z from "zod";
-import type { Request, Response, NextFunction } from "express";
 // Importing our custom error library
 import { HttpError } from "../lib/errors";
 

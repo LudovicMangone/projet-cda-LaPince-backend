@@ -10,8 +10,40 @@ export class HttpError extends Error {
 	}
 }
 
+// Generals errors :
 export class NotFoundError extends HttpError {
 	constructor(message: string) {
 		super(message, { status: 404 });
+	}
+}
+
+export class BadRequestError extends HttpError {
+	constructor(message: string) {
+		super(message, { status: 400 });
+	}
+}
+
+export class UnauthorizedError extends HttpError {
+	constructor(message: string) {
+		super(message, { status: 401 });
+	}
+}
+
+export class ForbiddenError extends HttpError {
+	constructor(message: string) {
+		super(message, { status: 403 });
+	}
+}
+
+export class ConflictError extends HttpError {
+	constructor(message: string) {
+		super(message, { status: 409 });
+	}
+}
+
+// Too many attempts of request :
+export class TooManyRequestError extends HttpError {
+	constructor(message: string) {
+		super(message, { status: 429 });
 	}
 }
