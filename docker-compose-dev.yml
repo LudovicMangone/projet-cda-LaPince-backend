@@ -14,7 +14,7 @@ services:
       - "${POSTGRES_PORT}:${POSTGRES_INTERNAL_PORT}"
     volumes:
       # Persist PostgreSQL data between container restarts
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     healthcheck:
       test:
         [
