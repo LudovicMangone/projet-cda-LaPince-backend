@@ -1,17 +1,17 @@
 import express from "express";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { notFoundHandler } from "./middlewares/notFound.middleware";
+import authRouter from "./routers/auth.router";
 
 const app = express();
 
-app.get("/", (_req, res) => {
-	res.send("Hello World");
-});
+app.use(express.json());
+
+app.use("/api/auth", authRouter);
 
 app.use(notFoundHandler);
-
 app.use(errorHandler);
 
 app.listen(3000, () => {
-	console.log("Server is running on http://localhost:3000");
+  console.log("Server is running on http://localhost:3000");
 });
