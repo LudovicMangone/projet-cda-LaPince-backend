@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
-model AppUser { 
+model AppUser {
   id        Int      @id @default(autoincrement())
   name      String   @db.VarChar(100)
   email     String   @unique @db.VarChar(255)
@@ -15,13 +15,13 @@ model AppUser {
   createdAt DateTime @default(now()) @db.Timestamptz()
   updatedAt DateTime @updatedAt @db.Timestamptz()
 
-  projects             Project[]
-  operations           Operation[]
-  participants         Participant[]
-  appUserAlerts        AppUserAlert[]
+  projects      Project[]
+  operations    Operation[]
+  participants  Participant[]
+  appUserAlerts AppUserAlert[]
 
   @@map("app_user")
-} 
+}
 
 model Category {
   id        Int      @id @default(autoincrement())
@@ -44,23 +44,23 @@ model Project {
   createdAt   DateTime @default(now()) @db.Timestamptz()
   updatedAt   DateTime @updatedAt @db.Timestamptz()
 
-  appUser              AppUser              @relation(fields: [appUserId], references: [id])
-  budget               Budget?
-  operations           Operation[]
-  projectParticipants  ProjectParticipant[]
+  appUser             AppUser              @relation(fields: [appUserId], references: [id], onDelete: Cascade)
+  budget              Budget?
+  operations          Operation[]
+  projectParticipants ProjectParticipant[]
 
   @@map("project")
 }
 
 model Budget {
-  id             Int      @id @default(autoincrement())
-  amount         Decimal  @db.Decimal(10, 2)
-  limitCriteria  Decimal  @default(80.00) @db.Decimal(5, 2)
-  projectId      Int      @unique
-  createdAt      DateTime @default(now()) @db.Timestamptz()
-  updatedAt      DateTime @updatedAt @db.Timestamptz()
+  id            Int      @id @default(autoincrement())
+  amount        Decimal  @db.Decimal(10, 2)
+  limitCriteria Decimal  @default(80.00) @db.Decimal(5, 2)
+  projectId     Int      @unique
+  createdAt     DateTime @default(now()) @db.Timestamptz()
+  updatedAt     DateTime @updatedAt @db.Timestamptz()
 
-  project Project @relation(fields: [projectId], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   alerts  Alert[]
 
   @@map("budget")
@@ -74,7 +74,7 @@ model Alert {
   createdAt DateTime @default(now()) @db.Timestamptz()
   updatedAt DateTime @updatedAt @db.Timestamptz()
 
-  budget        Budget         @relation(fields: [budgetId], references: [id])
+  budget        Budget         @relation(fields: [budgetId], references: [id], onDelete: Cascade)
   appUserAlerts AppUserAlert[]
 
   @@map("alert")
@@ -84,8 +84,8 @@ model AppUserAlert {
   appUserId Int
   alertId   Int
 
-  appUser AppUser @relation(fields: [appUserId], references: [id])
-  alert   Alert   @relation(fields: [alertId], references: [id])
+  appUser AppUser @relation(fields: [appUserId], references: [id], onDelete: Cascade)
+  alert   Alert   @relation(fields: [alertId], references: [id], onDelete: Cascade)
 
   @@id([appUserId, alertId])
   @@map("app_user_alert")
@@ -98,7 +98,7 @@ model Participant {
   createdAt DateTime @default(now()) @db.Timestamptz()
   updatedAt DateTime @updatedAt @db.Timestamptz()
 
-  appUser               AppUser?               @relation(fields: [appUserId], references: [id])
+  appUser               AppUser?               @relation(fields: [appUserId], references: [id], onDelete: SetNull)
   projectParticipants   ProjectParticipant[]
   operationParticipants OperationParticipant[]
   paidOperations        Operation[]            @relation("Payer")
@@ -110,8 +110,8 @@ model ProjectParticipant {
   projectId     Int
   participantId Int
 
-  project     Project     @relation(fields: [projectId], references: [id])
-  participant Participant @relation(fields: [participantId], references: [id])
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
 
   @@id([projectId, participantId])
   @@map("project_participant")
@@ -129,10 +129,10 @@ model Operation {
   createdAt          DateTime @default(now()) @db.Timestamptz()
   updatedAt          DateTime @updatedAt @db.Timestamptz()
 
-  payerParticipant      Participant            @relation("Payer", fields: [payerParticipantId], references: [id])
-  appUser               AppUser                @relation(fields: [appUserId], references: [id])
-  category              Category               @relation(fields: [categoryId], references: [id])
-  project               Project                @relation(fields: [projectId], references: [id])
+  payerParticipant      Participant            @relation("Payer", fields: [payerParticipantId], references: [id], onDelete: Restrict)
+  appUser               AppUser                @relation(fields: [appUserId], references: [id], onDelete: Cascade)
+  category              Category               @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  project               Project                @relation(fields: [projectId], references: [id], onDelete: Restrict)
   operationParticipants OperationParticipant[]
 
   @@map("operation")
@@ -143,8 +143,8 @@ model OperationParticipant {
   participantId     Int
   repartitionAmount Decimal @db.Decimal(10, 2)
 
-  operation   Operation   @relation(fields: [operationId], references: [id])
-  participant Participant @relation(fields: [participantId], references: [id])
+  operation   Operation   @relation(fields: [operationId], references: [id], onDelete: Cascade)
+  participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
 
   @@id([operationId, participantId])
   @@map("operation_participant")
