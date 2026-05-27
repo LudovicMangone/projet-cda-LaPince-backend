@@ -20,7 +20,7 @@ export function errorHandler(
 		console.info("ZodError", error);
 
 		return res.status(422).json({
-			status: 400,
+			status: 422,
 			error: z.prettifyError(error),
 		});
 	}

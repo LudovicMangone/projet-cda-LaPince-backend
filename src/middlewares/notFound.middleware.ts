@@ -2,5 +2,5 @@
 import { NotFoundError } from "../lib/errors";
 
 export function notFoundHandler() {
-	throw new NotFoundError("Resource not found");
+	throw new NotFoundError("404 - Resource not found");
 }
