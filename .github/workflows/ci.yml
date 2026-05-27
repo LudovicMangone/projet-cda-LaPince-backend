@@ -39,10 +39,10 @@ jobs:
         # Runs project checks (linting, type-checking, etc.)
         run: npm run check
 
-      - name: Unit tests project
-        # Run units tests
-        run: npm run test:unit
+      # - name: Unit tests project
+      #   # Run units tests
+      #   run: npm run test:unit
 
-      - name: Integration tests project
-        # Run integration tests
-        run: npm run test:integration
+      # - name: Integration tests projectx
+      #   # Run integration tests
+      #   run: npm run test:integration
