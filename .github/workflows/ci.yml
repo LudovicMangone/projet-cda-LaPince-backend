@@ -33,7 +33,7 @@ jobs:
 
       - name: Install dependencies
         # Installs project dependencies using clean install / npm install installs dependencies and may update the package-lock.json, while npm ci performs a clean, deterministic install strictly based on the package-lock.json without modifying it.
-        run: npm ci
+        run: npm i
 
       - name: Validate project
         # Runs project checks (linting, type-checking, etc.)
