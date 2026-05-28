@@ -181,3 +181,49 @@ La date de mise à jour sera indiquée en haut de cette page.
 Pour toute question concernant cette politique ou vos données personnelles :
 
 📧 [EMAIL_DE_CONTACT]
+
+---
+
+
+# 14. Éditeur du site
+
+Le site et l’application **La Pince** sont édités dans le cadre d’un projet pédagogique réalisé durant la formation :
+
+**Concepteur Développeur d’Applications Web — O’clock**
+
+Projet réalisé par les membres de l’équipe pédagogique du projet *La Pince*.
+
+Contact : 📧 [EMAIL_DE_CONTACT]
+
+---
+
+# 15. Hébergement
+
+L’application et ses données sont hébergées par :
+
+**[NOM_HEBERGEUR]**
+Adresse : [ADRESSE_HEBERGEUR]
+Site web : [URL_HEBERGEUR]
+
+---
+
+# 16. Propriété intellectuelle
+
+L’ensemble du contenu du projet **La Pince** (code source, interface, éléments graphiques, documentation, textes et logos) est protégé par les règles relatives à la propriété intellectuelle.
+
+Sauf mention contraire, tous les droits sont réservés aux auteurs du projet.
+
+---
+
+# 17. Données collectées et finalité
+
+Les données collectées via l’application sont strictement limitées aux besoins de fonctionnement du service :
+
+* création et gestion des comptes utilisateurs,
+* gestion des projets et dépenses,
+* calculs de répartitions financières,
+* sécurité et maintenance technique.
+
+Aucune donnée n’est vendue, cédée ou utilisée à des fins commerciales ou publicitaires.
+
+Les détails complets concernant les données collectées, leur conservation et les droits des utilisateurs sont décrits dans la présente politique de confidentialité.
