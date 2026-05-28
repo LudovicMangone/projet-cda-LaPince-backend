@@ -28,7 +28,7 @@
 		"prepare": "husky",
 		"docker:up": "docker compose -f docker-compose-dev.yml up",
 		"docker:down": "docker compose -f docker-compose-dev.yml down",
-    	"db:migrate": "prisma migrate dev",
+		"db:migrate": "prisma migrate dev",
 		"db:seed": "prisma db seed",
 		"db:reset": "prisma migrate reset",
 		"db:generate": "prisma generate"
@@ -46,6 +46,8 @@
 		"typescript": "^5.9.3"
 	},
 	"dependencies": {
+		"@prisma/adapter-pg": "^7.8.0",
+		"@prisma/client": "^7.8.0",
 		"argon2": "^0.44.0",
 		"cors": "^2.8.6",
 		"dotenv": "^17.4.2",
