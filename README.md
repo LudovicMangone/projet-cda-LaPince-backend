@@ -30,6 +30,7 @@
   - [Tests](#tests)
   - [Qualité de code](#qualité-de-code)
   - [Documentation](#documentation)
+  - [RGPD](#rgpd)
 - [La Pince — Back-end *(English version)*](#la-pince--back-end-english-version)
   - [Overview](#overview)
   - [Architecture](#architecture-1)
@@ -353,6 +354,24 @@ Le projet utilise **Biome** comme linter et formatter unifié, configuré via `b
 | Swagger UI | Documentation interactive de l'API | `http://localhost:3000/api-docs` |
 
 ---
+
+## RGPD
+Le projet applique des principes de base de conformité RGPD et de sécurité des données :
+
+- minimisation des données collectées,
+- authentification JWT,
+- mots de passe hachés avec Argon2,
+- validation et sanitation des données,
+- protection contre les abus API (rate limiting),
+- gestion sécurisée des variables d’environnement,
+- contrôle des accès aux ressources utilisateur.
+
+> Voir le dossier `docs/rgpd/` pour plus de détails :
+
+- [politique-confidentialite.md](docs/s1.mise.en.place/rgpd/politique.confidentialite.md)
+- [gestion-des-donnees.md](docs/s1.mise.en.place/rgpd/gestion.des.donnes.md)
+- [securite.md](docs/s1.mise.en.place/rgpd/securite.md)
+- [duree-conservation.md](docs/s1.mise.en.place/rgpd/duree.conservation.md)
 
 ---
 
