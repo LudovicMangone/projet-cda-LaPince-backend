@@ -2,11 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { UnauthorizedError } from "../lib/errors";
 
-export function authMiddleware(
-  req: Request,
-  _res: Response,
-  next: NextFunction
-) {
+export function authMiddleware(req: Request, _res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader?.startsWith("Bearer ")) {
@@ -14,13 +10,14 @@ export function authMiddleware(
   }
 
   const token = authHeader.split(" ")[1];
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    throw new Error("JWT_SECRET is not defined");
+  }
 
   try {
-    const payload = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string
-    ) as { userId: number };
-
+    const payload = jwt.verify(token, secret) as { userId: number };
     req.userId = payload.userId;
     next();
   } catch {
