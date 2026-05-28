@@ -27,8 +27,8 @@
 		"check": "biome check --write ./src",
 		"prepare": "husky",
 		"docker:up": "docker compose -f docker-compose-dev.yml up",
-		"docker:down": "docker compose -f docker-compose-dev.yml down"
-    "db:migrate": "prisma migrate dev",
+		"docker:down": "docker compose -f docker-compose-dev.yml down",
+    	"db:migrate": "prisma migrate dev",
 		"db:seed": "prisma db seed",
 		"db:reset": "prisma migrate reset",
 		"db:generate": "prisma generate"
