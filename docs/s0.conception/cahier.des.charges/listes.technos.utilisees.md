@@ -10,14 +10,15 @@
 
 ## Front-end
 
-| Technologie  | Version | Rôle et justification                                                                                                                 |
-| ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| React        | 19      | Librairie UI principale, dans la dernière version pour l’utilisation des hooks récents et des dernières fonctionnalités de formulaires |
-| TypeScript   | 5       | Typage statique pour fiabiliser le développement, améliorer l’autocomplétion et limiter les erreurs runtime                           |
-| Vite         | 8       | Bundler, démarrage rapide du projet et transpilation pour React, dernière version stable                                              |
-| Tailwind CSS | 4       | Styling utilitaire, rendu professionnel et clean rapidement                                                                           |
-| React Router | 7       | Navigation entre les pages                                                                                                            |
-| shadcn/ui | latest | Bibliothèque de composants UI réutilisables basée sur React, Tailwind CSS et Base UI qui est open source, permettant de construire une interface cohérente, accessible et maintenable |
+| Technologie  | Version | Rôle et justification                                                                                                                                                                 |
+| ------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| React        | 19      | Librairie UI principale, dans la dernière version pour l’utilisation des hooks récents et des dernières fonctionnalités de formulaires                                                |
+| TypeScript   | 5       | Typage statique pour fiabiliser le développement, améliorer l’autocomplétion et limiter les erreurs runtime                                                                           |
+| Vite         | 8       | Bundler, démarrage rapide du projet et transpilation pour React, dernière version stable                                                                                              |
+| Tailwind CSS | 4       | Styling utilitaire, rendu professionnel et clean rapidement                                                                                                                           |
+| React Router | 7       | Navigation entre les pages                                                                                                                                                            |
+| shadcn/ui    | latest  | Bibliothèque de composants UI réutilisables basée sur React, Tailwind CSS et Base UI qui est open source, permettant de construire une interface cohérente, accessible et maintenable |
+| lucide-react | 1       | Bibliothèque d’icônes open source légère et moderne, compatible React, permettant d’intégrer facilement des icônes SVG personnalisables et cohérentes dans l’interface utilisateur.   |
 
 ---
 
