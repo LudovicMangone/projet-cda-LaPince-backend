@@ -1,7 +1,7 @@
 @baseUrl = http://localhost:3000/api/auth
 @token = REMPLACE-PAR-TOKEN
 
-### Register — nouvel utilisateur
+### Register — new user
 POST {{baseUrl}}/register
 Content-Type: application/json
 
@@ -11,7 +11,7 @@ Content-Type: application/json
   "password": "Password123"
 }
 
-### Register — email déjà utilisé (doit retourner 409)
+### Register — email already used (should return 409)
 POST {{baseUrl}}/register
 Content-Type: application/json
 
@@ -21,17 +21,17 @@ Content-Type: application/json
   "password": "Password123"
 }
 
-### Register — données invalides (doit retourner 422)
+### Register — invalid data (should return 422)
 POST {{baseUrl}}/register
 Content-Type: application/json
 
 {
   "name": "L",
-  "email": "pasunemail",
-  "password": "faible"
+  "email": "notanemail",
+  "password": "weak"
 }
 
-### Login — utilisateur seedé Steve
+### Login — seeded user Steve
 POST {{baseUrl}}/login
 Content-Type: application/json
 
@@ -40,7 +40,7 @@ Content-Type: application/json
   "password": "password123"
 }
 
-### Login — utilisateur seedé Aurore
+### Login — seeded user Aurore
 POST {{baseUrl}}/login
 Content-Type: application/json
 
@@ -49,30 +49,30 @@ Content-Type: application/json
   "password": "password123"
 }
 
-### Login — mauvais mot de passe (doit retourner 401)
+### Login — wrong password (should return 401)
 POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
   "email": "steve@lapince.fr",
-  "password": "MauvaisMotDePasse1"
+  "password": "WrongPassword1"
 }
 
-### Login — email inconnu (doit retourner 401)
+### Login — unknown email (should return 401)
 POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-  "email": "inconnu@lapince.fr",
+  "email": "unknown@lapince.fr",
   "password": "Password123"
 }
 
 ### Logout
 POST {{baseUrl}}/logout
 
-### Me — avec token valide (doit retourner 200)
+### Me — with valid token (should return 200)
 GET {{baseUrl}}/me
 Authorization: Bearer {{token}}
 
-### Me — sans token (doit retourner 401)
+### Me — without token (should return 401)
 GET {{baseUrl}}/me
