@@ -11,6 +11,7 @@ import authRouter from "./routers/auth.router";
 
 // ============== SETTINGS ==================
 export const app = express();// CORS: allows external clients (frontend, tools, other APIs) to call the API
+app.set("trust proxy", 1); // Required for Render/reverse proxy
 app.use(cors({ origin: allowedOrigins }));
 // XSS sanitizer: protects against malicious scripts injected in user input
 app.use(xss());
