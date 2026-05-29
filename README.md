@@ -29,6 +29,9 @@
     - [Résumé des endpoints](#résumé-des-endpoints)
   - [Tests](#tests)
   - [Qualité de code](#qualité-de-code)
+  - [Workflow Git](#workflow-git)
+    - [Convention de nommage des branches](#convention-de-nommage-des-branches)
+    - [Convention de commits](#convention-de-commits)
   - [Documentation](#documentation)
   - [RGPD](#rgpd)
 - [La Pince — Back-end *(English version)*](#la-pince--back-end-english-version)
@@ -55,7 +58,7 @@
 - Calculer automatiquement les remboursements entre participants
 
 Ce repository contient exclusivement la **couche back-end** : API REST, logique métier, accès aux données.
-Le repository front-end est disponible ici : [`la-pince.client`](https://github.com/O-clock-Helsinki/projet-cda-LaPince-frontend)
+Le repository front-end est disponible ici : [`la-pince.frontend`](https://github.com/O-clock-Helsinki/projet-cda-LaPince-frontend)
 
 ---
 
@@ -79,7 +82,6 @@ src/
 ├── controllers/   → traitement des requêtes et réponses HTTP
 ├── services/      → logique métier pure
 ├── middlewares/   → auth, validation, gestion des erreurs
-├── schemas/       → validation des données entrantes (Zod)
 └── lib/           → utilitaires partagés (Prisma client, erreurs custom...)
 ```
 
@@ -143,7 +145,6 @@ npm install
 
 ```bash
 cp .env.example .env
-cp .dockerignore.example .dockerignore
 ```
 
 ### 4. Lancer l'environnement Docker
@@ -232,14 +233,12 @@ projet-cda-LaPince-backend/
 │   ├── middlewares/         ← auth, validation, erreurs, rate limiter
 │   ├── routes/              ← définition des endpoints
 │   ├── services/            ← logique métier pure
-│   ├── schemas/             ← schémas de validation Zod
 │   ├── lib/                 ← prisma client, classes d'erreurs custom
 │   └── app.ts               ← configuration Express principale
 ├── tests/
 │   ├── unit/
 │   └── integration/
 ├── docs/                    ← documentation du projet
-├── generated/               ← client Prisma généré (ne pas modifier)
 ├── .env.example
 ├── .gitignore
 ├── biome.json
@@ -337,6 +336,50 @@ Le projet utilise **Biome** comme linter et formatter unifié, configuré via `b
 ```
 
 **Exécution automatique au commit** via Husky — le hook `pre-commit` lance `biome check` avant chaque commit. Si des erreurs non corrigeables sont détectées, le commit est bloqué.
+
+---
+
+## Workflow Git
+
+Le projet utilise une organisation Git basée sur :
+
+- `main` → branche de production stable
+- `dev` → branche d’intégration et de développement
+- branches par feature/fix/docs → créées depuis `dev`
+
+Aucune Pull Request directe vers `main` n’est autorisée.
+
+### Convention de nommage des branches
+
+```txt
+feature/nom-feature
+fix/nom-fix
+docs/nom-doc
+refactor/nom-refactor
+test/nom-test
+```
+
+### Convention de commits
+
+Convention inspirée de Conventional Commits :
+
+```txt
+feat: ajout authentification JWT
+fix: correction middleware erreur 404
+docs: mise à jour README
+refactor: simplification service budget
+test: ajout tests intégration auth
+chore: mise à jour dépendances
+```
+
+Chaque Pull Request doit :
+
+* cibler `dev`
+* être relue avant merge
+* passer les vérifications CI (lint / tests / build)
+
+
+
 
 ---
 
