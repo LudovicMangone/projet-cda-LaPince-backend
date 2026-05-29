@@ -15,6 +15,8 @@ export function errorHandler(
 	res: Response,
 	_next: NextFunction,
 ) {
+	const isDev = process.env.NODE_ENV === "development";
+
 	// If an error from zod validation happen :
 	if (error instanceof z.ZodError) {
 		console.info("ZodError", error);
@@ -34,7 +36,15 @@ export function errorHandler(
 	}
 
 	// If it's an unexpected error, it throw a generic one :
-	res.status(500).json({
+	if (isDev) {
+		return res.status(500).json({
+			status: 500,
+			error: "Internal server error",
+			details: error.message,
+			stack: error.stack,
+		});
+	}
+	return res.status(500).json({
 		status: 500,
 		error: "Internal server error",
 	});
