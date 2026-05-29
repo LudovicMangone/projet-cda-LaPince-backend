@@ -39,3 +39,4 @@ coverage/
 postgres_data/
 docker-data/
 /generated/prisma
+

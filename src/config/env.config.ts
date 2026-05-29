@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 // For some critical variantes, we use errors to prevent problems
 function requireEnv(name: string): string {
 	const value = process.env[name];
