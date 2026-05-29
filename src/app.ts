@@ -8,9 +8,10 @@ import { apiRateLimiter } from "./lib/rateLimiter";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { notFoundHandler } from "./middlewares/notFound.middleware";
 import authRouter from "./routers/auth.router";
+import projectsRouter from "./routers/projects.router";
 
 // ============== SETTINGS ==================
-export const app = express();// CORS: allows external clients (frontend, tools, other APIs) to call the API
+export const app = express(); // CORS: allows external clients (frontend, tools, other APIs) to call the API
 app.use(cors({ origin: allowedOrigins }));
 // XSS sanitizer: protects against malicious scripts injected in user input
 app.use(xss());
@@ -26,6 +27,7 @@ app.get("/", (_req, res) => {
 	res.send("Hello World");
 });
 app.use("/api/auth", authRouter);
+app.use("/api/projects", projectsRouter);
 
 // ============== ERRORS HANDLERS ===========
 app.use(notFoundHandler);
@@ -36,5 +38,3 @@ app.use(errorHandler);
 app.listen(envConfig.port, () => {
 	console.log(`Server is running on http://localhost:${envConfig.port}`);
 });
-
-

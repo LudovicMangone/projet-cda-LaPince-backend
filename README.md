@@ -157,7 +157,10 @@ Lance les containers : API Express, PostgreSQL et Adminer.
 
 ### 5. Appliquer les migrations et le seed
 
+Lors de la première installation du projet où à chaque changement de Schema Prisma
+
 ```bash
+npm run db:generate
 npm run db:migrate
 npm run db:seed
 ```
@@ -239,7 +242,7 @@ projet-cda-LaPince-backend/
 │   ├── unit/
 │   └── integration/
 ├── docs/                    ← documentation du projet
-├── .env.example
+├── clearple
 ├── .gitignore
 ├── biome.json
 ├── docker-compose-dev.yml
