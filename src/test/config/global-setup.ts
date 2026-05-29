@@ -7,12 +7,12 @@ let server: Server;
 
 // ─── Avant tous les tests ─────────────────────────────────────
 beforeAll(async () => {
-  server = app.listen(3001);
+	server = app.listen(3001);
 });
 
 // ─── Avant chaque test ────────────────────────────────────────
 beforeEach(async () => {
-  await prisma.$executeRawUnsafe(`
+	await prisma.$executeRawUnsafe(`
   TRUNCATE TABLE 
     operation_participant,
     operation,
@@ -30,6 +30,6 @@ beforeEach(async () => {
 
 // ─── Après tous les tests ─────────────────────────────────────
 afterAll(async () => {
-  await prisma.$disconnect();
-  server.close();
+	await prisma.$disconnect();
+	server.close();
 });

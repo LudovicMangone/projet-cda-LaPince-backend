@@ -10,7 +10,7 @@ import { notFoundHandler } from "./middlewares/notFound.middleware";
 import authRouter from "./routers/auth.router";
 
 // ============== SETTINGS ==================
-export const app = express();// CORS: allows external clients (frontend, tools, other APIs) to call the API
+export const app = express(); // CORS: allows external clients (frontend, tools, other APIs) to call the API
 app.use(cors({ origin: allowedOrigins }));
 // XSS sanitizer: protects against malicious scripts injected in user input
 app.use(xss());
@@ -36,5 +36,3 @@ app.use(errorHandler);
 app.listen(envConfig.port, () => {
 	console.log(`Server is running on http://localhost:${envConfig.port}`);
 });
-
-
