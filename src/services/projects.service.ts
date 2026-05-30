@@ -13,7 +13,11 @@ export async function getProjectById(projectId: number, userId: number) {
 				select: {
 					participant: {
 						select: {
-							appUser: true,
+							appUser: {
+								select: {
+									id: true,
+								},
+							},
 							name: true,
 						},
 					},
