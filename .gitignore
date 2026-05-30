@@ -2,7 +2,8 @@
 Thumbs.db
 Desktop.ini
 
-.vscode/
+.vscode/*
+!.vscode/settings.json
 .idea/
 .swp
 
@@ -39,3 +40,4 @@ coverage/
 postgres_data/
 docker-data/
 /generated/prisma
+

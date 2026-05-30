@@ -31,14 +31,15 @@
 		"db:migrate": "docker exec lapince-api npx prisma migrate dev",
 		"db:seed": "docker exec lapince-api npx prisma db seed",
 		"db:reset": "docker exec lapince-api npx prisma migrate reset --force",
-		"db:generate": "docker exec lapince-api npx prisma generate"
+		"db:generate": "docker exec lapince-api npx prisma generate",
+    "start": "tsx src/app.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",
 		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.6",
-		"@types/jsonwebtoken": "^9.0.10",
 		"@types/express-xss-sanitizer": "^2.0.0",
+		"@types/jsonwebtoken": "^9.0.10",
 		"@types/node": "^25.9.1",
 		"@types/pg": "^8.20.0",
 		"husky": "^9.1.7",
