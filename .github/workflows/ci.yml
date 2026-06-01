@@ -69,6 +69,6 @@ jobs:
       #   # Run units tests
         run: npm run test:unit
 
-      - name: Integration tests projectx
+      - name: Integration tests
       #   # Run integration tests
         run: npm run test:integration
