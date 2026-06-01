@@ -1,0 +1,78 @@
+@baseUrl = http://localhost:3000/api/auth
+@token = REMPLACE-PAR-TOKEN
+
+### Register — new user
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "name": "Ludo",
+  "email": "ludo@lapince.fr",
+  "password": "Password123"
+}
+
+### Register — email already used (should return 409)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "name": "Steve",
+  "email": "steve@lapince.fr",
+  "password": "Password123"
+}
+
+### Register — invalid data (should return 422)
+POST {{baseUrl}}/register
+Content-Type: application/json
+
+{
+  "name": "L",
+  "email": "notanemail",
+  "password": "weak"
+}
+
+### Login — seeded user Steve
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "steve@lapince.fr",
+  "password": "password123"
+}
+
+### Login — seeded user Aurore
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "aurore@lapince.fr",
+  "password": "password123"
+}
+
+### Login — wrong password (should return 401)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "steve@lapince.fr",
+  "password": "WrongPassword1"
+}
+
+### Login — unknown email (should return 401)
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "unknown@lapince.fr",
+  "password": "Password123"
+}
+
+### Logout
+POST {{baseUrl}}/logout
+
+### Me — with valid token (should return 200)
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### Me — without token (should return 401)
+GET {{baseUrl}}/me

@@ -1,0 +1,6 @@
+@baseUrl = http://localhost:{{$dotenv PORT}}/api/projects
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDA1NTI1OSwiZXhwIjoxNzgwNjYwMDU5fQ.ktkLzN3ip6D57En3Rxat5uocgmt8yA5xG6KPKl15FS0
+
+###
+GET {{baseUrl}}/1
+Authorization: Bearer {{token}}
