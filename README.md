@@ -242,7 +242,7 @@ projet-cda-LaPince-backend/
 │   ├── unit/
 │   └── integration/
 ├── docs/                    ← documentation du projet
-├── clearple
+├── .env.example
 ├── .gitignore
 ├── biome.json
 ├── docker-compose-dev.yml
