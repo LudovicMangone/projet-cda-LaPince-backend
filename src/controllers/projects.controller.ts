@@ -1,5 +1,10 @@
 import type { Request, Response } from "express";
-import { getProjectById } from "../services/projects.service";
+import { getProjectById, getProjectsDashboard } from "../services/projects.service";
+
+export async function getProjectsController(req: Request, res: Response) {
+	const projects = await getProjectsDashboard(Number(req.userId));
+	return res.status(200).json({ projects });
+}
 
 export async function getProjectByIdController(req: Request, res: Response) {
 	const project = await getProjectById(
