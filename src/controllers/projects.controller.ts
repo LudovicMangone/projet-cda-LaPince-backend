@@ -9,3 +9,8 @@ export async function getProjectByIdController(req: Request, res: Response) {
 
 	return res.status(200).json({ project });
 }
+
+export async function updateProjectByIdController(
+	req: Request,
+	res: Response,
+) {}

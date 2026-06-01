@@ -1,6 +1,15 @@
-@baseUrl = http://localhost:{{$dotenv PORT}}/api/projects
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDA1NTI1OSwiZXhwIjoxNzgwNjYwMDU5fQ.ktkLzN3ip6D57En3Rxat5uocgmt8yA5xG6KPKl15FS0
+@baseUrl = http://localhost:{{$dotenv PORT}}/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDMyNzg4NSwiZXhwIjoxNzgwOTMyNjg1fQ.QeWHuVa-1521PVXe3XS_D4SLlTCzVBI847I7iYy7l5k
+
+### Login — seeded user Steve
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "steve@lapince.fr",
+  "password": "password123"
+}
 
 ###
-GET {{baseUrl}}/1
+GET {{baseUrl}}/projects/1
 Authorization: Bearer {{token}}

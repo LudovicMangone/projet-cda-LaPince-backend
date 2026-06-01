@@ -1,3 +1,4 @@
+import type { IProjectDetails } from "../@types/projects";
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 
@@ -24,6 +25,13 @@ export async function getProjectById(projectId: number, userId: number) {
 					},
 				},
 			},
+			budget: {
+				select: {
+					id: true,
+					amount: true,
+					limitCriteria: true,
+				},
+			},
 		},
 	});
 
@@ -39,4 +47,8 @@ export async function getProjectById(projectId: number, userId: number) {
 	}
 
 	return project;
+}
+
+export async function updateProjectById(project: IProjectDetails) {
+	console.log(project);
 }
