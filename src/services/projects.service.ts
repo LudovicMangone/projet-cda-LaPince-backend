@@ -5,6 +5,7 @@ export async function getProjectById(projectId: number, userId: number) {
 	const project = await prisma.project.findUnique({
 		where: { id: projectId },
 		select: {
+			id: true,
 			appUserId: true,
 			name: true,
 			description: true,
