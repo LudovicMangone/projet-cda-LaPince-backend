@@ -25,14 +25,14 @@
 		"test:unit": "vitest run **/*.unit.test.ts",
 		"test:integration": "vitest run **/*.integration.test.ts",
 		"check": "biome check --write ./src",
-		"prepare": "husky",
+		"prepare": "husky || true",
 		"docker:up": "docker compose -f docker-compose-dev.yml up",
 		"docker:down": "docker compose -f docker-compose-dev.yml down",
 		"db:migrate": "docker exec lapince-api npx prisma migrate dev",
 		"db:seed": "docker exec lapince-api npx prisma db seed",
 		"db:reset": "docker exec lapince-api npx prisma migrate reset --force",
 		"db:generate": "docker exec lapince-api npx prisma generate",
-    "start": "tsx src/app.ts"
+		"start": "tsx src/app.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",
