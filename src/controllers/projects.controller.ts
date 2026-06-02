@@ -34,7 +34,7 @@ export async function updateProjectByIdController(req: Request, res: Response) {
 
 export async function deleteProjectByIdController(req: Request, res: Response) {
 	await deleteProjectById(Number(req.params.id), Number(req.userId));
-	return res.status(204).json("Project deleted");
+	return res.status(204);
 }
 
 export async function createProjectController(req: Request, res: Response) {
