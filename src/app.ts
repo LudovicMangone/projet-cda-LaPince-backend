@@ -8,8 +8,8 @@ import { apiRateLimiter } from "./lib/rateLimiter";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { notFoundHandler } from "./middlewares/notFound.middleware";
 import authRouter from "./routers/auth.router";
-import projectsRouter from "./routers/projects.router";
 import categoriesRouter from "./routers/categories.router";
+import projectsRouter from "./routers/projects.router";
 
 // ============== SETTINGS ==================
 export const app = express(); // CORS: allows external clients (frontend, tools, other APIs) to call the API
