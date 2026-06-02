@@ -2,7 +2,6 @@ import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 
 export async function getProjectBalance(projectId: number, userId: number) {
-	// 1. Vérifier existence + accès
 	const project = await prisma.project.findUnique({
 		where: { id: projectId },
 		select: { appUserId: true },
@@ -16,7 +15,6 @@ export async function getProjectBalance(projectId: number, userId: number) {
 		throw new ForbiddenError("Accès refusé à ce projet");
 	}
 
-	// 2. Récupérer tous les participants du projet avec leurs opérations
 	const participants = await prisma.participant.findMany({
 		where: {
 			projectParticipants: {
@@ -37,7 +35,6 @@ export async function getProjectBalance(projectId: number, userId: number) {
 		},
 	});
 
-	// 3. Calculer la balance nette de chaque participant
 	return participants.map((p) => {
 		const totalPaid = p.paidOperations.reduce(
 			(sum, op) => sum + Number(op.amount),
