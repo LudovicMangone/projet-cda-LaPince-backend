@@ -5,7 +5,7 @@ export type IProjectDetails = {
 	description: string;
 	isArchived: boolean;
 	projectParticipants: IProjectParticipants[];
-	budget?: IBudget[];
+	budget?: IBudget;
 };
 
 export interface IProjectParticipants {
@@ -26,3 +26,13 @@ interface IBudget {
 	amount: number;
 	limitCriteria: number;
 }
+
+export type IUpdateProject = {
+	name?: string;
+	description?: string;
+	isArchived?: boolean;
+	budget?: {
+		amount: number;
+		limitCriteria: number;
+	};
+};

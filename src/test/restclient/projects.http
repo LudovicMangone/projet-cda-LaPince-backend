@@ -10,6 +10,21 @@ Content-Type: application/json
   "password": "password123"
 }
 
-###
+### Get one project by ID
 GET {{baseUrl}}/projects/1
 Authorization: Bearer {{token}}
+
+### Patch one project
+PATCH {{baseUrl}}/projects/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "toto",
+  "description": "test",
+  "isArchived": true,
+  "budget": {
+    "amount": 1200,
+    "limitCriteria": 80
+  }
+}
