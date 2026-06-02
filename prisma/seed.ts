@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
 import argon2 from "argon2";
-import { PrismaClient } from "../generated/prisma";
+import { PrismaClient, ProjectType } from "../generated/prisma";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
@@ -111,6 +111,7 @@ async function main() {
 		create: {
 			name: "Voyage Milan",
 			description: "Voyage entre amis à Milan, mai 2026",
+			type: ProjectType.Voyage,
 			appUserId: steve.id,
 		},
 	});
@@ -236,6 +237,7 @@ async function main() {
 		create: {
 			name: "Week-end Paris",
 			description: "Séjour à Paris pour test multi-projets",
+			type: ProjectType.Voyage,
 			appUserId: aurore.id,
 		},
 	});
