@@ -35,12 +35,23 @@ model Category {
   @@map("category")
 }
 
+enum ProjectType {
+  Voyage
+  Maison_Coloc   @map("Maison / Coloc")
+  Anniversaire
+  Repas_Sortie   @map("Repas / Sortie")
+  Pro_Travail    @map("Pro / Travail")
+  Autre
+
+  @@map("project_type")
+}
+
 model Project {
-  id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(100)
-  description String?  @db.Text
-  type        String   @default("Voyage") @db.VarChar(50)
-  isArchived  Boolean  @default(false)
+  id          Int         @id @default(autoincrement())
+  name        String      @db.VarChar(100)
+  description String?     @db.Text
+  type        ProjectType @default(Voyage)
+  isArchived  Boolean     @default(false)
   appUserId   Int
   createdAt   DateTime @default(now()) @db.Timestamptz()
   updatedAt   DateTime @updatedAt @db.Timestamptz()

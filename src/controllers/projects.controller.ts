@@ -1,7 +1,10 @@
 import type { Request, Response } from "express";
 import { createProjectSchema } from "../schemas/projects.schema";
-import { createProject } from "../services/projects/createProject.service";
-import { getProjectById, getProjectsDashboard } from "../services/projects.service";
+import {
+	createProject,
+	getProjectById,
+	getProjectsDashboard,
+} from "../services/projects.service";
 
 export async function getProjectsController(req: Request, res: Response) {
 	const cursor = req.query.cursor ? Number(req.query.cursor) : undefined;
