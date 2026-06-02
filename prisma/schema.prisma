@@ -39,6 +39,7 @@ model Project {
   id          Int      @id @default(autoincrement())
   name        String   @db.VarChar(100)
   description String?  @db.Text
+  type        String   @default("Voyage") @db.VarChar(50)
   isArchived  Boolean  @default(false)
   appUserId   Int
   createdAt   DateTime @default(now()) @db.Timestamptz()

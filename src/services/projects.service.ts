@@ -1,10 +1,14 @@
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 
-export async function getProjectsDashboard(userId: number) {
+export async function getProjectsDashboard(userId: number, cursor?: number) {
+	const take = 5;
+
 	const projects = await prisma.project.findMany({
 		where: { appUserId: userId, isArchived: false },
 		orderBy: { updatedAt: "desc" },
+		take: take + 1,
+		...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
 		select: {
 			id: true,
 			name: true,
@@ -44,29 +48,39 @@ export async function getProjectsDashboard(userId: number) {
 		},
 	});
 
-	return projects.map((project) => {
-		const participants = project.projectParticipants.map((pp) => pp.participant);
-		const spent = project.operations.reduce(
-			(sum, op) => sum + Number(op.amount),
-			0,
-		);
+	const hasMore = projects.length > take;
+	const data = hasMore ? projects.slice(0, take) : projects;
+	const nextCursor = hasMore ? data[data.length - 1].id : null;
 
-		return {
-			id: project.id,
-			name: project.name,
-			updatedAt: project.updatedAt,
-			operationsCount: project._count.operations,
-			participants,
-			budget: project.budget
-				? {
-						limit: Number(project.budget.amount),
-						limitCriteria: Number(project.budget.limitCriteria),
-						spent,
-						unreadAlertsCount: project.budget.alerts.length,
-					}
-				: null,
-		};
-	});
+	return {
+		projects: data.map((project) => {
+			const participants = project.projectParticipants.map(
+				(pp) => pp.participant,
+			);
+			const spent = project.operations.reduce(
+				(sum, op) => sum + Number(op.amount),
+				0,
+			);
+
+			return {
+				id: project.id,
+				name: project.name,
+				updatedAt: project.updatedAt,
+				operationsCount: project._count.operations,
+				participants,
+				budget: project.budget
+					? {
+							limit: Number(project.budget.amount),
+							limitCriteria: Number(project.budget.limitCriteria),
+							spent,
+							unreadAlertsCount: project.budget.alerts.length,
+						}
+					: null,
+			};
+		}),
+		nextCursor,
+		hasMore,
+	};
 }
 
 export async function getProjectById(projectId: number, userId: number) {
@@ -99,7 +113,6 @@ export async function getProjectById(projectId: number, userId: number) {
 		throw new NotFoundError("Project not found");
 	}
 
-	// Check that the user is the owner of the project
 	const isOwner = userId === project.appUserId;
 
 	if (!isOwner) {

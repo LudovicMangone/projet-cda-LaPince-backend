@@ -1,9 +1,12 @@
 import type { Request, Response } from "express";
+import { createProjectSchema } from "../schemas/projects.schema";
+import { createProject } from "../services/projects/createProject.service";
 import { getProjectById, getProjectsDashboard } from "../services/projects.service";
 
 export async function getProjectsController(req: Request, res: Response) {
-	const projects = await getProjectsDashboard(Number(req.userId));
-	return res.status(200).json({ projects });
+	const cursor = req.query.cursor ? Number(req.query.cursor) : undefined;
+	const result = await getProjectsDashboard(Number(req.userId), cursor);
+	return res.status(200).json(result);
 }
 
 export async function getProjectByIdController(req: Request, res: Response) {
@@ -11,6 +14,11 @@ export async function getProjectByIdController(req: Request, res: Response) {
 		Number(req.params.id),
 		Number(req.userId),
 	);
-
 	return res.status(200).json({ project });
+}
+
+export async function createProjectController(req: Request, res: Response) {
+	const data = await createProjectSchema.parseAsync(req.body);
+	const project = await createProject(Number(req.userId), data);
+	return res.status(201).json({ project });
 }
