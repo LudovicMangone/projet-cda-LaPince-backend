@@ -240,7 +240,7 @@ export async function deleteProjectById(projectId: number, userId: number) {
 	const project = await prisma.project.findUnique({
 		where: { id: projectId },
 	});
-	// Checks before updating
+	// Checks before delete
 	if (!project) {
 		throw new NotFoundError("Project not found");
 	}
@@ -252,6 +252,5 @@ export async function deleteProjectById(projectId: number, userId: number) {
 	const projectDelete = await prisma.project.delete({
 		where: { id: projectId },
 	});
-	console.log(projectDelete);
 	return projectDelete;
 }
