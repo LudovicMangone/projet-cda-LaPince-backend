@@ -1,0 +1,90 @@
+@baseUrl = http://localhost:3000/api
+@steveToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDM4NzIyMCwiZXhwIjoxNzgwOTkyMDIwfQ.6N_wV_QdKrRb8wHNr90JE_0t83_ZDWnC-0oZZGKt3nc
+@auroreToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc4MDM4NzI1OSwiZXhwIjoxNzgwOTkyMDU5fQ.4jBJ5yTd19VBsPDrrIVWjJqUDoqN_P2rhrVi5BfNTGM
+
+### ============================================================
+### AUTH — récupérer les tokens
+### ============================================================
+
+### Login Steve (owner projet Milan)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "steve@lapince.fr",
+  "password": "password123"
+}
+
+### Login Aurore (owner projet Paris)
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "aurore@lapince.fr",
+  "password": "password123"
+}
+
+### ============================================================
+### GET /api/projects/:id/budgets
+### ============================================================
+
+### ✅ Budgets projet Milan — Steve (owner) → 200
+### Attendu : totalSpent 594.50, totalLimit 1200, alertThreshold 80
+### spentByCategory : Restaurants 84.50, Hébergement 360, Transport 150
+GET {{baseUrl}}/projects/1/budgets
+Authorization: Bearer {{steveToken}}
+
+### ✅ Budgets projet Paris — Aurore (owner) → 200
+### Attendu : totalSpent 320, totalLimit 500, alertThreshold 70
+### spentByCategory : Transport 120, Hébergement 200
+GET {{baseUrl}}/projects/2/budgets
+Authorization: Bearer {{auroreToken}}
+
+### ❌ Budgets projet Milan — Aurore (pas owner) → 403
+GET {{baseUrl}}/projects/1/budgets
+Authorization: Bearer {{auroreToken}}
+
+### ❌ Budgets projet inexistant → 404
+GET {{baseUrl}}/projects/9999/budgets
+Authorization: Bearer {{steveToken}}
+
+### ❌ Sans token → 401
+GET {{baseUrl}}/projects/1/budgets
+
+### ❌ Id invalide (pas un nombre) → 422
+GET {{baseUrl}}/projects/abc/budgets
+Authorization: Bearer {{steveToken}}
+
+### ============================================================
+### GET /api/projects/:id/balance
+### ============================================================
+
+### ✅ Balance projet Milan — Steve (owner) → 200
+### Attendu :
+### Steve  : totalPaid 234.50, totalOwed 198.17, balance +36.33
+### Aurore : totalPaid 360,    totalOwed 198.17, balance +161.83
+### Ludo   : totalPaid 0,      totalOwed 198.16, balance -198.16
+GET {{baseUrl}}/projects/1/balance
+Authorization: Bearer {{steveToken}}
+
+### ✅ Balance projet Paris — Aurore (owner) → 200
+### Attendu :
+### Aurore : totalPaid 320, totalOwed 160, balance +160
+### Ludo   : totalPaid 0,   totalOwed 160, balance -160
+GET {{baseUrl}}/projects/2/balance
+Authorization: Bearer {{auroreToken}}
+
+### ❌ Balance projet Milan — Aurore (pas owner) → 403
+GET {{baseUrl}}/projects/1/balance
+Authorization: Bearer {{auroreToken}}
+
+### ❌ Balance projet inexistant → 404
+GET {{baseUrl}}/projects/9999/balance
+Authorization: Bearer {{steveToken}}
+
+### ❌ Sans token → 401
+GET {{baseUrl}}/projects/1/balance
+
+### ❌ Id invalide → 422
+GET {{baseUrl}}/projects/abc/balance
+Authorization: Bearer {{steveToken}}

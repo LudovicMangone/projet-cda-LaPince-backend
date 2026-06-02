@@ -28,3 +28,9 @@ export const createProjectSchema = z.object({
 });
 
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
+
+export const projectParamsSchema = z.object({
+    id: z.coerce.number().int().positive(),
+});
+
+export type ProjectParams = z.infer<typeof projectParamsSchema>;
