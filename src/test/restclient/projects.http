@@ -14,6 +14,10 @@ Content-Type: application/json
 GET {{baseUrl}}/projects/1
 Authorization: Bearer {{token}}
 
+### Delet one project by ID
+DELETE {{baseUrl}}/projects/1
+Authorization: Bearer {{token}}
+
 ### Patch one project
 PATCH {{baseUrl}}/projects/1
 Authorization: Bearer {{token}}
@@ -50,7 +54,7 @@ Authorization: Bearer {{token}}
 {
     "name": "Coloc rue Pasteur",
     "description": "Dépenses de la coloc",
-    "type": "Maison / Coloc",
+    "type": "Maison_Coloc",
     "budget": {
         "amount": 1000,
         "alertEnabled": true,

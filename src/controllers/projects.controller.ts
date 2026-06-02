@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { createProjectSchema } from "../schemas/projects.schema";
 import {
 	createProject,
+	deleteProjectById,
 	getProjectById,
 	getProjectsDashboard,
 	updateProjectById,
@@ -29,6 +30,14 @@ export async function updateProjectByIdController(req: Request, res: Response) {
 		Number(req.userId),
 	);
 	return res.status(200).json({ projectUpdate });
+}
+
+export async function deleteProjectByIdController(req: Request, res: Response) {
+	const projectDelete = await deleteProjectById(
+		Number(req.params.id),
+		Number(req.userId),
+	);
+	return res.status(204).json("Project deleted");
 }
 
 export async function createProjectController(req: Request, res: Response) {

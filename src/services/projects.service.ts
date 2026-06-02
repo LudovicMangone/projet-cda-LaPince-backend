@@ -235,3 +235,23 @@ export async function updateProjectById(
 		budget: projectData.budget,
 	};
 }
+
+export async function deleteProjectById(projectId: number, userId: number) {
+	const project = await prisma.project.findUnique({
+		where: { id: projectId },
+	});
+	// Checks before updating
+	if (!project) {
+		throw new NotFoundError("Project not found");
+	}
+	const isOwner = userId === project.appUserId;
+	if (!isOwner) {
+		throw new ForbiddenError("Only the owner of the project can access it");
+	}
+
+	const projectDelete = await prisma.project.delete({
+		where: { id: projectId },
+	});
+	console.log(projectDelete);
+	return projectDelete;
+}

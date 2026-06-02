@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
 	createProjectController,
+	deleteProjectByIdController,
 	getProjectByIdController,
 	getProjectsController,
 	updateProjectByIdController,
@@ -19,4 +20,5 @@ router.patch(
 	validateProjectUpdate,
 	updateProjectByIdController,
 );
+router.delete("/:id", authMiddleware, deleteProjectByIdController);
 export default router;
