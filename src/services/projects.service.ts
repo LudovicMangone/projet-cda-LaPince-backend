@@ -1,5 +1,5 @@
 import type { Prisma } from "../../generated/prisma";
-import type { IProjectDetails, IUpdateProject } from "../@types/projects";
+import type { IUpdateProject } from "../@types/projects";
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 
