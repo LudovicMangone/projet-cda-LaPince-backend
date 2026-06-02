@@ -20,4 +20,5 @@ export async function updateProjectByIdController(req: Request, res: Response) {
 		Number(req.params.id),
 		Number(req.userId),
 	);
+	return res.status(200).json({ projectUpdate });
 }

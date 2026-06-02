@@ -20,11 +20,11 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "name": "toto",
-  "description": "test",
+  "name": "Nouveau nom de projet",
+  "description": "Un projet simple",
   "isArchived": true,
   "budget": {
     "amount": 1200,
-    "limitCriteria": 80
+    "limitCriteria": 67
   }
 }

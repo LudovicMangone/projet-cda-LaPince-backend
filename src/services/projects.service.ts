@@ -1,3 +1,4 @@
+import type { Prisma } from "../../generated/prisma";
 import type { IProjectDetails, IUpdateProject } from "../@types/projects";
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
@@ -66,29 +67,34 @@ export async function updateProjectById(
 		throw new ForbiddenError("Only the owner of the project can access it");
 	}
 
-	const updatingData = await prisma.project.update({
-		where: { id: projectId },
-		data: {
-			name: projectData.name,
-			description: projectData.description,
-			isArchived: projectData.isArchived,
+	const dataToUpdate: Prisma.ProjectUpdateInput = {
+		name: projectData.name,
+		description: projectData.description,
+		isArchived: projectData.isArchived,
+	};
 
-			//If user add a budget limit or update it
-			...(projectData.budget && {
-				budget: {
-					upsert: {
-						create: {
-							amount: projectData.budget.amount,
-							limitCriteria: projectData.budget.limitCriteria,
-						},
-						update: {
-							amount: projectData.budget.amount,
-							limitCriteria: projectData.budget.limitCriteria,
-						},
-					},
+	//If user add a budget limit or update it, it add lines in datas:
+	if (projectData.budget) {
+		dataToUpdate.budget = {
+			upsert: {
+				create: {
+					amount: projectData.budget.amount,
+					limitCriteria: projectData.budget.limitCriteria,
 				},
-			}),
-		},
+				update: {
+					amount: projectData.budget.amount,
+					limitCriteria: projectData.budget.limitCriteria,
+				},
+			},
+		};
+	}
+
+	const updateProject = await prisma.project.update({
+		where: { id: projectId },
+		data: dataToUpdate,
 	});
-	console.log(updatingData, projectData.budget);
+	return {
+		project: updateProject,
+		budget: projectData.budget,
+	};
 }
