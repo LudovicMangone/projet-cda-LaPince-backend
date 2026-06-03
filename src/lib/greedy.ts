@@ -10,7 +10,7 @@ type Balance = {
 // Exported because balance.service.ts will use it to type the response
 export type Reimbursement = {
 	from: string; // debtor name (pays)
-	to: string;   // creditor name (receives)
+	to: string; // creditor name (receives)
 	amount: number;
 };
 
@@ -41,9 +41,9 @@ export function computeReimbursements(balances: Balance[]): Reimbursement[] {
 		// - what the debtor owes
 		// This ensures we never overpay either side
 		// Math.round * 100 / 100 : round to 2 decimal places to avoid floating point errors
-		const amount = Math.round(
-			Math.min(creditor.amount, Math.abs(debtor.amount)) * 100,
-		) / 100;
+		const amount =
+			Math.round(Math.min(creditor.amount, Math.abs(debtor.amount)) * 100) /
+			100;
 
 		// Record the transaction
 		reimbursements.push({

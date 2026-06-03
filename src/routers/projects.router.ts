@@ -18,6 +18,7 @@ router.get("/", authMiddleware, getProjectsController);
 router.post("/", authMiddleware, createProjectController);
 router.get("/:id/budgets", authMiddleware, getProjectBudgetsController);
 router.get("/:id/balance", authMiddleware, getProjectBalanceController);
+router.get("/:id/operations", authMiddleware, getOperationsController);
 router.get("/:id", authMiddleware, getProjectByIdController);
 router.patch(
 	"/:id",
@@ -26,6 +27,5 @@ router.patch(
 	updateProjectByIdController,
 );
 router.delete("/:id", authMiddleware, deleteProjectByIdController);
-router.get("/:id/operations", authMiddleware, getOperationsController);
 
 export default router;
