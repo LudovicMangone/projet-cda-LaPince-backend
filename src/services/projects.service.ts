@@ -1,4 +1,3 @@
-import { ProjectType } from "../../generated/prisma";
 import type { Prisma } from "../../generated/prisma";
 import { ProjectType } from "../../generated/prisma";
 import type { IUpdateProject } from "../@types/projects";
