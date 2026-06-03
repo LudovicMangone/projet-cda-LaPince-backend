@@ -1,4 +1,5 @@
 import { ForbiddenError, NotFoundError } from "../lib/errors";
+import { computeReimbursements } from "../lib/greedy";
 import { prisma } from "../lib/prisma";
 
 export async function getProjectBalance(projectId: number, userId: number) {
@@ -35,7 +36,7 @@ export async function getProjectBalance(projectId: number, userId: number) {
 		},
 	});
 
-	return participants.map((p) => {
+	const balances = participants.map((p) => {
 		const totalPaid = p.paidOperations.reduce(
 			(sum, op) => sum + Number(op.amount),
 			0,
@@ -46,11 +47,10 @@ export async function getProjectBalance(projectId: number, userId: number) {
 		);
 
 		return {
-			participantId: p.id,
 			name: p.name,
-			totalPaid,
-			totalOwed,
-			balance: Math.round((totalPaid - totalOwed) * 100) / 100,
+			amount: Math.round((totalPaid - totalOwed) * 100) / 100,
 		};
 	});
+
+	return computeReimbursements(balances);
 }
