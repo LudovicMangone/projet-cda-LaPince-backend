@@ -27,6 +27,7 @@ Content-Type: application/json
   "name": "Nouveau nom de projet",
   "description": "Un projet simple",
   "isArchived": true,
+  "type": "Maison_Coloc",
   "budget": {
     "amount": 1200,
     "limitCriteria": 67

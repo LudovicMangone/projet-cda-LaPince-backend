@@ -1,3 +1,5 @@
+import type { ProjectType } from "../../generated/prisma";
+
 export type IProjectDetails = {
 	id: number;
 	appUserId: number;
@@ -31,6 +33,7 @@ export type IUpdateProject = {
 	name?: string;
 	description?: string;
 	isArchived?: boolean;
+	type?: ProjectType;
 	budget?: {
 		amount: number;
 		limitCriteria: number;

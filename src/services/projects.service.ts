@@ -149,6 +149,7 @@ export async function getProjectById(projectId: number, userId: number) {
 			name: true,
 			description: true,
 			isArchived: true,
+			type: true,
 			projectParticipants: {
 				select: {
 					participant: {
@@ -208,6 +209,7 @@ export async function updateProjectById(
 		name: projectData.name,
 		description: projectData.description,
 		isArchived: projectData.isArchived,
+		type: projectData.type,
 	};
 
 	//If user add a budget limit or update it, it add lines in datas:
