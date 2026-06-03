@@ -1,13 +1,16 @@
 import { Router } from "express";
 import { getProjectBalanceController } from "../controllers/balance.controller";
 import { getProjectBudgetsController } from "../controllers/budgets.controller";
-import { getOperationsController, getProjectByIdController } from "../controllers/projects.controller";
 import {
 	createProjectController,
+	deleteProjectByIdController,
+	getOperationsController,
 	getProjectByIdController,
 	getProjectsController,
+	updateProjectByIdController,
 } from "../controllers/projects.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
+import { validateProjectUpdate } from "../middlewares/project.middleware";
 
 const router = Router();
 
@@ -16,6 +19,13 @@ router.post("/", authMiddleware, createProjectController);
 router.get("/:id/budgets", authMiddleware, getProjectBudgetsController);
 router.get("/:id/balance", authMiddleware, getProjectBalanceController);
 router.get("/:id", authMiddleware, getProjectByIdController);
+router.patch(
+	"/:id",
+	authMiddleware,
+	validateProjectUpdate,
+	updateProjectByIdController,
+);
+router.delete("/:id", authMiddleware, deleteProjectByIdController);
 router.get("/:id/operations", authMiddleware, getOperationsController);
 
 export default router;
