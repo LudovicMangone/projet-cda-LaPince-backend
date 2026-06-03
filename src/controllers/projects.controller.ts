@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { createProjectSchema } from "../schemas/projects.schema";
+import { getOperationsByUserId } from "../services/operations.service";
 import {
 	createProject,
 	deleteProjectById,
@@ -35,6 +36,14 @@ export async function updateProjectByIdController(req: Request, res: Response) {
 export async function deleteProjectByIdController(req: Request, res: Response) {
 	await deleteProjectById(Number(req.params.id), Number(req.userId));
 	return res.status(204);
+}
+
+export async function getOperationsController(req: Request, res: Response) {
+	const operations = await getOperationsByUserId(
+		Number(req.params.id),
+		Number(req.userId),
+	);
+	return res.status(200).json({ operations });
 }
 
 export async function createProjectController(req: Request, res: Response) {
