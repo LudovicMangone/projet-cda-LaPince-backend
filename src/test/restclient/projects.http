@@ -1,17 +1,45 @@
-@baseUrl = http://localhost:{{$dotenv PORT}}/api/projects
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDM4NTg3MiwiZXhwIjoxNzgwOTkwNjcyfQ.IBCQjZmOblrDPmraNgbcqeUBw3puInxqCVx7dL-Gvk4
+@baseUrl = http://localhost:{{$dotenv PORT}}/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDMyNzg4NSwiZXhwIjoxNzgwOTMyNjg1fQ.QeWHuVa-1521PVXe3XS_D4SLlTCzVBI847I7iYy7l5k
 
-###
-GET {{baseUrl}}/1
+### Login — seeded user Steve
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "steve@lapince.fr",
+  "password": "password123"
+}
+
+### Get one project by ID
+GET {{baseUrl}}/projects/1
 Authorization: Bearer {{token}}
 
+### Delet one project by ID
+DELETE {{baseUrl}}/projects/1
+Authorization: Bearer {{token}}
+
+### Patch one project
+PATCH {{baseUrl}}/projects/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Nouveau nom de projet",
+  "description": "Un projet simple",
+  "isArchived": true,
+  "type": "Maison_Coloc",
+  "budget": {
+    "amount": 1200,
+    "limitCriteria": 67
+  }
+}
 
 ### GET ALL PROJECTS (dashboard)
-GET {{baseUrl}}
+GET {{baseUrl}}/projects
 Authorization: Bearer {{token}}
 
 ### POST CREATE / PARTIAL PROJECT
-POST {{baseUrl}}
+POST {{baseUrl}}/projects
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -20,14 +48,14 @@ Authorization: Bearer {{token}}
 }
 
 ### POST CREATE / COMPLETE PROJECT
-POST {{baseUrl}}
+POST {{baseUrl}}/projects
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
     "name": "Coloc rue Pasteur",
     "description": "Dépenses de la coloc",
-    "type": "Maison / Coloc",
+    "type": "Maison_Coloc",
     "budget": {
         "amount": 1000,
         "alertEnabled": true,
@@ -40,7 +68,7 @@ Authorization: Bearer {{token}}
 }
 
 ### POST CREATE / INVALID PROJECT
-POST {{baseUrl}}
+POST {{baseUrl}}/projects
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -49,9 +77,9 @@ Authorization: Bearer {{token}}
 }
 
 ### GET / 5 PROJECTS
-GET {{baseUrl}}
+GET {{baseUrl}}/projects
 Authorization: Bearer {{token}}
 
 ### GET / NEXT PROJECTS
-GET {{baseUrl}}?cursor=1
+GET {{baseUrl}}/projects?cursor=1
 Authorization: Bearer {{token}}

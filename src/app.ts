@@ -8,6 +8,7 @@ import { apiRateLimiter } from "./lib/rateLimiter";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { notFoundHandler } from "./middlewares/notFound.middleware";
 import authRouter from "./routers/auth.router";
+import categoriesRouter from "./routers/categories.router";
 import projectsRouter from "./routers/projects.router";
 
 // ============== SETTINGS ==================
@@ -29,6 +30,7 @@ app.get("/", (_req, res) => {
 });
 app.use("/api/auth", authRouter);
 app.use("/api/projects", projectsRouter);
+app.use("/api/categories", categoriesRouter);
 
 // ============== ERRORS HANDLERS ===========
 app.use(notFoundHandler);
