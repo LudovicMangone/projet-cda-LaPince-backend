@@ -2,10 +2,10 @@ import { z } from "zod";
 
 export const projectTypeEnum = z.enum([
 	"Voyage",
-	"Maison / Coloc",
+	"Maison_Coloc",
 	"Anniversaire",
-	"Repas / Sortie",
-	"Pro / Travail",
+	"Repas_Sortie",
+	"Pro_Travail",
 	"Autre",
 ]);
 

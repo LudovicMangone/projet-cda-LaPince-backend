@@ -1,6 +1,16 @@
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
+import { ProjectType } from "../../generated/prisma";
 import type { CreateProjectInput } from "../schemas/projects.schema";
+
+const typeMap: Record<string, ProjectType> = {
+	Voyage: ProjectType.Voyage,
+	Maison_Coloc: ProjectType.Maison_Coloc,
+	Anniversaire: ProjectType.Anniversaire,
+	Repas_Sortie: ProjectType.Repas_Sortie,
+	Pro_Travail: ProjectType.Pro_Travail,
+	Autre: ProjectType.Autre,
+};
 
 export async function createProject(userId: number, data: CreateProjectInput) {
 	return prisma.$transaction(async (tx) => {
@@ -8,7 +18,7 @@ export async function createProject(userId: number, data: CreateProjectInput) {
 			data: {
 				name: data.name,
 				description: data.description,
-				type: data.type,
+				type: typeMap[data.type],
 				appUserId: userId,
 			},
 		});
@@ -67,6 +77,7 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 		select: {
 			id: true,
 			name: true,
+			type: true,
 			updatedAt: true,
 			_count: {
 				select: { operations: true },
@@ -120,16 +131,17 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 			return {
 				id: project.id,
 				name: project.name,
+				type: project.type,
 				updatedAt: project.updatedAt,
 				operationsCount: project._count.operations,
 				participants,
 				budget: project.budget
 					? {
-							limit: Number(project.budget.amount),
-							limitCriteria: Number(project.budget.limitCriteria),
-							spent,
-							unreadAlertsCount: project.budget.alerts.length,
-						}
+						limit: Number(project.budget.amount),
+						limitCriteria: Number(project.budget.limitCriteria),
+						spent,
+						unreadAlertsCount: project.budget.alerts.length,
+					}
 					: null,
 			};
 		}),
@@ -167,7 +179,7 @@ export async function getProjectById(projectId: number, userId: number) {
 	if (!project) {
 		throw new NotFoundError("Project not found");
 	}
-	
+
 	// Check that the user is the owner of the project
 	const isOwner = userId === project.appUserId;
 
