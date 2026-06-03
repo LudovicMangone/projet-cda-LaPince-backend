@@ -167,7 +167,7 @@ export async function getProjectById(projectId: number, userId: number) {
 	if (!project) {
 		throw new NotFoundError("Project not found");
 	}
-	
+
 	// Check that the user is the owner of the project
 	const isOwner = userId === project.appUserId;
 

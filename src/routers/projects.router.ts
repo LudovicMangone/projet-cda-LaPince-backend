@@ -1,8 +1,12 @@
 import { Router } from "express";
 import { getProjectBalanceController } from "../controllers/balance.controller";
 import { getProjectBudgetsController } from "../controllers/budgets.controller";
-import { getOperationsController, getProjectByIdController } from "../controllers/projects.controller";
-import { createProjectController, getProjectsController } from "../controllers/projects.controller";
+import {
+	createProjectController,
+	getOperationsController,
+	getProjectByIdController,
+	getProjectsController,
+} from "../controllers/projects.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = Router();

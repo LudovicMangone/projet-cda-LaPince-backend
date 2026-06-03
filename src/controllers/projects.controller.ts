@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { getOperationsByUserId } from "../services/operations.service";
 import { createProjectSchema } from "../schemas/projects.schema";
+import { getOperationsByUserId } from "../services/operations.service";
 import {
 	createProject,
 	getProjectById,
