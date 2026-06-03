@@ -3,8 +3,9 @@ import { prisma } from "../lib/prisma";
 
 export async function getOperationsByUserId(projectId: number, userId: number) {
 	const operations = await prisma.operation.findMany({
-		where: { 
-			projectId: projectId},
+		where: {
+			projectId: projectId,
+		},
 		select: {
 			id: true,
 			appUserId: true,
