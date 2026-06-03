@@ -1,6 +1,6 @@
+import { ProjectType } from "../../generated/prisma";
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
-import { ProjectType } from "../../generated/prisma";
 import type { CreateProjectInput } from "../schemas/projects.schema";
 
 const typeMap: Record<string, ProjectType> = {
@@ -137,11 +137,11 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 				participants,
 				budget: project.budget
 					? {
-						limit: Number(project.budget.amount),
-						limitCriteria: Number(project.budget.limitCriteria),
-						spent,
-						unreadAlertsCount: project.budget.alerts.length,
-					}
+							limit: Number(project.budget.amount),
+							limitCriteria: Number(project.budget.limitCriteria),
+							spent,
+							unreadAlertsCount: project.budget.alerts.length,
+						}
 					: null,
 			};
 		}),
