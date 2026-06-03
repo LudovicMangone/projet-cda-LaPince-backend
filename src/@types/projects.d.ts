@@ -1,5 +1,3 @@
-import type { ProjectType } from "../../generated/prisma";
-
 export type IProjectDetails = {
 	id: number;
 	appUserId: number;
