@@ -28,6 +28,6 @@ router.patch(
 );
 router.delete("/:id", authMiddleware, deleteProjectByIdController);
 router.get("/:id/operations", authMiddleware, getOperationsController);
-router.post("/:id/operations", authMiddleware, createOperationsController)
+router.post("/:id/operations", authMiddleware, createOperationsController);
 
 export default router;
