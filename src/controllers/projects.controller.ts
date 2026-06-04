@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import { createProjectSchema } from "../schemas/projects.schema";
 import { 
 	createOperation,
-	getOperationsByUserId,
+	getOperationsByPojectId,
 } from "../services/operations.service";
 import {
 	createProject,
@@ -48,7 +48,7 @@ export async function deleteProjectByIdController(req: Request, res: Response) {
 }
 
 export async function getOperationsController(req: Request, res: Response) {
-	const operations = await getOperationsByUserId(
+	const operations = await getOperationsByPojectId(
 		Number(req.params.id),
 		Number(req.userId),
 	);

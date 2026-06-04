@@ -1,7 +1,7 @@
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 
-export async function getOperationsByUserId(projectId: number, userId: number) {
+export async function getOperationsByPojectId(projectId: number, userId: number) {
 	const operations = await prisma.operation.findMany({
 		where: {
 			projectId: projectId,
