@@ -1,0 +1,46 @@
+tags:
+  - name: Auth
+    description: Inscription, connexion, déconnexion et récupération de l'utilisateur connecté
+
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      summary: Inscription d'un nouvel utilisateur
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  example: Michel
+                email:
+                  type: string
+                  format: email
+                  maxLength: 255
+                  example: michel@lapince.fr
+                password:
+                  type: string
+                  minLength: 8
+                  maxLength: 128
+                  description: "Min. 8 caractères — doit contenir : 1 majuscule, 1 minuscule, 1 chiffre"
+                  example: MonMotDePasse1
+      responses:
+        "201":
+          description: Utilisateur créé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                
