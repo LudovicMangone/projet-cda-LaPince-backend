@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getProjectBalanceController } from "../controllers/balance.controller";
 import { getProjectBudgetsController } from "../controllers/budgets.controller";
 import {
+	createOperationsController,
 	createProjectController,
 	getOperationsController,
 	getProjectByIdController,
@@ -17,5 +18,6 @@ router.get("/:id/budgets", authMiddleware, getProjectBudgetsController);
 router.get("/:id/balance", authMiddleware, getProjectBalanceController);
 router.get("/:id", authMiddleware, getProjectByIdController);
 router.get("/:id/operations", authMiddleware, getOperationsController);
+router.post("/:id/operations", authMiddleware, createOperationsController)
 
 export default router;
