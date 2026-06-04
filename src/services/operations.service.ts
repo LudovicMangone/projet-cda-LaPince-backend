@@ -27,7 +27,6 @@ export async function getOperationsByUserId(projectId: number, userId: number) {
 						select: {
 							name: true,
 							id: true,
-
 						},
 					},
 				},
@@ -48,7 +47,6 @@ export async function getOperationsByUserId(projectId: number, userId: number) {
 
 	return operations;
 }
-
 
 export async function createOperation(projectId: number, userId: number) {
 	const operations = await prisma.operation.findMany({

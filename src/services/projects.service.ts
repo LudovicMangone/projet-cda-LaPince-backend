@@ -184,11 +184,11 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 				participants,
 				budget: project.budget
 					? {
-						limit: Number(project.budget.amount),
-						limitCriteria: Number(project.budget.limitCriteria),
-						spent,
-						unreadAlertsCount: project.budget.alerts.length,
-					}
+							limit: Number(project.budget.amount),
+							limitCriteria: Number(project.budget.limitCriteria),
+							spent,
+							unreadAlertsCount: project.budget.alerts.length,
+						}
 					: null,
 				// User's net balance in this project (null if not a participant)
 				userBalance: userBalanceByProject[project.id] ?? null,
