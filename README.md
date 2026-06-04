@@ -140,6 +140,7 @@ cd projet-cda-LaPince-backend
 ```bash
 npm install
 ```
+!! ne pas audit fix (vunérabilité ne nous concerne pas car sinon repasse en prisma 6)
 
 ### 3. Configurer les variables d'environnement
 
