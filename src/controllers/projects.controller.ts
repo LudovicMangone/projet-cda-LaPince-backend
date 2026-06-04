@@ -30,7 +30,7 @@ export async function createProjectController(req: Request, res: Response) {
 	const data = await createProjectSchema.parseAsync(req.body);
 	const project = await createProject(Number(req.userId), data);
 	return res.status(201).json({ project });
-  
+}  
   
 export async function updateProjectByIdController(req: Request, res: Response) {
 	const projectData = req.body;
@@ -54,13 +54,6 @@ export async function getOperationsController(req: Request, res: Response) {
 	);
 	return res.status(200).json({ operations });
 }
-
-export async function createProjectController(req: Request, res: Response) {
-	const data = await createProjectSchema.parseAsync(req.body);
-	const project = await createProject(Number(req.userId), data);
-	return res.status(201).json({ project });
-}
-
 
 export async function createOperationsController(req: Request, res: Response) {
 	const operations = await createOperation(
