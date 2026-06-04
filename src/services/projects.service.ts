@@ -70,7 +70,7 @@ export async function createProject(userId: number, data: CreateProjectInput) {
 
 export async function getProjectsDashboard(userId: number, cursor?: number) {
 	const take = 5;
-	const [projects, total] = await Promise.all([
+	const [projects, total, userParticipants] = await Promise.all([
 		prisma.project.findMany({
 			where: { appUserId: userId, isArchived: false },
 			orderBy: { updatedAt: "desc" },
@@ -118,8 +118,49 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 		prisma.project.count({
 			where: { appUserId: userId, isArchived: false },
 		}),
+		// Fetch all participants linked to the user to compute per-project balance
+		prisma.participant.findMany({
+			where: { appUserId: userId },
+			select: {
+				projectParticipants: {
+					select: { projectId: true },
+				},
+				paidOperations: {
+					select: { amount: true, projectId: true },
+				},
+				operationParticipants: {
+					select: {
+						repartitionAmount: true,
+						operation: { select: { projectId: true } },
+					},
+				},
+			},
+		}),
 	]);
 
+	// Build a lookup map: projectId → user's net balance in that project
+	// balance > 0 : the user is owed money
+	// balance < 0 : the user owes money
+	// balance = 0 : settled
+	const userBalanceByProject: Record<number, number> = {};
+
+	for (const participant of userParticipants) {
+		for (const pp of participant.projectParticipants) {
+			// Sum all amounts paid by the user in this specific project
+			const totalPaid = participant.paidOperations
+				.filter((op) => op.projectId === pp.projectId)
+				.reduce((sum, op) => sum + Number(op.amount), 0);
+
+			// Sum all amounts the user owes in this specific project
+			const totalOwed = participant.operationParticipants
+				.filter((op) => op.operation.projectId === pp.projectId)
+				.reduce((sum, op) => sum + Number(op.repartitionAmount), 0);
+
+			// Round to 2 decimal places to avoid floating point issues (e.g. 36.330000001)
+			userBalanceByProject[pp.projectId] =
+				Math.round((totalPaid - totalOwed) * 100) / 100;
+		}
+	}
 	const hasMore = projects.length > take;
 	const data = hasMore ? projects.slice(0, take) : projects;
 	const nextCursor = hasMore ? data[data.length - 1].id : null;
@@ -149,6 +190,8 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 						unreadAlertsCount: project.budget.alerts.length,
 					}
 					: null,
+				// User's net balance in this project (null if not a participant)
+				userBalance: userBalanceByProject[project.id] ?? null,
 			};
 		}),
 		nextCursor,
