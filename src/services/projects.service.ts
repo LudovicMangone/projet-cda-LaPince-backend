@@ -166,6 +166,7 @@ export async function getProjectById(projectId: number, userId: number) {
 				select: {
 					participant: {
 						select: {
+							id: true,
 							appUser: {
 								select: {
 									id: true,

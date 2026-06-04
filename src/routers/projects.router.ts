@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getProjectBalanceController } from "../controllers/balance.controller";
 import { getProjectBudgetsController } from "../controllers/budgets.controller";
 import {
+	createOperationsController,
 	createProjectController,
 	deleteProjectByIdController,
 	getOperationsController,
@@ -27,5 +28,6 @@ router.patch(
 );
 router.delete("/:id", authMiddleware, deleteProjectByIdController);
 router.get("/:id/operations", authMiddleware, getOperationsController);
+router.post("/:id/operations", authMiddleware, createOperationsController)
 
 export default router;
