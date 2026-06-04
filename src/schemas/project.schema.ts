@@ -11,6 +11,7 @@ export const updateProjectSchema = z
 		description: z.string().trim().max(500).optional(),
 		isArchived: z.boolean().optional(),
 		budget: budgetSchema.optional(),
+		type: z.string().optional(),
 	})
 	.refine(
 		(data) =>
