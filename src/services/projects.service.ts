@@ -1,6 +1,18 @@
+import type { Prisma } from "../../generated/prisma";
+import { ProjectType } from "../../generated/prisma";
+import type { IUpdateProject } from "../@types/projects";
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 import type { CreateProjectInput } from "../schemas/projects.schema";
+
+const typeMap: Record<string, ProjectType> = {
+	Voyage: ProjectType.Voyage,
+	Maison_Coloc: ProjectType.Maison_Coloc,
+	Anniversaire: ProjectType.Anniversaire,
+	Repas_Sortie: ProjectType.Repas_Sortie,
+	Pro_Travail: ProjectType.Pro_Travail,
+	Autre: ProjectType.Autre,
+};
 
 export async function createProject(userId: number, data: CreateProjectInput) {
 	return prisma.$transaction(async (tx) => {
@@ -8,7 +20,7 @@ export async function createProject(userId: number, data: CreateProjectInput) {
 			data: {
 				name: data.name,
 				description: data.description,
-				type: data.type,
+				type: typeMap[data.type],
 				appUserId: userId,
 			},
 		});
@@ -67,6 +79,7 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 		select: {
 			id: true,
 			name: true,
+			type: true,
 			updatedAt: true,
 			_count: {
 				select: { operations: true },
@@ -120,6 +133,7 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 			return {
 				id: project.id,
 				name: project.name,
+				type: project.type,
 				updatedAt: project.updatedAt,
 				operationsCount: project._count.operations,
 				participants,
@@ -147,6 +161,7 @@ export async function getProjectById(projectId: number, userId: number) {
 			name: true,
 			description: true,
 			isArchived: true,
+			type: true,
 			projectParticipants: {
 				select: {
 					participant: {
@@ -160,6 +175,13 @@ export async function getProjectById(projectId: number, userId: number) {
 							name: true,
 						},
 					},
+				},
+			},
+			budget: {
+				select: {
+					id: true,
+					amount: true,
+					limitCriteria: true,
 				},
 			},
 		},
@@ -177,4 +199,73 @@ export async function getProjectById(projectId: number, userId: number) {
 	}
 
 	return project;
+}
+
+export async function updateProjectById(
+	projectData: IUpdateProject,
+	projectId: number,
+	userId: number,
+) {
+	const project = await prisma.project.findUnique({
+		where: { id: projectId },
+	});
+	// Checks before updating
+	if (!project) {
+		throw new NotFoundError("Project not found");
+	}
+	const isOwner = userId === project.appUserId;
+	if (!isOwner) {
+		throw new ForbiddenError("Only the owner of the project can access it");
+	}
+
+	const dataToUpdate: Prisma.ProjectUpdateInput = {
+		name: projectData.name,
+		description: projectData.description,
+		isArchived: projectData.isArchived,
+		type: projectData.type,
+	};
+
+	//If user add a budget limit or update it, it add lines in datas:
+	if (projectData.budget) {
+		dataToUpdate.budget = {
+			upsert: {
+				create: {
+					amount: projectData.budget.amount,
+					limitCriteria: projectData.budget.limitCriteria,
+				},
+				update: {
+					amount: projectData.budget.amount,
+					limitCriteria: projectData.budget.limitCriteria,
+				},
+			},
+		};
+	}
+
+	const updateProject = await prisma.project.update({
+		where: { id: projectId },
+		data: dataToUpdate,
+	});
+	return {
+		project: updateProject,
+		budget: projectData.budget,
+	};
+}
+
+export async function deleteProjectById(projectId: number, userId: number) {
+	const project = await prisma.project.findUnique({
+		where: { id: projectId },
+	});
+	// Checks before delete
+	if (!project) {
+		throw new NotFoundError("Project not found");
+	}
+	const isOwner = userId === project.appUserId;
+	if (!isOwner) {
+		throw new ForbiddenError("Only the owner of the project can access it");
+	}
+
+	const projectDelete = await prisma.project.delete({
+		where: { id: projectId },
+	});
+	return projectDelete;
 }
