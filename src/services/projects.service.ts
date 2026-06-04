@@ -15,16 +15,22 @@ const typeMap: Record<string, ProjectType> = {
 };
 
 export async function createProject(userId: number, data: CreateProjectInput) {
+	// Prisma transaction — all operations run in a single DB transaction.
+	// If any step fails, everything is rolled back automatically.
+	// The `tx` object replaces `prisma` inside the transaction.
 	return prisma.$transaction(async (tx) => {
+		// Step 1 — Create the project linked to the connected user
 		const project = await tx.project.create({
 			data: {
 				name: data.name,
 				description: data.description,
-				type: typeMap[data.type],
+				type: typeMap[data.type], // Convert Zod enum key to Prisma ProjectType
 				appUserId: userId,
 			},
 		});
 
+		// Step 2 — Optionally create a budget for the project
+		// If alertEnabled is false, limitCriteria defaults to 100
 		if (data.budget) {
 			await tx.budget.create({
 				data: {
@@ -37,6 +43,8 @@ export async function createProject(userId: number, data: CreateProjectInput) {
 			});
 		}
 
+		// Step 3 — Optionally create participants and link them to the project
+		// Each participant is created first, then linked via the join table ProjectParticipant
 		if (data.participants?.length) {
 			for (const p of data.participants) {
 				const participant = await tx.participant.create({
@@ -48,6 +56,7 @@ export async function createProject(userId: number, data: CreateProjectInput) {
 			}
 		}
 
+		// Step 4 — Return the full project with budget and participants
 		return tx.project.findUnique({
 			where: { id: project.id },
 			select: {
@@ -184,11 +193,11 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 				participants,
 				budget: project.budget
 					? {
-							limit: Number(project.budget.amount),
-							limitCriteria: Number(project.budget.limitCriteria),
-							spent,
-							unreadAlertsCount: project.budget.alerts.length,
-						}
+						limit: Number(project.budget.amount),
+						limitCriteria: Number(project.budget.limitCriteria),
+						spent,
+						unreadAlertsCount: project.budget.alerts.length,
+					}
 					: null,
 				// User's net balance in this project (null if not a participant)
 				userBalance: userBalanceByProject[project.id] ?? null,

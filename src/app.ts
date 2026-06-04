@@ -8,9 +8,9 @@ import { apiRateLimiter } from "./lib/rateLimiter";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { notFoundHandler } from "./middlewares/notFound.middleware";
 import authRouter from "./routers/auth.router";
+import balanceRouter from "./routers/balance.router";
 import categoriesRouter from "./routers/categories.router";
 import projectsRouter from "./routers/projects.router";
-import balanceRouter from "./routers/balance.router";
 
 // ============== SETTINGS ==================
 export const app = express(); // CORS: allows external clients (frontend, tools, other APIs) to call the API
@@ -32,7 +32,7 @@ app.get("/", (_req, res) => {
 app.use("/api/auth", authRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/categories", categoriesRouter);
-app.use("/api/balance", balanceRouter)
+app.use("/api/balance", balanceRouter);
 
 // ============== ERRORS HANDLERS ===========
 app.use(notFoundHandler);
