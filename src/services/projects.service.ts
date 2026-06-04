@@ -70,51 +70,55 @@ export async function createProject(userId: number, data: CreateProjectInput) {
 
 export async function getProjectsDashboard(userId: number, cursor?: number) {
 	const take = 5;
-
-	const projects = await prisma.project.findMany({
-		where: { appUserId: userId, isArchived: false },
-		orderBy: { updatedAt: "desc" },
-		take: take + 1,
-		...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
-		select: {
-			id: true,
-			name: true,
-			type: true,
-			updatedAt: true,
-			_count: {
-				select: { operations: true },
-			},
-			projectParticipants: {
-				select: {
-					participant: {
-						select: {
-							id: true,
-							name: true,
-							appUserId: true,
-						},
-					},
+	const [projects, total] = await Promise.all([
+		prisma.project.findMany({
+			where: { appUserId: userId, isArchived: false },
+			orderBy: { updatedAt: "desc" },
+			take: take + 1,
+			...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
+			select: {
+				id: true,
+				name: true,
+				type: true,
+				updatedAt: true,
+				_count: {
+					select: { operations: true },
 				},
-			},
-			budget: {
-				select: {
-					amount: true,
-					limitCriteria: true,
-					alerts: {
-						where: {
-							appUserAlerts: {
-								some: { appUserId: userId },
+				projectParticipants: {
+					select: {
+						participant: {
+							select: {
+								id: true,
+								name: true,
+								appUserId: true,
 							},
-							status: "unread",
 						},
-						select: { id: true },
 					},
 				},
+				budget: {
+					select: {
+						amount: true,
+						limitCriteria: true,
+						alerts: {
+							where: {
+								appUserAlerts: {
+									some: { appUserId: userId },
+								},
+								status: "unread",
+							},
+							select: { id: true },
+						},
+					},
+				},
+				operations: {
+					select: { amount: true },
+				},
 			},
-			operations: {
-				select: { amount: true },
-			},
-		},
-	});
+		}),
+		prisma.project.count({
+			where: { appUserId: userId, isArchived: false },
+		}),
+	]);
 
 	const hasMore = projects.length > take;
 	const data = hasMore ? projects.slice(0, take) : projects;
@@ -139,16 +143,17 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 				participants,
 				budget: project.budget
 					? {
-							limit: Number(project.budget.amount),
-							limitCriteria: Number(project.budget.limitCriteria),
-							spent,
-							unreadAlertsCount: project.budget.alerts.length,
-						}
+						limit: Number(project.budget.amount),
+						limitCriteria: Number(project.budget.limitCriteria),
+						spent,
+						unreadAlertsCount: project.budget.alerts.length,
+					}
 					: null,
 			};
 		}),
 		nextCursor,
 		hasMore,
+		total,
 	};
 }
 
@@ -166,6 +171,7 @@ export async function getProjectById(projectId: number, userId: number) {
 				select: {
 					participant: {
 						select: {
+							id: true,
 							appUser: {
 								select: {
 									id: true,
