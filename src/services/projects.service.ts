@@ -81,7 +81,7 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 	const take = 5;
 	const [projects, total, userParticipants] = await Promise.all([
 		prisma.project.findMany({
-			where: { appUserId: userId, isArchived: false },
+			where: { appUserId: userId },
 			orderBy: { updatedAt: "desc" },
 			take: take + 1,
 			...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
@@ -89,6 +89,7 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 				id: true,
 				name: true,
 				type: true,
+				isArchived: true,
 				updatedAt: true,
 				_count: {
 					select: { operations: true },
@@ -125,7 +126,7 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 			},
 		}),
 		prisma.project.count({
-			where: { appUserId: userId, isArchived: false },
+			where: { appUserId: userId },
 		}),
 		// Fetch all participants linked to the user to compute per-project balance
 		prisma.participant.findMany({
@@ -188,6 +189,7 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 				id: project.id,
 				name: project.name,
 				type: project.type,
+				isArchived: project.isArchived,
 				updatedAt: project.updatedAt,
 				operationsCount: project._count.operations,
 				participants,
