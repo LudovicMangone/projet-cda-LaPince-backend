@@ -23,8 +23,12 @@ export async function createOperationsController(req: Request, res: Response) {
 
 export async function updateOperationsController(req: Request, res: Response) {
 	const data = await createOperationSchema.parseAsync(req.body);
-	const operationId = Number(req.params.operationId)
+	const operationId = Number(req.params.operationId);
 
-	const operations = await updateOperation(operationId, data, Number(req.userId));
+	const operations = await updateOperation(
+		operationId,
+		data,
+		Number(req.userId),
+	);
 	return res.status(200).json({ operations });
 }
