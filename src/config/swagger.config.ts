@@ -25,7 +25,7 @@ const options: swaggerJsdoc.Options = {
 		},
 		security: [{ bearerAuth: [] }],
 	},
-	apis: ["./src/docs/*.yml"],// swagger-jsdoc va lire les fichiers .yml
-} 
+	apis: ["./src/docs/*.yml"], // swagger-jsdoc va lire les fichiers .yml
+};
 
 export const swaggerSpec = swaggerJsdoc(options);
