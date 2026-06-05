@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { createProjectSchema } from "../schemas/projects.schema";
+import { updateProjectParticipants } from "../services/participants.service";
 import {
 	createProject,
 	deleteProjectById,
