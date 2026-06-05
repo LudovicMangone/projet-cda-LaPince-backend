@@ -31,7 +31,9 @@ export async function updateProjectParticipants(
 
 	// Build arrays of ids
 	const currentIds = currentParticipants.map((cp) => cp.participantId);
-	const incomingIds = participantsData.filter((p) => p.id > 0).map((p) => p.id);
+	const incomingIds = participantsData
+		.filter((p): p is IParticipant & { id: number } => typeof p.id === "number")
+		.map((p) => p.id);
 
 	// Detect deleted participants
 	const removedParticipantIds = currentIds.filter(
@@ -116,11 +118,9 @@ export async function updateProjectParticipants(
 		}
 
 		// Call participants linked to the project to return
-		const updatedParticipants = await prisma.projectParticipant.findMany({
+		const updatedParticipants = await tx.projectParticipant.findMany({
 			where: { projectId },
-			include: {
-				participant: true,
-			},
+			include: { participant: true },
 		});
 		return updatedParticipants;
 	});

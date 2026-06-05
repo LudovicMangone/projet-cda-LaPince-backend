@@ -44,6 +44,7 @@ export async function updateProjectParticipantsController(
 	res: Response,
 ) {
 	const participantsData = req.body;
+	console.log(participantsData);
 	const participantsUpdate = await updateProjectParticipants(
 		participantsData,
 		Number(req.params.id),
