@@ -70,3 +70,41 @@ export async function getProjectBalance(projectId: number, userId: number) {
 		balances.map((b) => ({ name: b.name, amount: b.balance })),
 	);
 }
+
+// Compute the global balance of the connected user across all their projects
+export async function getUserGlobalBalance(userId: number) {
+	// Fetch all participants linked to the user with their paid/owed amounts
+	const userParticipants = await prisma.participant.findMany({
+		where: { appUserId: userId },
+		select: {
+			paidOperations: {
+				select: { amount: true },
+			},
+			operationParticipants: {
+				select: { repartitionAmount: true },
+			},
+		},
+	});
+
+	let totalPaid = 0;
+	let totalOwed = 0;
+
+	for (const participant of userParticipants) {
+		totalPaid += participant.paidOperations.reduce(
+			(sum, op) => sum + Number(op.amount),
+			0,
+		);
+		totalOwed += participant.operationParticipants.reduce(
+			(sum, op) => sum + Number(op.repartitionAmount),
+			0,
+		);
+	}
+
+	const netBalance = Math.round((totalPaid - totalOwed) * 100) / 100;
+	// toReceive : user paid more than owed (positive balance)
+	const toReceive = netBalance > 0 ? netBalance : 0;
+	// toDo : user owes more than paid (negative balance)
+	const toDo = netBalance < 0 ? Math.abs(netBalance) : 0;
+
+	return { toDo, toReceive, netBalance };
+}
