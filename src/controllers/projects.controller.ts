@@ -47,14 +47,14 @@ export async function updateProjectParticipantsController(
 	req: Request,
 	res: Response,
 ) {
-	console.log(req.body);
-
 	const participantsData = req.body;
+	console.log(participantsData);
 	const participantsUpdate = await updateProjectParticipants(
 		participantsData,
 		Number(req.params.id),
 		Number(req.userId),
 	);
+	console.log(participantsUpdate);
 	return res.status(200).json({ participantsUpdate });
 }
 
