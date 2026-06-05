@@ -29,9 +29,12 @@ const appUserSchema = z.object({
 });
 
 const participantSchema = z.object({
-	id: z.number().positive(),
-	name: z.string().min(2).max(100),
-	appUser: appUserSchema.nullable(),
+	id: z.number().positive().optional(),
+	name: z
+		.string("Au moins deux lettres doivent être renseignées")
+		.min(2, "Au moins deux lettres doivent être renseignées")
+		.max(100),
+	appUser: appUserSchema.nullable().optional(),
 });
 
 export const updateProjectParticipantsSchema = z.array(participantSchema);
