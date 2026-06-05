@@ -21,6 +21,12 @@ router.get("/:id/budgets", authMiddleware, getProjectBudgetsController);
 router.get("/:id/balance", authMiddleware, getProjectBalanceController);
 router.get("/:id/operations", authMiddleware, getOperationsController);
 router.post("/:id/operations", authMiddleware, createOperationsController);
+router.patch(
+	"/:id/participants",
+	authMiddleware,
+	// validateProjectParticipantsUpdate,
+	// updateProjectParticipantsController,
+);
 router.get("/:id", authMiddleware, getProjectByIdController);
 router.patch(
 	"/:id",
