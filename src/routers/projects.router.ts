@@ -2,15 +2,23 @@ import { Router } from "express";
 import { getProjectBalanceController } from "../controllers/balance.controller";
 import { getProjectBudgetsController } from "../controllers/budgets.controller";
 import {
+	createOperationsController,
+	getOperationsController,
+	updateOperationsController,
+} from "../controllers/operations.controller";
+import {
 	createProjectController,
 	deleteProjectByIdController,
-	getOperationsController,
 	getProjectByIdController,
 	getProjectsController,
 	updateProjectByIdController,
+	updateProjectParticipantsController,
 } from "../controllers/projects.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
-import { validateProjectUpdate } from "../middlewares/project.middleware";
+import {
+	validateProjectParticipantsUpdate,
+	validateProjectUpdate,
+} from "../middlewares/project.middleware";
 
 const router = Router();
 
@@ -18,6 +26,18 @@ router.get("/", authMiddleware, getProjectsController);
 router.post("/", authMiddleware, createProjectController);
 router.get("/:id/budgets", authMiddleware, getProjectBudgetsController);
 router.get("/:id/balance", authMiddleware, getProjectBalanceController);
+router.get("/:id/operations", authMiddleware, getOperationsController);
+router.post("/:id/operations", authMiddleware, createOperationsController);
+router.patch(
+	"/:id/operations/:operationId",
+	authMiddleware,
+	updateOperationsController);
+router.patch(
+	"/:id/participants",
+	authMiddleware,
+	validateProjectParticipantsUpdate,
+	updateProjectParticipantsController,
+);
 router.get("/:id", authMiddleware, getProjectByIdController);
 router.patch(
 	"/:id",
@@ -26,6 +46,5 @@ router.patch(
 	updateProjectByIdController,
 );
 router.delete("/:id", authMiddleware, deleteProjectByIdController);
-router.get("/:id/operations", authMiddleware, getOperationsController);
 
 export default router;

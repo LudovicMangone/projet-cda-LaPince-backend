@@ -15,6 +15,7 @@ export interface IProjectParticipants {
 }
 
 interface IParticipant {
+	id: number;
 	appUser: IAppUser | null;
 	name: string;
 }

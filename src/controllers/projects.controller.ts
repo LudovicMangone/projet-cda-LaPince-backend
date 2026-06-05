@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { createProjectSchema } from "../schemas/projects.schema";
-import { getOperationsByUserId } from "../services/operations.service";
+import { updateProjectParticipants } from "../services/participants.service";
 import {
 	createProject,
 	deleteProjectById,
@@ -23,6 +23,12 @@ export async function getProjectByIdController(req: Request, res: Response) {
 	return res.status(200).json({ project });
 }
 
+export async function createProjectController(req: Request, res: Response) {
+	const data = await createProjectSchema.parseAsync(req.body);
+	const project = await createProject(Number(req.userId), data);
+	return res.status(201).json({ project });
+}
+
 export async function updateProjectByIdController(req: Request, res: Response) {
 	const projectData = req.body;
 	const projectUpdate = await updateProjectById(
@@ -33,21 +39,21 @@ export async function updateProjectByIdController(req: Request, res: Response) {
 	return res.status(200).json({ projectUpdate });
 }
 
-export async function deleteProjectByIdController(req: Request, res: Response) {
-	await deleteProjectById(Number(req.params.id), Number(req.userId));
-	return res.status(204);
-}
-
-export async function getOperationsController(req: Request, res: Response) {
-	const operations = await getOperationsByUserId(
+export async function updateProjectParticipantsController(
+	req: Request,
+	res: Response,
+) {
+	const participantsData = req.body;
+	const participantsUpdate = await updateProjectParticipants(
+		participantsData,
 		Number(req.params.id),
 		Number(req.userId),
 	);
-	return res.status(200).json({ operations });
+	const response = participantsUpdate.result;
+	return res.status(200).json(response);
 }
 
-export async function createProjectController(req: Request, res: Response) {
-	const data = await createProjectSchema.parseAsync(req.body);
-	const project = await createProject(Number(req.userId), data);
-	return res.status(201).json({ project });
+export async function deleteProjectByIdController(req: Request, res: Response) {
+	await deleteProjectById(Number(req.params.id), Number(req.userId));
+	return res.status(204);
 }

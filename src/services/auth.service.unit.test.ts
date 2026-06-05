@@ -35,7 +35,10 @@ describe("[registerUser]", () => {
 			id: 1,
 			name: "Ludo",
 			email: "ludo@lapince.fr",
-		} as any);
+			password: "hashed_password",
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
 
 		// ACT
 		const result = await registerUser({
@@ -137,7 +140,10 @@ describe("[getMe]", () => {
 			id: 1,
 			name: "Steve",
 			email: "steve@lapince.fr",
-		} as any);
+			password: "hashed_password",
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		});
 
 		// ACT
 		const result = await getMe(1);

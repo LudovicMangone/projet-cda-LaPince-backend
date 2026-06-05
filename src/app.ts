@@ -2,12 +2,15 @@ import cors from "cors";
 import express from "express";
 import { xss } from "express-xss-sanitizer";
 import helmet from "helmet";
+import swaggerUi from "swagger-ui-express";
 import { allowedOrigins } from "./config/cors.config";
 import { envConfig } from "./config/env.config";
+import { swaggerSpec } from "./config/swagger.config";
 import { apiRateLimiter } from "./lib/rateLimiter";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { notFoundHandler } from "./middlewares/notFound.middleware";
 import authRouter from "./routers/auth.router";
+import balanceRouter from "./routers/balance.router";
 import categoriesRouter from "./routers/categories.router";
 import projectsRouter from "./routers/projects.router";
 
@@ -18,19 +21,22 @@ app.use(cors({ origin: allowedOrigins }));
 // XSS sanitizer: protects against malicious scripts injected in user input
 app.use(xss());
 // Standard headers reforced, hidden infos and XSS attack blocker
-app.use(helmet());
+app.use((req, res, next) => {
+	if (req.path === "/" || req.path.startsWith("/-/")) return next();
+	helmet()(req, res, next);
+});
 // Parses JSON request bodies: required to read req.body in POST / PATCH / PUT requests. Using a limit for payload attac
 app.use(express.json({ limit: envConfig.jsonLimit }));
 // Rate limiter to protect the API against abuse and excessive requests (basic DDoS / brute-force protection)
 app.use(apiRateLimiter);
 
 // ============== ROUTES ====================
-app.get("/", (_req, res) => {
-	res.send("Hello World");
-});
+app.use("/", swaggerUi.serve);
+app.get("/", swaggerUi.setup(swaggerSpec));
 app.use("/api/auth", authRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/categories", categoriesRouter);
+app.use("/api/balance", balanceRouter);
 
 // ============== ERRORS HANDLERS ===========
 app.use(notFoundHandler);

@@ -1,12 +1,13 @@
 @baseUrl = http://localhost:3000/api
-@steveToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDM4NzIyMCwiZXhwIjoxNzgwOTkyMDIwfQ.6N_wV_QdKrRb8wHNr90JE_0t83_ZDWnC-0oZZGKt3nc
-@auroreToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc4MDM4NzI1OSwiZXhwIjoxNzgwOTkyMDU5fQ.4jBJ5yTd19VBsPDrrIVWjJqUDoqN_P2rhrVi5BfNTGM
+@steveToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDQ4Nzg0MywiZXhwIjoxNzgxMDkyNjQzfQ.t00z_Ai5OK1KFYr8vs_ZioeVD39r9RUot0p1irQ_xzA
+@auroreToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImlhdCI6MTc4MDQ4Nzg1NiwiZXhwIjoxNzgxMDkyNjU2fQ.BH2UeTOJx7h3xQs-3nvwppj85p5fKru1LtcMsPXkXUc
 
-### ============================================================
-### AUTH — récupérer les tokens
-### ============================================================
+# =============================================================
+# AUTH — Récupérer les tokens avant de tester
+# =============================================================
 
-### Login Steve (owner projet Milan)
+### Login Steve (owner projet Milan — id: 1)
+# Attendu : 200 — { user: { id: 1, name: "Steve" }, token: "..." }
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
@@ -15,7 +16,8 @@ Content-Type: application/json
   "password": "password123"
 }
 
-### Login Aurore (owner projet Paris)
+### Login Aurore (owner projet Paris — id: 2)
+# Attendu : 200 — { user: { id: 2, name: "Aurore" }, token: "..." }
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
@@ -24,67 +26,151 @@ Content-Type: application/json
   "password": "password123"
 }
 
-### ============================================================
-### GET /api/projects/:id/budgets
-### ============================================================
+# =============================================================
+# GET /api/projects/:id/budgets
+# =============================================================
 
-### ✅ Budgets projet Milan — Steve (owner) → 200
-### Attendu : totalSpent 594.50, totalLimit 1200, alertThreshold 80
-### spentByCategory : Restaurants 84.50, Hébergement 360, Transport 150
+### ✅ [200] Budgets projet Milan — Steve (owner)
+# Attendu :
+# {
+#   "totalSpent": 594.5,
+#   "totalLimit": 1200,
+#   "alertThreshold": 80,
+#   "spentByCategory": [
+#     { "categoryId": 1, "categoryName": "Hébergement", "color": "#1E90FF", "spent": 360 },
+#     { "categoryId": 2, "categoryName": "Restaurants",  "color": "#228B22", "spent": 84.5 },
+#     { "categoryId": 4, "categoryName": "Transport",    "color": "#FF8C00", "spent": 150 }
+#   ]
+# }
 GET {{baseUrl}}/projects/1/budgets
 Authorization: Bearer {{steveToken}}
 
-### ✅ Budgets projet Paris — Aurore (owner) → 200
-### Attendu : totalSpent 320, totalLimit 500, alertThreshold 70
-### spentByCategory : Transport 120, Hébergement 200
+###
+
+### ✅ [200] Budgets projet Paris — Aurore (owner)
+# Attendu :
+# {
+#   "totalSpent": 320,
+#   "totalLimit": 500,
+#   "alertThreshold": 70,
+#   "spentByCategory": [
+#     { "categoryId": 1, "categoryName": "Hébergement", "color": "#1E90FF", "spent": 200 },
+#     { "categoryId": 4, "categoryName": "Transport",   "color": "#FF8C00", "spent": 120 }
+#   ]
+# }
 GET {{baseUrl}}/projects/2/budgets
 Authorization: Bearer {{auroreToken}}
 
-### ❌ Budgets projet Milan — Aurore (pas owner) → 403
+###
+
+### ❌ [403] Budgets projet Milan — Aurore (pas owner)
+# Attendu : { "status": 403, "error": "Accès refusé à ce projet" }
 GET {{baseUrl}}/projects/1/budgets
 Authorization: Bearer {{auroreToken}}
 
-### ❌ Budgets projet inexistant → 404
+###
+
+### ❌ [403] Budgets projet Paris — Steve (pas owner)
+# Attendu : { "status": 403, "error": "Accès refusé à ce projet" }
+GET {{baseUrl}}/projects/2/budgets
+Authorization: Bearer {{steveToken}}
+
+###
+
+### ❌ [404] Budgets projet inexistant
+# Attendu : { "status": 404, "error": "Projet introuvable" }
 GET {{baseUrl}}/projects/9999/budgets
 Authorization: Bearer {{steveToken}}
 
-### ❌ Sans token → 401
+###
+
+### ❌ [401] Budgets sans token
+# Attendu : { "status": 401, "error": "Token manquant ou invalide" }
 GET {{baseUrl}}/projects/1/budgets
 
-### ❌ Id invalide (pas un nombre) → 422
+###
+
+### ❌ [422] Budgets id invalide (pas un entier)
+# Attendu : { "status": 422, "error": "✖ Invalid input: expected number, received NaN\n  → at id" }
 GET {{baseUrl}}/projects/abc/budgets
 Authorization: Bearer {{steveToken}}
 
-### ============================================================
-### GET /api/projects/:id/balance
-### ============================================================
+###
 
-### ✅ Balance projet Milan — Steve (owner) → 200
-### Attendu :
-### Steve  : totalPaid 234.50, totalOwed 198.17, balance +36.33
-### Aurore : totalPaid 360,    totalOwed 198.17, balance +161.83
-### Ludo   : totalPaid 0,      totalOwed 198.16, balance -198.16
+### ❌ [422] Budgets id invalide (négatif)
+# Attendu : { "status": 422, "error": "✖ Too small: expected number to be >0\n  → at id" }
+GET {{baseUrl}}/projects/-1/budgets
+Authorization: Bearer {{steveToken}}
+
+# =============================================================
+# GET /api/projects/:id/balance
+# =============================================================
+
+### ✅ [200] Balance projet Milan — Steve (owner)
+# Calcul :
+#   Steve  : payé 234.50 — dû 198.17 → balance +36.33  (créditeur)
+#   Aurore : payé 360.00 — dû 198.17 → balance +161.83 (créditeur)
+#   Ludo   : payé   0.00 — dû 198.16 → balance -198.16 (débiteur)
+# Algo glouton → 2 transactions (n-1) :
+# Attendu :
+# [
+#   { "from": "Ludo", "to": "Aurore", "amount": 161.83 },
+#   { "from": "Ludo", "to": "Steve",  "amount": 36.33  }
+# ]
 GET {{baseUrl}}/projects/1/balance
 Authorization: Bearer {{steveToken}}
 
-### ✅ Balance projet Paris — Aurore (owner) → 200
-### Attendu :
-### Aurore : totalPaid 320, totalOwed 160, balance +160
-### Ludo   : totalPaid 0,   totalOwed 160, balance -160
+###
+
+### ✅ [200] Balance projet Paris — Aurore (owner)
+# Calcul :
+#   Aurore : payé 320 — dû 160 → balance +160 (créditeur)
+#   Ludo   : payé   0 — dû 160 → balance -160 (débiteur)
+# Algo glouton → 1 transaction (n-1) :
+# Attendu :
+# [
+#   { "from": "Ludo", "to": "Aurore", "amount": 160 }
+# ]
 GET {{baseUrl}}/projects/2/balance
 Authorization: Bearer {{auroreToken}}
 
-### ❌ Balance projet Milan — Aurore (pas owner) → 403
+###
+
+### ❌ [403] Balance projet Milan — Aurore (pas owner)
+# Attendu : { "status": 403, "error": "Accès refusé à ce projet" }
 GET {{baseUrl}}/projects/1/balance
 Authorization: Bearer {{auroreToken}}
 
-### ❌ Balance projet inexistant → 404
+###
+
+### ❌ [403] Balance projet Paris — Steve (pas owner)
+# Attendu : { "status": 403, "error": "Accès refusé à ce projet" }
+GET {{baseUrl}}/projects/2/balance
+Authorization: Bearer {{steveToken}}
+
+###
+
+### ❌ [404] Balance projet inexistant
+# Attendu : { "status": 404, "error": "Projet introuvable" }
 GET {{baseUrl}}/projects/9999/balance
 Authorization: Bearer {{steveToken}}
 
-### ❌ Sans token → 401
+###
+
+### ❌ [401] Balance sans token
+# Attendu : { "status": 401, "error": "Token manquant ou invalide" }
 GET {{baseUrl}}/projects/1/balance
 
-### ❌ Id invalide → 422
+###
+
+### ❌ [422] Balance id invalide (pas un entier)
+# Attendu : { "status": 422, "error": "✖ Invalid input: expected number, received NaN\n  → at id" }
 GET {{baseUrl}}/projects/abc/balance
+Authorization: Bearer {{steveToken}}
+
+###
+
+### ❌ [422] Balance id invalide (négatif)
+# Attendu : { "status": 422, "error": "✖ Too small: expected number to be >0\n  → at id" }
+GET {{baseUrl}}/projects/-1/balance
 Authorization: Bearer {{steveToken}}

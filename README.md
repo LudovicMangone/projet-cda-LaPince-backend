@@ -140,7 +140,7 @@ cd projet-cda-LaPince-backend
 ```bash
 npm install
 ```
-!! ne pas audit fix (vunérabilité ne nous concerne pas car sinon repasse en prisma 6)
+> ⚠️ Ne pas audit fix (Une vunérabilité qui ne nous concerne pas, car sinon repasse en prisma 6 et génération d'erreurs)
 
 ### 3. Configurer les variables d'environnement
 
@@ -156,15 +156,20 @@ npm run docker:up
 
 Lance les containers : API Express, PostgreSQL et Adminer.
 
+> ⚠️ Après le lancement des conteneurs, certaines erreurs initiales peuvent être normales
+
 ### 5. Appliquer les migrations et le seed
 
 Lors de la première installation du projet où à chaque changement de Schema Prisma
+
+> Ouvrir un second terminal pour exécuter les commandes Prisma :
 
 ```bash
 npm run db:generate
 npm run db:migrate
 npm run db:seed
 ```
+> Une fois les manipulations terminées, relancer les conteneurs Docker
 
 ### 6. L'API est disponible
 
