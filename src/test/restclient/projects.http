@@ -83,3 +83,7 @@ Authorization: Bearer {{token}}
 ### GET / NEXT PROJECTS
 GET {{baseUrl}}/projects?cursor=1
 Authorization: Bearer {{token}}
+
+### GET GLOBAL BALANCE
+GET http://localhost:3000/api/balance
+Authorization: Bearer {{token}}

@@ -12,9 +12,13 @@ import {
 	getProjectByIdController,
 	getProjectsController,
 	updateProjectByIdController,
+	updateProjectParticipantsController,
 } from "../controllers/projects.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
-import { validateProjectUpdate } from "../middlewares/project.middleware";
+import {
+	validateProjectParticipantsUpdate,
+	validateProjectUpdate,
+} from "../middlewares/project.middleware";
 
 const router = Router();
 
@@ -27,7 +31,12 @@ router.post("/:id/operations", authMiddleware, createOperationsController);
 router.patch(
 	"/:id/operations/:operationId",
 	authMiddleware,
-	updateOperationsController,
+	updateOperationsController);
+router.patch(
+	"/:id/participants",
+	authMiddleware,
+	validateProjectParticipantsUpdate,
+	updateProjectParticipantsController,
 );
 router.get("/:id", authMiddleware, getProjectByIdController);
 router.patch(
