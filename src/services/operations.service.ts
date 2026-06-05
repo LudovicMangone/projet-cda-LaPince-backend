@@ -1,5 +1,6 @@
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
+import type { CreateOperationInput } from "../schemas/operation.schema";
 
 export async function getOperationsByPojectId(
 	projectId: number,
@@ -51,48 +52,86 @@ export async function getOperationsByPojectId(
 	return operations;
 }
 
-export async function createOperation(projectId: number, userId: number) {
-	const operations = await prisma.operation.findMany({
-		where: {
-			projectId: projectId,
-		},
-		select: {
-			id: true,
-			appUserId: true,
-			name: true,
-			categoryId: true,
-			amount: true,
-			date: true,
-			payerParticipantId: true,
-			appUser: {
-				select: {
-					name: true,
-					id: true,
-				},
+export async function createOperation(
+	data: CreateOperationInput,
+	userId: number,
+) {
+	return prisma.$transaction(async (tx) => {
+		const operation = await tx.operation.create({
+			data: {
+				name: data.name,
+				amount: data.amount,
+				date: data.date,
+				projectId: data.projectId,
+				categoryId: data.categoryId,
+				payerParticipantId: data.payerParticipantId,
+				appUserId: userId,
 			},
-			operationParticipants: {
-				select: {
-					participant: {
-						select: {
-							name: true,
-							id: true,
-						},
-					},
-				},
-			},
-		},
+		});
+		if (data.operationParticipants?.length) {
+			await tx.operationParticipant.createMany({
+				data: data.operationParticipants.map((participant) => ({
+					operationId: operation.id,
+					participantId: participant.participantId,
+					repartitionAmount: participant.repartitionAmount,
+				})),
+			});
+		}
+		return operation;
 	});
+}
 
-	if (!operations) {
-		throw new NotFoundError("Operations not found");
-	}
+export async function updateOperation(
+	operationId: number,
+	data: CreateOperationInput,
+	userId: number,
+) {
+	return prisma.$transaction(async (tx) => {
+		const operation = await tx.operation.findUnique({
+			where: { id: operationId },
+			select: {
+				id: true,
+				projectId: true,
+				appUserId: true,
+			},
+		});
 
-	// Check that the user is the owner of the project
-	const isOwner = userId === operations[0].appUserId;
+		if (!operation) {
+			throw new NotFoundError("Operation not found");
+		}
 
-	if (!isOwner) {
-		throw new ForbiddenError("Only the owner of the project can access it");
-	}
+		if (operation.appUserId !== userId) {
+			throw new ForbiddenError("Only the owner can update this operation");
+		}
 
-	return operations;
+		const updatedOperation = await tx.operation.update({
+			where: { id: operationId },
+			data: {
+				name: data.name,
+				amount: data.amount,
+				date: data.date,
+				projectId: data.projectId,
+				categoryId: data.categoryId,
+				payerParticipantId: data.payerParticipantId,
+			},
+		});
+
+		// Remove all existing participants before recreating them
+		// it avoid to duplicate an operation
+		await tx.operationParticipant.deleteMany({
+			where: { operationId },
+		});
+
+		if (data.operationParticipants?.length) {
+			await tx.operationParticipant.createMany({
+				data: data.operationParticipants.map((participant) => ({
+					operationId,
+					participantId: participant.participantId,
+					repartitionAmount: participant.repartitionAmount,
+				})),
+			});
+		}
+
+		return updatedOperation;
+	});
 }

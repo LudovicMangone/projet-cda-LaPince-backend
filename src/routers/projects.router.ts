@@ -3,9 +3,12 @@ import { getProjectBalanceController } from "../controllers/balance.controller";
 import { getProjectBudgetsController } from "../controllers/budgets.controller";
 import {
 	createOperationsController,
+	getOperationsController,
+	updateOperationsController,
+} from "../controllers/operations.controller";
+import {
 	createProjectController,
 	deleteProjectByIdController,
-	getOperationsController,
 	getProjectByIdController,
 	getProjectsController,
 	updateProjectByIdController,
@@ -21,6 +24,7 @@ router.get("/:id/budgets", authMiddleware, getProjectBudgetsController);
 router.get("/:id/balance", authMiddleware, getProjectBalanceController);
 router.get("/:id/operations", authMiddleware, getOperationsController);
 router.post("/:id/operations", authMiddleware, createOperationsController);
+router.patch("/:id/operations/:operationId", authMiddleware, updateOperationsController);
 router.get("/:id", authMiddleware, getProjectByIdController);
 router.patch(
 	"/:id",
