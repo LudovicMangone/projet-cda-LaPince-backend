@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { createProjectSchema } from "../schemas/projects.schema";
-import { 
+import {
 	createOperation,
 	getOperationsByUserId,
 } from "../services/operations.service";
@@ -30,8 +30,8 @@ export async function createProjectController(req: Request, res: Response) {
 	const data = await createProjectSchema.parseAsync(req.body);
 	const project = await createProject(Number(req.userId), data);
 	return res.status(201).json({ project });
-}  
-  
+}
+
 export async function updateProjectByIdController(req: Request, res: Response) {
 	const projectData = req.body;
 	const projectUpdate = await updateProjectById(
