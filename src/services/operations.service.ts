@@ -6,6 +6,17 @@ export async function getOperationsByPojectId(
 	projectId: number,
 	userId: number,
 ) {
+	const project = await prisma.project.findUnique({
+		where: { id: projectId },
+		select: { appUserId: true },
+	});
+	if (!project) {
+		throw new NotFoundError("Project not found");
+	}
+	if (project.appUserId !== userId) {
+		throw new ForbiddenError("Only the owner of the project can access it");
+	}
+
 	const operations = await prisma.operation.findMany({
 		where: {
 			projectId: projectId,
