@@ -115,10 +115,17 @@ export async function updateProjectParticipants(
 			});
 		}
 
-		return true;
+		// Search current participants linked to the project
+		const updatedParticipants = await prisma.projectParticipant.findMany({
+			where: { projectId },
+			include: {
+				participant: true,
+			},
+		});
+		return updatedParticipants;
 	});
 
 	return {
-		success: result,
+		result,
 	};
 }
