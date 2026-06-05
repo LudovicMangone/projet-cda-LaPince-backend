@@ -4,6 +4,7 @@ import {
 	createOperation,
 	getOperationsByUserId,
 } from "../services/operations.service";
+import { updateProjectParticipants } from "../services/participants.service";
 import {
 	createProject,
 	deleteProjectById,
@@ -40,6 +41,20 @@ export async function updateProjectByIdController(req: Request, res: Response) {
 		Number(req.userId),
 	);
 	return res.status(200).json({ projectUpdate });
+}
+
+export async function updateProjectParticipantsController(
+	req: Request,
+	res: Response,
+) {
+	const participantsData = req.body;
+	const participantsUpdate = await updateProjectParticipants(
+		participantsData,
+		Number(req.params.id),
+		Number(req.userId),
+	);
+	const response = participantsUpdate.result;
+	return res.status(200).json(response);
 }
 
 export async function deleteProjectByIdController(req: Request, res: Response) {

@@ -23,3 +23,18 @@ export const updateProjectSchema = z
 			message: "Au moins un champs doit être renseigné",
 		},
 	);
+
+const appUserSchema = z.object({
+	id: z.number().positive(),
+});
+
+const participantSchema = z.object({
+	id: z.number().positive().optional(),
+	name: z
+		.string("Au moins deux lettres doivent être renseignées")
+		.min(2, "Au moins deux lettres doivent être renseignées")
+		.max(100),
+	appUser: appUserSchema.nullable().optional(),
+});
+
+export const updateProjectParticipantsSchema = z.array(participantSchema);

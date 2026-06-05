@@ -9,9 +9,13 @@ import {
 	getProjectByIdController,
 	getProjectsController,
 	updateProjectByIdController,
+	updateProjectParticipantsController,
 } from "../controllers/projects.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
-import { validateProjectUpdate } from "../middlewares/project.middleware";
+import {
+	validateProjectParticipantsUpdate,
+	validateProjectUpdate,
+} from "../middlewares/project.middleware";
 
 const router = Router();
 
@@ -26,6 +30,13 @@ router.patch(
 	authMiddleware,
 	// validateProjectParticipantsUpdate,
 	// updateProjectParticipantsController,
+);
+router.get("/:id", authMiddleware, getProjectByIdController);
+router.patch(
+	"/:id/participants",
+	authMiddleware,
+	validateProjectParticipantsUpdate,
+	updateProjectParticipantsController,
 );
 router.get("/:id", authMiddleware, getProjectByIdController);
 router.patch(
