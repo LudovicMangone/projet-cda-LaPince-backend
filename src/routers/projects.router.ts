@@ -31,7 +31,8 @@ router.post("/:id/operations", authMiddleware, createOperationsController);
 router.patch(
 	"/:id/operations/:operationId",
 	authMiddleware,
-	updateOperationsController);
+	updateOperationsController,
+);
 router.patch(
 	"/:id/participants",
 	authMiddleware,
