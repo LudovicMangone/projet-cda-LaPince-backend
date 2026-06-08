@@ -73,20 +73,30 @@ export async function getProjectBalance(projectId: number, userId: number) {
 
 // Compute the global balance of the connected user across all their projects
 export async function getUserGlobalBalance(userId: number) {
-	// Fetch all projects owned by the user
-	const projects = await prisma.participant.findMany({
+	// Fetch all participants linked to the user with their project associations
+	const userParticipants = await prisma.participant.findMany({
 		where: { appUserId: userId },
-		select: { id: true },
+		select: {
+			projectParticipants: {
+				select: { projectId: true },
+			},
+		},
 	});
+
+	// Collect all unique project IDs where the user is a participant
+	const projectIds = [
+		...new Set(
+			userParticipants.flatMap((p) =>
+				p.projectParticipants.map((pp) => pp.projectId),
+			),
+		),
+	];
 
 	let totalToDo = 0;
 	let totalToReceive = 0;
 
-	for (const project of projects) {
-		// Compute per-participant balances for this project
-		const balances = await computeProjectBalances(project.id);
-
-		// Only look at participants linked to the connected user
+	for (const projectId of projectIds) {
+		const balances = await computeProjectBalances(projectId);
 		for (const balance of balances) {
 			if (balance.appUserId === userId) {
 				if (balance.balance < 0) {
