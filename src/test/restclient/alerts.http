@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:3000/api
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDkxNDM5NywiZXhwIjoxNzgxNTE5MTk3fQ.jxI4HJcc3VWp0q_hM_NcwBP1i6moN8NkLLYjtSaWN8w
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDkzMDEyOSwiZXhwIjoxNzgxNTM0OTI5fQ.Q4C58oSwxcPhUmFxZ6LsDj8-Bmvn3JnDkHX7CD3b22Y
 
 ### Login — seeded user Steve
 POST {{baseUrl}}/auth/login
@@ -11,11 +11,11 @@ Content-Type: application/json
 }
 
 ### GET — lister les alertes
-GET {{baseUrl}}/api/alertes
+GET {{baseUrl}}/alertes
 Authorization: Bearer {{token}}
 
 ### PATCH — marquer comme lue
-PATCH {{baseUrl}}/api/alertes/1
+PATCH {{baseUrl}}/alertes/5
 Authorization: Bearer {{token}}
 Content-Type: application/json
 

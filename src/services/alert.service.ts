@@ -131,3 +131,43 @@ export async function checkAndCreateAlert(
 
 	return alert;
 }
+
+
+// Récupère les alertes d'un projet spécifique pour l'utilisateur connecté
+export async function getAlertsByProject(projectId: number, userId: number) {
+	const userAlerts = await prisma.appUserAlert.findMany({
+		where: {
+			appUserId: userId,
+			alert: {
+				budget: {
+					projectId,
+				},
+			},
+		},
+		include: {
+			alert: {
+				include: {
+					budget: {
+						select: {
+							amount: true,
+							project: {
+								select: { name: true },
+							},
+						},
+					},
+				},
+			},
+		},
+		orderBy: { alert: { createdAt: "desc" } },
+	});
+
+	return userAlerts.map((ua) => ({
+		id: ua.alert.id,
+		status: ua.alert.status,
+		message: ua.alert.message,
+		budgetId: ua.alert.budgetId,
+		budgetAmount: Number(ua.alert.budget.amount),
+		projectName: ua.alert.budget.project.name,
+		createdAt: ua.alert.createdAt,
+	}));
+}

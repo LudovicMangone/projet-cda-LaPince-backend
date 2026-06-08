@@ -2,7 +2,11 @@ import type { Request, Response } from "express";
 import { ZodError } from "zod";
 import { BadRequestError } from "../lib/errors";
 import { updateAlertSchema } from "../schemas/alert.schema";
-import { getAlertsByUser, markAlertAsRead } from "../services/alert.service";
+import {
+	getAlertsByProject,
+	getAlertsByUser,
+	markAlertAsRead,
+} from "../services/alert.service";
 
 // GET /api/alertes
 // Retourne toutes les alertes de l'utilisateur connecté
@@ -30,4 +34,15 @@ export async function updateAlertController(req: Request, res: Response) {
 		}
 		throw error;
 	}
+}
+
+// GET /api/projects/:id/alertes
+// Retourne les alertes du projet courant pour l'utilisateur connecté
+export async function getProjectAlertsController(req: Request, res: Response) {
+	const userId = req.userId;
+	const projectId = Number(req.params.id);
+
+	const alerts = await getAlertsByProject(projectId, userId);
+
+	res.json({ alerts });
 }
