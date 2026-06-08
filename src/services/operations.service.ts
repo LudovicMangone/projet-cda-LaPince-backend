@@ -1,6 +1,8 @@
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 import type { CreateOperationInput } from "../schemas/operation.schema";
+import { checkAndCreateAlert } from "./alert.service";
+
 
 export async function getOperationsByPojectId(
 	projectId: number,
@@ -77,6 +79,7 @@ export async function createOperation(
 				})),
 			});
 		}
+		await checkAndCreateAlert(data.projectId, userId, tx);
 		return operation;
 	});
 }
@@ -131,7 +134,8 @@ export async function updateOperation(
 				})),
 			});
 		}
-
+		await checkAndCreateAlert(data.projectId, userId, tx);
+		
 		return updatedOperation;
 	});
 }
