@@ -3,10 +3,23 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { PrismaClient } from "../../generated/prisma";
 
-const pool = new Pool({
-	connectionString: process.env.DATABASE_URL,
-});
+// To prevents memories problems with multiple pool creation without close precedent
+// globalThis survives TSX Watch reloads — the pool and client
+// are created only once and reused with each module reload
+const globalForPrisma = globalThis as unknown as {
+	pool: Pool;
+	prisma: PrismaClient;
+};
 
-const adapter = new PrismaPg(pool);
+if (!globalForPrisma.pool) {
+	globalForPrisma.pool = new Pool({
+		connectionString: process.env.DATABASE_URL,
+	});
+}
 
-export const prisma = new PrismaClient({ adapter });
+if (!globalForPrisma.prisma) {
+	const adapter = new PrismaPg(globalForPrisma.pool);
+	globalForPrisma.prisma = new PrismaClient({ adapter });
+}
+
+export const prisma = globalForPrisma.prisma;
