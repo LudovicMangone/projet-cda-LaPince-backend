@@ -48,7 +48,11 @@ export async function createProject(userId: number, data: CreateProjectInput) {
 		if (data.participants?.length) {
 			for (const p of data.participants) {
 				const participant = await tx.participant.create({
-					data: { name: p.name },
+					data: {
+						name: p.name,
+						// Link to the app user if this participant is the project owner
+						appUserId: p.isMe ? userId : undefined,
+					},
 				});
 				await tx.projectParticipant.create({
 					data: { projectId: project.id, participantId: participant.id },
@@ -195,11 +199,11 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 				participants,
 				budget: project.budget
 					? {
-							limit: Number(project.budget.amount),
-							limitCriteria: Number(project.budget.limitCriteria),
-							spent,
-							unreadAlertsCount: project.budget.alerts.length,
-						}
+						limit: Number(project.budget.amount),
+						limitCriteria: Number(project.budget.limitCriteria),
+						spent,
+						unreadAlertsCount: project.budget.alerts.length,
+					}
 					: null,
 				// User's net balance in this project (null if not a participant)
 				userBalance: userBalanceByProject[project.id] ?? null,
