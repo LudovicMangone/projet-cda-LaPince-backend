@@ -100,7 +100,6 @@ export async function getUserGlobalBalance(userId: number) {
 		}
 	}
 
-
 	const toDo = Math.round(totalToDo * 100) / 100;
 	const toReceive = Math.round(totalToReceive * 100) / 100;
 	const netBalance = Math.round((toReceive - toDo) * 100) / 100;
