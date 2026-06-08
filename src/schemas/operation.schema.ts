@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+export const getOperationsSchema = z.object({
+	projectId: z.number().int().positive(),
+	userId: z.number().int().positive(),
+});
+
 const operationParticipantSchema = z.object({
 	participantId: z.number().int().positive(),
 	repartitionAmount: z.coerce
@@ -27,4 +32,11 @@ export const createOperationSchema = z.object({
 	operationParticipants: z.array(operationParticipantSchema).optional(),
 });
 
+
+export const deleteOperationSchema = z.object({
+	operationId: z.number().int().positive(),
+	projectId: z.number().int().positive(),
+});
+
 export type CreateOperationInput = z.infer<typeof createOperationSchema>;
+export type DeleteOperationInput = z.infer<typeof deleteOperationSchema>;

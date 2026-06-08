@@ -1,6 +1,6 @@
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
-import type { CreateOperationInput } from "../schemas/operation.schema";
+import type { CreateOperationInput, DeleteOperationInput } from "../schemas/operation.schema";
 
 export async function getOperationsByPojectId(
 	projectId: number,
@@ -144,5 +144,15 @@ export async function updateOperation(
 		}
 
 		return updatedOperation;
+	});
+}
+
+
+export async function deleteOperationsByPojectId(data: DeleteOperationInput) {
+		await prisma.operation.delete({
+		where: { 
+			id: data.operationId,
+			projectId: data.projectId,
+		},
 	});
 }
