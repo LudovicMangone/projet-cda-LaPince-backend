@@ -55,5 +55,5 @@ export async function updateProjectParticipantsController(
 
 export async function deleteProjectByIdController(req: Request, res: Response) {
 	await deleteProjectById(Number(req.params.id), Number(req.userId));
-	return res.status(204);
+	return res.status(204).send();
 }
