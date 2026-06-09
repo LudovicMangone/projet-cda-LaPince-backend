@@ -19,15 +19,13 @@ export async function getOperationsByPojectId(
 	}
 
 	if (project.appUserId !== userId) {
-		throw new ForbiddenError(
-			"Only the owner of the project can access it",
-		);
+		throw new ForbiddenError("Only the owner of the project can access it");
 	}
 
 	const operations = await prisma.operation.findMany({
 		orderBy: {
-   			 date: "asc",
-  		},
+			date: "asc",
+		},
 		where: {
 			projectId,
 		},
@@ -87,7 +85,8 @@ export async function createOperation(
 					operationId: operation.id,
 					participantId: participant.participantId,
 					repartitionAmount: participant.repartitionAmount,
-					isRepartitionAmountCalculated: participant.isRepartitionAmountCalculated,
+					isRepartitionAmountCalculated:
+						participant.isRepartitionAmountCalculated,
 				})),
 			});
 		}
@@ -143,7 +142,8 @@ export async function updateOperation(
 					operationId,
 					participantId: participant.participantId,
 					repartitionAmount: participant.repartitionAmount,
-					isRepartitionAmountCalculated: participant.isRepartitionAmountCalculated,
+					isRepartitionAmountCalculated:
+						participant.isRepartitionAmountCalculated,
 				})),
 			});
 		}
