@@ -4,6 +4,8 @@ import type { IUpdateProject } from "../@types/projects";
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 import type { CreateProjectInput } from "../schemas/projects.schema";
+import { resolveAlertIfNeeded } from "./alert.service";
+
 
 const typeMap: Record<string, ProjectType> = {
 	Voyage: ProjectType.Voyage,
@@ -303,15 +305,19 @@ export async function updateProjectById(
 			},
 		};
 	}
-
-	const updateProject = await prisma.project.update({
+	return prisma.$transaction(async (tx) => {
+	const updateProject = await tx.project.update({
 		where: { id: projectId },
 		data: dataToUpdate,
 	});
+	if (projectData.budget) {
+			await resolveAlertIfNeeded(projectId, userId, tx);
+		}
 	return {
 		project: updateProject,
 		budget: projectData.budget,
 	};
+	});
 }
 
 export async function deleteProjectById(projectId: number, userId: number) {

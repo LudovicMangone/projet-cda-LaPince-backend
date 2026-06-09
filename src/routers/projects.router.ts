@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { getProjectAlertsController } from "../controllers/alert.controller";
 import { getProjectBalanceController } from "../controllers/balance.controller";
 import { getProjectBudgetsController } from "../controllers/budgets.controller";
 import {
@@ -27,6 +28,7 @@ router.get("/", authMiddleware, getProjectsController);
 router.post("/", authMiddleware, createProjectController);
 router.get("/:id/budgets", authMiddleware, getProjectBudgetsController);
 router.get("/:id/balance", authMiddleware, getProjectBalanceController);
+router.get("/:id/alertes", authMiddleware, getProjectAlertsController);
 router.get("/:id/operations", authMiddleware, getOperationsController);
 router.post("/:id/operations", authMiddleware, createOperationsController);
 router.delete(
