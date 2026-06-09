@@ -306,7 +306,7 @@ export async function updateProjectById(
 		};
 	}
 	return prisma.$transaction(async (tx) => {
-	const updateProject = await prisma.project.update({
+	const updateProject = await tx.project.update({
 		where: { id: projectId },
 		data: dataToUpdate,
 	});
