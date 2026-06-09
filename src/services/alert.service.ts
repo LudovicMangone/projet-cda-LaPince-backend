@@ -171,3 +171,41 @@ export async function getAlertsByProject(projectId: number, userId: number) {
 		createdAt: ua.alert.createdAt,
 	}));
 }
+
+export async function resolveAlertIfNeeded(
+	projectId: number,
+	userId: number,
+	tx: Prisma.TransactionClient,
+) {
+	const budget = await tx.budget.findUnique({
+		where: { projectId },
+		select: { id: true, amount: true, limitCriteria: true },
+	});
+
+	// Pas de budget : rien à résoudre
+	if (!budget) return;
+
+	const aggregate = await tx.operation.aggregate({
+		where: { projectId },
+		_sum: { amount: true },
+	});
+
+	const totalSpent = Number(aggregate._sum.amount ?? 0);
+	const budgetAmount = Number(budget.amount);
+	const threshold = Number(budget.limitCriteria);
+
+	// Seuil encore dépassé : on ne touche pas aux alertes
+	if (totalSpent >= (budgetAmount * threshold) / 100) return;
+
+	// Seuil repassé en dessous : alertes unread et read → resolved
+	await tx.alert.updateMany({
+		where: {
+			budgetId: budget.id,
+			status: { in: ["unread", "read"] },
+			appUserAlerts: {
+				some: { appUserId: userId },
+			},
+		},
+		data: { status: "resolved" },
+	});
+}
