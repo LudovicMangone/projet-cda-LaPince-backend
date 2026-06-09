@@ -132,7 +132,8 @@ model ProjectParticipant {
 model Operation {
   id                 Int      @id @default(autoincrement())
   name               String   @db.VarChar(255)
-  amount             Decimal  @db.Decimal(10, 2)
+  amount             Decimal  @db.Decimal(10,2)
+  isAmountCalculated Boolean  @default(true)
   date               DateTime @default(now()) @db.Date
   payerParticipantId Int
   appUserId          Int
@@ -151,9 +152,10 @@ model Operation {
 }
 
 model OperationParticipant {
-  operationId       Int
-  participantId     Int
-  repartitionAmount Decimal @db.Decimal(10, 2)
+  operationId                     Int
+  participantId                   Int
+  repartitionAmount               Decimal @db.Decimal(10, 2)
+  isRepartitionAmountCalculated   Boolean @default(true)
 
   operation   Operation   @relation(fields: [operationId], references: [id], onDelete: Cascade)
   participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
