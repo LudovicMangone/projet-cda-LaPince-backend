@@ -73,38 +73,46 @@ export async function getProjectBalance(projectId: number, userId: number) {
 
 // Compute the global balance of the connected user across all their projects
 export async function getUserGlobalBalance(userId: number) {
-	// Fetch all participants linked to the user with their paid/owed amounts
+	// Fetch all participants linked to the user with their project associations
 	const userParticipants = await prisma.participant.findMany({
 		where: { appUserId: userId },
 		select: {
-			paidOperations: {
-				select: { amount: true },
-			},
-			operationParticipants: {
-				select: { repartitionAmount: true },
+			projectParticipants: {
+				select: { projectId: true },
 			},
 		},
 	});
 
-	let totalPaid = 0;
-	let totalOwed = 0;
+	// Collect all unique project IDs where the user is a participant
+	const projectIds = [
+		...new Set(
+			userParticipants.flatMap((p) =>
+				p.projectParticipants.map((pp) => pp.projectId),
+			),
+		),
+	];
 
-	for (const participant of userParticipants) {
-		totalPaid += participant.paidOperations.reduce(
-			(sum, op) => sum + Number(op.amount),
-			0,
-		);
-		totalOwed += participant.operationParticipants.reduce(
-			(sum, op) => sum + Number(op.repartitionAmount),
-			0,
-		);
+	let totalToDo = 0;
+	let totalToReceive = 0;
+
+	for (const projectId of projectIds) {
+		const balances = await computeProjectBalances(projectId);
+		for (const balance of balances) {
+			if (balance.appUserId === userId) {
+				if (balance.balance < 0) {
+					// User owes money in this project
+					totalToDo += Math.abs(balance.balance);
+				} else if (balance.balance > 0) {
+					// User is owed money in this project
+					totalToReceive += balance.balance;
+				}
+			}
+		}
 	}
 
-	const netBalance = Math.round((totalPaid - totalOwed) * 100) / 100;
-	// toReceive : user paid more than owed (positive balance)
-	const toReceive = netBalance > 0 ? netBalance : 0;
-	// toDo : user owes more than paid (negative balance)
-	const toDo = netBalance < 0 ? Math.abs(netBalance) : 0;
+	const toDo = Math.round(totalToDo * 100) / 100;
+	const toReceive = Math.round(totalToReceive * 100) / 100;
+	const netBalance = Math.round((toReceive - toDo) * 100) / 100;
 
 	return { toDo, toReceive, netBalance };
 }

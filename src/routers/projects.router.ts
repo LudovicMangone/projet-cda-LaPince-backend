@@ -4,6 +4,7 @@ import { getProjectBalanceController } from "../controllers/balance.controller";
 import { getProjectBudgetsController } from "../controllers/budgets.controller";
 import {
 	createOperationsController,
+	deleteOperationsController,
 	getOperationsController,
 	updateOperationsController,
 } from "../controllers/operations.controller";
@@ -30,6 +31,11 @@ router.get("/:id/balance", authMiddleware, getProjectBalanceController);
 router.get("/:id/alertes", authMiddleware, getProjectAlertsController);
 router.get("/:id/operations", authMiddleware, getOperationsController);
 router.post("/:id/operations", authMiddleware, createOperationsController);
+router.delete(
+	"/:id/operations/:operationId",
+	authMiddleware,
+	deleteOperationsController,
+);
 router.patch(
 	"/:id/operations/:operationId",
 	authMiddleware,
