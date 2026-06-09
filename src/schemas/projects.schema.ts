@@ -11,6 +11,7 @@ export const projectTypeEnum = z.enum([
 
 const participantSchema = z.object({
 	name: z.string().min(1).max(100),
+	isMe: z.boolean().optional(),
 });
 
 const budgetSchema = z.object({
