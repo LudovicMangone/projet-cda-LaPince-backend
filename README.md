@@ -28,6 +28,7 @@
   - [Routes API](#routes-api)
     - [Résumé des endpoints](#résumé-des-endpoints)
   - [Tests](#tests)
+    - [Prérequis](#prérequis-1)
   - [Qualité de code](#qualité-de-code)
   - [Workflow Git](#workflow-git)
     - [Convention de nommage des branches](#convention-de-nommage-des-branches)
@@ -314,6 +315,11 @@ Authorization: Bearer <token>
 
 ## Tests
 
+### Prérequis
+
+- Docker doit être en cours d'exécution (les tests d'intégration créent un container PostgreSQL dédié)
+- Copie `.env.test.example` en `.env.test` et renseigne les valeurs.
+
 ```bash
 # Tests unitaires
 npm run test:unit
@@ -324,10 +330,10 @@ npm run test:integration
 
 Les tests utilisent **Vitest 4**.
 
-Les tests unitaires couvrent notamment :
-- La logique de calcul des balances
-- L'algorithme glouton de remboursement
-- La validation des règles métier (répartition des montants...)
+Les tests d'intégration gèrent automatiquement le cycle de vie de la base de données :
+- Création d'un container PostgreSQL dédié (`lapincetest`) au lancement
+- Truncate de toutes les tables entre chaque test
+- Suppression du container à la fin
 
 ---
 

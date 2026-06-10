@@ -11,6 +11,7 @@ export const updateProjectSchema = z
 		description: z.string().trim().max(500).optional(),
 		isArchived: z.boolean().optional(),
 		budget: budgetSchema.optional(),
+		deleteBudget: z.boolean().optional(),
 		type: z.string().optional(),
 	})
 	.refine(
@@ -18,7 +19,8 @@ export const updateProjectSchema = z
 			data.name !== undefined ||
 			data.description !== undefined ||
 			data.isArchived !== undefined ||
-			data.budget !== undefined,
+			data.budget !== undefined ||
+			data.deleteBudget !== undefined,
 		{
 			message: "Au moins un champs doit être renseigné",
 		},
