@@ -1,6 +1,7 @@
 import { execSync } from "node:child_process";
 import type { Server } from "node:http";
 import { afterAll, beforeAll, beforeEach, vi } from "vitest";
+import { defineConfig } from "vitest/config";
 import { app } from "../../../src/app";
 import { pool, prisma } from "../../../src/lib/prisma";
 
@@ -70,3 +71,21 @@ async function truncateTables() {
     END $$;
   `);
 }
+
+// ─── Coverage ──────────────────────────────────────────────────────
+export default defineConfig({
+	test: {
+		coverage: {
+			provider: "v8",
+			reporter: ["text", "html"], // text = terminal, html = rapport visuel
+			include: ["src/**/*.ts"], // fichiers à analyser
+			exclude: [
+				// fichiers à ignorer
+				"src/app.ts",
+				"src/server.ts",
+				"src/generated/**",
+				"src/config/**",
+			],
+		},
+	},
+});
