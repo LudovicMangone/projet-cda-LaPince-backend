@@ -1,7 +1,7 @@
 // Runs before EACH test file (setupFiles), inside the worker context.
 // Responsible for: silencing logs, and wiping the DB between tests to ensure isolation.
 import { afterAll, beforeEach, vi } from "vitest";
-import { pool, prisma } from "../../../src/lib/prisma";
+import { pool, prisma } from "../../lib/prisma";
 
 beforeEach(async () => {
 	// Silence console.info during tests to keep output clean

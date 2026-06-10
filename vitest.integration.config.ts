@@ -9,7 +9,7 @@ export default defineConfig({
 		globalSetup: ["./src/test/config/global-setup.ts"],
 
 		// Runs before each test file (resets DB, mocks, etc.)
-		setupFiles: ["./src/test/config/test-setup.ts"],
+		setupFiles: ["./src/test/config/integration-setup.ts"],
 
 		// Disable parallel execution: integration tests share a single DB and server instance
 		fileParallelism: false,
@@ -25,6 +25,8 @@ export default defineConfig({
 				"src/server.ts",
 				"src/generated/**",
 				"src/config/**",
+				"src/**/*.test.ts",
+				"src/test/**",
 			],
 		},
 	},
