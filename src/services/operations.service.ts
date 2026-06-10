@@ -150,7 +150,7 @@ export async function updateOperation(
 			});
 		}
 		await checkAndCreateAlert(data.projectId, userId, tx);
-		
+
 		return updatedOperation;
 	});
 }

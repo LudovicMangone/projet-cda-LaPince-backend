@@ -40,7 +40,6 @@ app.use("/api/categories", categoriesRouter);
 app.use("/api/balance", balanceRouter);
 app.use("/api/alertes", alertRouter);
 
-
 // ============== ERRORS HANDLERS ===========
 app.use(notFoundHandler);
 app.use(errorHandler);
