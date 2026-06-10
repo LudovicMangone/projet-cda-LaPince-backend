@@ -10,7 +10,7 @@ async function main() {
 	console.log("🌱 Seeding database...");
 
 	// ============================================================
-	// CATEGORIES — 6 catégories exhaustives
+	// CATEGORIES
 	// ============================================================
 
 	const [divers, restaurants, hebergement, transport, courses, loisir] =
@@ -51,18 +51,11 @@ async function main() {
 
 	// ============================================================
 	// USERS
-	// password123 pour tous les comptes (hors demo)
-	// demo@lapince.fr → compte de présentation jury
+	// steve@lapince.fr / password123  → compte principal démo
+	// aurore@lapince.fr / password123 → compte secondaire (test 403)
 	// ============================================================
 
 	const passwordHash = await argon2.hash("password123");
-	const demoHash = await argon2.hash("demo1234");
-
-	const demo = await prisma.appUser.upsert({
-		where: { email: "demo@lapince.fr" },
-		update: {},
-		create: { name: "Demo", email: "demo@lapince.fr", password: demoHash },
-	});
 
 	const steve = await prisma.appUser.upsert({
 		where: { email: "steve@lapince.fr" },
@@ -76,75 +69,69 @@ async function main() {
 		create: { name: "Aurore", email: "aurore@lapince.fr", password: passwordHash },
 	});
 
-	const ludo = await prisma.appUser.upsert({
-		where: { email: "ludo@lapince.fr" },
-		update: {},
-		create: { name: "Ludo", email: "ludo@lapince.fr", password: passwordHash },
-	});
-
-	const jerem = await prisma.appUser.upsert({
-		where: { email: "jerem@lapince.fr" },
-		update: {},
-		create: { name: "Jérémy", email: "jerem@lapince.fr", password: passwordHash },
-	});
-
-	console.log("✅ 5 users seeded (demo + steve + aurore + ludo + jerem)");
+	console.log("✅ 2 users seeded");
+	console.log("   → steve@lapince.fr  / password123");
+	console.log("   → aurore@lapince.fr / password123");
 
 	// ============================================================
 	// PARTICIPANTS
-	// Certains sont liés à un compte (appUserId), d'autres non (invités)
+	// pSteve lié au compte steve → KPI dashboard actifs
+	// pAurore lié au compte aurore → KPI dashboard actifs pour Aurore
+	// Tous les autres → invités sans compte
 	// ============================================================
 
-	// Participants avec compte
-	const pDemo = await prisma.participant.upsert({
-		where: { id: 1 },
-		update: {},
-		create: { name: "Demo", appUserId: demo.id },
-	});
 	const pSteve = await prisma.participant.upsert({
-		where: { id: 2 },
+		where: { id: 1 },
 		update: {},
 		create: { name: "Steve", appUserId: steve.id },
 	});
 	const pAurore = await prisma.participant.upsert({
-		where: { id: 3 },
+		where: { id: 2 },
 		update: {},
 		create: { name: "Aurore", appUserId: aurore.id },
 	});
 	const pLudo = await prisma.participant.upsert({
-		where: { id: 4 },
+		where: { id: 3 },
 		update: {},
-		create: { name: "Ludo", appUserId: ludo.id },
+		create: { name: "Ludo", appUserId: null },
 	});
 	const pJerem = await prisma.participant.upsert({
-		where: { id: 5 },
+		where: { id: 4 },
 		update: {},
-		create: { name: "Jérémy", appUserId: jerem.id },
+		create: { name: "Jérémy", appUserId: null },
 	});
-
-	// Participants invités (sans compte)
 	const pSophie = await prisma.participant.upsert({
-		where: { id: 6 },
+		where: { id: 5 },
 		update: {},
 		create: { name: "Sophie", appUserId: null },
 	});
 	const pMarco = await prisma.participant.upsert({
-		where: { id: 7 },
+		where: { id: 6 },
 		update: {},
 		create: { name: "Marco", appUserId: null },
 	});
 	const pLea = await prisma.participant.upsert({
-		where: { id: 8 },
+		where: { id: 7 },
 		update: {},
 		create: { name: "Léa", appUserId: null },
 	});
 	const pThomas = await prisma.participant.upsert({
-		where: { id: 9 },
+		where: { id: 8 },
 		update: {},
 		create: { name: "Thomas", appUserId: null },
 	});
+	const pNina = await prisma.participant.upsert({
+		where: { id: 9 },
+		update: {},
+		create: { name: "Nina", appUserId: null },
+	});
+	const pPaul = await prisma.participant.upsert({
+		where: { id: 10 },
+		update: {},
+		create: { name: "Paul", appUserId: null },
+	});
 
-	console.log("✅ 9 participants seeded (5 avec compte, 4 invités)");
+	console.log("✅ 10 participants seeded");
 
 	// ============================================================
 	// HELPER — upsert opération + répartitions
@@ -159,7 +146,7 @@ async function main() {
 		payerId: number;
 		categoryId: number;
 		projectId: number;
-		appUserId: number;
+		ownerId: number;
 		split: { participantId: number; amount: number; isCalculated: boolean }[];
 	}) {
 		const created = await prisma.operation.upsert({
@@ -171,7 +158,7 @@ async function main() {
 				isAmountCalculated: op.isAmountCalculated,
 				date: new Date(op.date),
 				payerParticipantId: op.payerId,
-				appUserId: op.appUserId,
+				appUserId: op.ownerId,
 				categoryId: op.categoryId,
 				projectId: op.projectId,
 			},
@@ -201,35 +188,49 @@ async function main() {
 
 	async function seedAlert(alert: {
 		id: number;
-		status: string; // "unread" | "read" | "resolved"
-		message: string;
+		status: string;
+		threshold: number;
+		totalSpent: number;
+		budgetAmount: number;
 		budgetId: number;
-		appUserIds: number[];
+		userId: number;
 	}) {
+		const baseMessage = `Le budget du projet a dépassé ${alert.threshold} % du montant prévu — ${alert.totalSpent.toFixed(2)} € sur ${alert.budgetAmount.toFixed(2)} €.`;
+		const message =
+			alert.status === "resolved"
+				? `${baseMessage} Seuil dépassé puis résolu.`
+				: baseMessage;
+
 		await prisma.alert.upsert({
 			where: { id: alert.id },
 			update: {},
 			create: {
 				id: alert.id,
 				status: alert.status,
-				message: alert.message,
+				message,
 				budgetId: alert.budgetId,
 			},
 		});
-		for (const uid of alert.appUserIds) {
-			await prisma.appUserAlert.upsert({
-				where: { appUserId_alertId: { appUserId: uid, alertId: alert.id } },
-				update: {},
-				create: { appUserId: uid, alertId: alert.id },
-			});
-		}
+		await prisma.appUserAlert.upsert({
+			where: { appUserId_alertId: { appUserId: alert.userId, alertId: alert.id } },
+			update: {},
+			create: { appUserId: alert.userId, alertId: alert.id },
+		});
 	}
 
+	// ╔══════════════════════════════════════════════════════════╗
+	// ║              PROJETS DE STEVE                           ║
+	// ╚══════════════════════════════════════════════════════════╝
+
 	// ============================================================
-	// PROJECT 1 — Voyage Milan (demo)
-	// Cas : budget dépassé → alerte unread (pour la démo jury)
-	// Balances : 3 participants → 2 transactions greedy
+	// PROJECT 1 — Voyage Milan (Steve)
 	// Type : Voyage ✅
+	// Budget : 600 € / seuil 80 % → 594 € → alerte UNREAD
+	// Participants : Steve, Aurore, Ludo (3)
+	// Greedy → 2 transactions
+	// ~15 opérations → test pagination
+	// Payeur absent de sa répartition (Aurore, op restaurant)
+	// KPI : Steve à recevoir (paie hôtel + train)
 	// ============================================================
 
 	const projectMilan = await prisma.project.upsert({
@@ -239,89 +240,179 @@ async function main() {
 			name: "Voyage Milan",
 			description: "Week-end entre amis à Milan — mai 2026",
 			type: ProjectType.Voyage,
-			appUserId: demo.id,
+			appUserId: steve.id,
 		},
 	});
 
-	for (const participantId of [pDemo.id, pSophie.id, pMarco.id]) {
+	for (const pid of [pSteve.id, pAurore.id, pLudo.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectMilan.id, participantId } },
+			where: { projectId_participantId: { projectId: projectMilan.id, participantId: pid } },
 			update: {},
-			create: { projectId: projectMilan.id, participantId },
+			create: { projectId: projectMilan.id, participantId: pid },
 		});
 	}
 
-	// Budget : 500 €, seuil 80 % → dépenses à 490 € → alerte déclenchée
 	const budgetMilan = await prisma.budget.upsert({
 		where: { projectId: projectMilan.id },
 		update: {},
-		create: { amount: 500.0, limitCriteria: 80.0, projectId: projectMilan.id },
+		create: { amount: 600.0, limitCriteria: 80.0, projectId: projectMilan.id },
 	});
 
 	for (const op of [
 		{
-			id: 1,
-			name: "Hôtel 2 nuits",
-			amount: 270.0,
-			isAmountCalculated: false,
-			date: "2026-05-19",
-			payerId: pDemo.id,
-			categoryId: hebergement.id,
+			id: 1, name: "Hôtel — nuit 1", amount: 135.0, isAmountCalculated: false, date: "2026-05-15",
+			payerId: pSteve.id, categoryId: hebergement.id,
 			split: [
-				{ participantId: pDemo.id, amount: 90.0, isCalculated: true },
-				{ participantId: pSophie.id, amount: 90.0, isCalculated: true },
-				{ participantId: pMarco.id, amount: 90.0, isCalculated: true },
+				{ participantId: pSteve.id, amount: 45.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 45.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 45.0, isCalculated: true },
 			],
 		},
 		{
-			id: 2,
-			name: "Restaurant Il Duomo",
-			amount: 120.0,
-			isAmountCalculated: false,
-			date: "2026-05-20",
-			// Sophie paie mais ne mange pas (elle a commandé pour les autres)
-			// → cas payeur absent de sa propre répartition
-			payerId: pSophie.id,
-			categoryId: restaurants.id,
+			id: 2, name: "Hôtel — nuit 2", amount: 135.0, isAmountCalculated: false, date: "2026-05-16",
+			payerId: pSteve.id, categoryId: hebergement.id,
 			split: [
-				{ participantId: pDemo.id, amount: 60.0, isCalculated: false },
-				{ participantId: pMarco.id, amount: 60.0, isCalculated: false },
+				{ participantId: pSteve.id, amount: 45.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 45.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 45.0, isCalculated: true },
 			],
 		},
 		{
-			id: 3,
-			name: "Billets de train",
-			amount: 100.0,
-			isAmountCalculated: false,
-			date: "2026-05-18",
-			payerId: pMarco.id,
-			categoryId: transport.id,
+			id: 3, name: "Billets de train aller", amount: 75.0, isAmountCalculated: false, date: "2026-05-15",
+			payerId: pSteve.id, categoryId: transport.id,
 			split: [
-				{ participantId: pDemo.id, amount: 33.34, isCalculated: true },
-				{ participantId: pSophie.id, amount: 33.33, isCalculated: true },
-				{ participantId: pMarco.id, amount: 33.33, isCalculated: true },
+				{ participantId: pSteve.id, amount: 25.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 25.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 25.0, isCalculated: true },
+			],
+		},
+		{
+			id: 4, name: "Billets de train retour", amount: 75.0, isAmountCalculated: false, date: "2026-05-17",
+			payerId: pSteve.id, categoryId: transport.id,
+			split: [
+				{ participantId: pSteve.id, amount: 25.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 25.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 25.0, isCalculated: true },
+			],
+		},
+		{
+			id: 5, name: "Restaurant Il Duomo",  amount: 84.0, isAmountCalculated: false, date: "2026-05-15",
+			// Aurore paie mais ne mange pas → payeur absent de sa propre répartition
+			payerId: pAurore.id, categoryId: restaurants.id,
+			split: [
+				{ participantId: pSteve.id, amount: 42.0, isCalculated: false },
+				{ participantId: pLudo.id, amount: 42.0, isCalculated: false },
+			],
+		},
+		{
+			id: 6, name: "Pizzeria Brera", amount: 54.0, isAmountCalculated: false, date: "2026-05-16",
+			payerId: pLudo.id, categoryId: restaurants.id,
+			split: [
+				{ participantId: pSteve.id, amount: 18.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 18.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 18.0, isCalculated: true },
+			],
+		},
+		{
+			id: 7, name: "Apéro bar Navigli", amount: 39.0, isAmountCalculated: false, date: "2026-05-16",
+			payerId: pAurore.id, categoryId: restaurants.id,
+			split: [
+				{ participantId: pSteve.id, amount: 13.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 13.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 13.0, isCalculated: true },
+			],
+		},
+		{
+			id: 8, name: "Courses petit-déj", amount: 18.0, isAmountCalculated: false, date: "2026-05-16",
+			payerId: pSteve.id, categoryId: courses.id,
+			split: [
+				{ participantId: pSteve.id, amount: 6.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 6.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 6.0, isCalculated: true },
+			],
+		},
+		{
+			id: 9, name: "Taxi aéroport", amount: 27.0, isAmountCalculated: false, date: "2026-05-15",
+			payerId: pLudo.id, categoryId: transport.id,
+			split: [
+				{ participantId: pSteve.id, amount: 9.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 9.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 9.0, isCalculated: true },
+			],
+		},
+		{
+			id: 10, name: "Musée Pinacothèque", amount: 36.0, isAmountCalculated: false, date: "2026-05-16",
+			payerId: pSteve.id, categoryId: loisir.id,
+			split: [
+				{ participantId: pSteve.id, amount: 12.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 12.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 12.0, isCalculated: true },
+			],
+		},
+		{
+			id: 11, name: "Visite Duomo", amount: 15.0, isAmountCalculated: false, date: "2026-05-16",
+			payerId: pAurore.id, categoryId: loisir.id,
+			split: [
+				{ participantId: pSteve.id, amount: 5.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 5.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 5.0, isCalculated: true },
+			],
+		},
+		{
+			id: 12, name: "Souvenirs marché", amount: 30.0, isAmountCalculated: false, date: "2026-05-17",
+			payerId: pLudo.id, categoryId: divers.id,
+			split: [
+				{ participantId: pSteve.id, amount: 10.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 10.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 10.0, isCalculated: true },
+			],
+		},
+		{
+			id: 13, name: "Glaces Grom", amount: 12.0, isAmountCalculated: false, date: "2026-05-17",
+			payerId: pSteve.id, categoryId: restaurants.id,
+			split: [
+				{ participantId: pSteve.id, amount: 4.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 4.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 4.0, isCalculated: true },
+			],
+		},
+		{
+			id: 14, name: "Bus aéroport retour", amount: 18.0, isAmountCalculated: false, date: "2026-05-17",
+			payerId: pAurore.id, categoryId: transport.id,
+			split: [
+				{ participantId: pSteve.id, amount: 6.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 6.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 6.0, isCalculated: true },
+			],
+		},
+		{
+			id: 15, name: "Dîner dernière nuit", amount: 66.0, isAmountCalculated: false, date: "2026-05-17",
+			payerId: pSteve.id, categoryId: restaurants.id,
+			split: [
+				{ participantId: pSteve.id, amount: 22.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 22.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 22.0, isCalculated: true },
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectMilan.id, appUserId: demo.id });
+		await seedOperation({ ...op, projectId: projectMilan.id, ownerId: steve.id });
 	}
 
-	// Alerte unread → dépassement du seuil 80 % (490 € > 400 €)
 	await seedAlert({
-		id: 1,
-		status: "unread",
-		message: "Le budget de Voyage Milan a dépassé 80 % du montant prévu (490,00 € sur 500,00 €).",
-		budgetId: budgetMilan.id,
-		appUserIds: [demo.id],
+		id: 1, status: "unread", threshold: 80,
+		totalSpent: 819.0, budgetAmount: 600.0,
+		budgetId: budgetMilan.id, userId: steve.id,
 	});
 
-	console.log("✅ project 1 seeded — Voyage Milan (démo, alerte unread)");
+	console.log("✅ project 1 seeded — Voyage Milan (15 ops, alerte unread)");
 
 	// ============================================================
-	// PROJECT 2 — Coloc rue Pasteur (demo)
-	// Cas : budget avec alerte déjà lue (status: "read")
-	// Balances complexes : 3 participants → 2+ transactions greedy
+	// PROJECT 2 — Coloc rue Pasteur (Steve)
 	// Type : Maison_Coloc ✅
+	// Budget : 2000 € / seuil 90 % → alerte READ
+	// Participants : Steve, Ludo, Jérémy (3)
+	// ~15 opérations → test pagination
+	// KPI : Steve à recevoir (paie les loyers)
 	// ============================================================
 
 	const projectColoc = await prisma.project.upsert({
@@ -329,21 +420,20 @@ async function main() {
 		update: {},
 		create: {
 			name: "Coloc rue Pasteur",
-			description: "Dépenses partagées de la colocation — juin 2026",
+			description: "Dépenses partagées de la colocation",
 			type: ProjectType.Maison_Coloc,
-			appUserId: demo.id,
+			appUserId: steve.id,
 		},
 	});
 
-	for (const participantId of [pDemo.id, pLudo.id, pJerem.id]) {
+	for (const pid of [pSteve.id, pLudo.id, pJerem.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectColoc.id, participantId } },
+			where: { projectId_participantId: { projectId: projectColoc.id, participantId: pid } },
 			update: {},
-			create: { projectId: projectColoc.id, participantId },
+			create: { projectId: projectColoc.id, participantId: pid },
 		});
 	}
 
-	// Budget : 2000 €, seuil 90 % → 1089,39 € dépensés → sous le seuil (alerte read = historique)
 	const budgetColoc = await prisma.budget.upsert({
 		where: { projectId: projectColoc.id },
 		update: {},
@@ -352,176 +442,235 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 10,
-			name: "Loyer juin",
-			amount: 900.0,
-			isAmountCalculated: false,
-			date: "2026-06-01",
-			payerId: pDemo.id,
-			categoryId: divers.id,
+			id: 20, name: "Loyer avril", amount: 900.0, isAmountCalculated: false, date: "2026-04-01",
+			payerId: pSteve.id, categoryId: divers.id,
 			split: [
-				{ participantId: pDemo.id, amount: 300.0, isCalculated: true },
+				{ participantId: pSteve.id, amount: 300.0, isCalculated: true },
 				{ participantId: pLudo.id, amount: 300.0, isCalculated: true },
 				{ participantId: pJerem.id, amount: 300.0, isCalculated: true },
 			],
 		},
 		{
-			id: 11,
-			name: "Courses Leclerc",
-			amount: 87.4,
-			isAmountCalculated: false,
-			date: "2026-06-10",
-			payerId: pLudo.id,
-			categoryId: courses.id,
+			id: 21, name: "Loyer mai", amount: 900.0, isAmountCalculated: false, date: "2026-05-01",
+			payerId: pSteve.id, categoryId: divers.id,
 			split: [
-				{ participantId: pDemo.id, amount: 29.14, isCalculated: true },
-				{ participantId: pLudo.id, amount: 29.13, isCalculated: true },
-				{ participantId: pJerem.id, amount: 29.13, isCalculated: true },
+				{ participantId: pSteve.id, amount: 300.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 300.0, isCalculated: true },
+				{ participantId: pJerem.id, amount: 300.0, isCalculated: true },
 			],
 		},
 		{
-			id: 12,
-			name: "Internet + box",
-			amount: 39.99,
-			isAmountCalculated: false,
-			date: "2026-06-05",
-			payerId: pJerem.id,
-			categoryId: divers.id,
+			id: 22, name: "Électricité avril", amount: 58.0, isAmountCalculated: false, date: "2026-04-05",
+			payerId: pSteve.id, categoryId: divers.id,
 			split: [
-				{ participantId: pDemo.id, amount: 13.33, isCalculated: true },
+				{ participantId: pSteve.id, amount: 19.34, isCalculated: true },
+				{ participantId: pLudo.id, amount: 19.33, isCalculated: true },
+				{ participantId: pJerem.id, amount: 19.33, isCalculated: true },
+			],
+		},
+		{
+			id: 23, name: "Électricité mai", amount: 62.0, isAmountCalculated: false, date: "2026-05-05",
+			payerId: pSteve.id, categoryId: divers.id,
+			split: [
+				{ participantId: pSteve.id, amount: 20.67, isCalculated: true },
+				{ participantId: pLudo.id, amount: 20.67, isCalculated: true },
+				{ participantId: pJerem.id, amount: 20.66, isCalculated: true },
+			],
+		},
+		{
+			id: 24, name: "Internet + box", amount: 39.99, isAmountCalculated: false, date: "2026-04-05",
+			payerId: pJerem.id, categoryId: divers.id,
+			split: [
+				{ participantId: pSteve.id, amount: 13.33, isCalculated: true },
 				{ participantId: pLudo.id, amount: 13.33, isCalculated: true },
 				{ participantId: pJerem.id, amount: 13.33, isCalculated: true },
 			],
 		},
 		{
-			id: 13,
-			name: "Électricité",
-			amount: 62.0,
-			isAmountCalculated: false,
-			date: "2026-06-15",
-			payerId: pDemo.id,
-			categoryId: divers.id,
+			id: 25, name: "Internet + box", amount: 39.99, isAmountCalculated: false, date: "2026-05-05",
+			payerId: pJerem.id, categoryId: divers.id,
 			split: [
-				{ participantId: pDemo.id, amount: 20.67, isCalculated: true },
-				{ participantId: pLudo.id, amount: 20.67, isCalculated: true },
-				{ participantId: pJerem.id, amount: 20.66, isCalculated: true },
+				{ participantId: pSteve.id, amount: 13.33, isCalculated: true },
+				{ participantId: pLudo.id, amount: 13.33, isCalculated: true },
+				{ participantId: pJerem.id, amount: 13.33, isCalculated: true },
+			],
+		},
+		{
+			id: 26, name: "Courses Leclerc", amount: 87.4, isAmountCalculated: false, date: "2026-04-10",
+			payerId: pLudo.id, categoryId: courses.id,
+			split: [
+				{ participantId: pSteve.id, amount: 29.14, isCalculated: true },
+				{ participantId: pLudo.id, amount: 29.13, isCalculated: true },
+				{ participantId: pJerem.id, amount: 29.13, isCalculated: true },
+			],
+		},
+		{
+			id: 27, name: "Courses Monoprix", amount: 64.2, isAmountCalculated: false, date: "2026-04-20",
+			payerId: pSteve.id, categoryId: courses.id,
+			split: [
+				{ participantId: pSteve.id, amount: 21.4, isCalculated: true },
+				{ participantId: pLudo.id, amount: 21.4, isCalculated: true },
+				{ participantId: pJerem.id, amount: 21.4, isCalculated: true },
+			],
+		},
+		{
+			id: 28, name: "Courses Leclerc", amount: 92.6, isAmountCalculated: false, date: "2026-05-12",
+			payerId: pLudo.id, categoryId: courses.id,
+			split: [
+				{ participantId: pSteve.id, amount: 30.87, isCalculated: true },
+				{ participantId: pLudo.id, amount: 30.87, isCalculated: true },
+				{ participantId: pJerem.id, amount: 30.86, isCalculated: true },
+			],
+		},
+		{
+			id: 29, name: "Produits ménagers", amount: 28.5, isAmountCalculated: false, date: "2026-04-15",
+			payerId: pJerem.id, categoryId: courses.id,
+			split: [
+				{ participantId: pSteve.id, amount: 9.5, isCalculated: true },
+				{ participantId: pLudo.id, amount: 9.5, isCalculated: true },
+				{ participantId: pJerem.id, amount: 9.5, isCalculated: true },
+			],
+		},
+		{
+			id: 30, name: "Produits ménagers", amount: 31.0, isAmountCalculated: false, date: "2026-05-18",
+			payerId: pSteve.id, categoryId: courses.id,
+			split: [
+				{ participantId: pSteve.id, amount: 10.34, isCalculated: true },
+				{ participantId: pLudo.id, amount: 10.33, isCalculated: true },
+				{ participantId: pJerem.id, amount: 10.33, isCalculated: true },
+			],
+		},
+		{
+			id: 31, name: "Eau chaude (plombier)", amount: 120.0, isAmountCalculated: false, date: "2026-04-22",
+			payerId: pSteve.id, categoryId: divers.id,
+			split: [
+				{ participantId: pSteve.id, amount: 40.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 40.0, isCalculated: true },
+				{ participantId: pJerem.id, amount: 40.0, isCalculated: true },
+			],
+		},
+		{
+			id: 32, name: "Abonnement Netflix partagé", amount: 17.99, isAmountCalculated: false, date: "2026-04-01",
+			payerId: pLudo.id, categoryId: loisir.id,
+			split: [
+				{ participantId: pSteve.id, amount: 6.0, isCalculated: false },
+				{ participantId: pLudo.id, amount: 6.0, isCalculated: false },
+				{ participantId: pJerem.id, amount: 5.99, isCalculated: false },
+			],
+		},
+		{
+			id: 33, name: "Abonnement Netflix partagé", amount: 17.99, isAmountCalculated: false, date: "2026-05-01",
+			payerId: pLudo.id, categoryId: loisir.id,
+			split: [
+				{ participantId: pSteve.id, amount: 6.0, isCalculated: false },
+				{ participantId: pLudo.id, amount: 6.0, isCalculated: false },
+				{ participantId: pJerem.id, amount: 5.99, isCalculated: false },
+			],
+		},
+		{
+			id: 34, name: "Assurance habitation", amount: 42.0, isAmountCalculated: false, date: "2026-04-01",
+			payerId: pJerem.id, categoryId: divers.id,
+			split: [
+				{ participantId: pSteve.id, amount: 14.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 14.0, isCalculated: true },
+				{ participantId: pJerem.id, amount: 14.0, isCalculated: true },
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectColoc.id, appUserId: demo.id });
+		await seedOperation({ ...op, projectId: projectColoc.id, ownerId: steve.id });
 	}
 
-	// Alerte read → visible dans l'historique mais pas dans le bandeau
 	await seedAlert({
-		id: 2,
-		status: "read",
-		message: "Le budget de Coloc rue Pasteur a dépassé 50 % du montant prévu (1 089,39 € sur 2 000,00 €).",
-		budgetId: budgetColoc.id,
-		appUserIds: [demo.id],
+		id: 2, status: "read", threshold: 90,
+		totalSpent: 2503.66, budgetAmount: 2000.0,
+		budgetId: budgetColoc.id, userId: steve.id,
 	});
 
-	console.log("✅ project 2 seeded — Coloc rue Pasteur (démo, alerte read)");
+	console.log("✅ project 2 seeded — Coloc rue Pasteur (15 ops, alerte read)");
 
 	// ============================================================
-	// PROJECT 3 — Anniversaire Léa (demo)
-	// Cas : répartition inégale (parts custom), budget resolved
-	// Balances : 4 participants → algo greedy testé sur ≥ 3 transactions
+	// PROJECT 3 — Anniversaire Sophie (Steve)
 	// Type : Anniversaire ✅
+	// Budget : 300 € / seuil 75 % → alerte RESOLVED
+	// Participants : Steve, Aurore, Ludo, Jérémy (4)
+	// Répartition inégale (parts custom)
+	// KPI : Steve doit de l'argent
 	// ============================================================
 
 	const projectAnniv = await prisma.project.upsert({
 		where: { id: 3 },
 		update: {},
 		create: {
-			name: "Anniversaire Léa",
-			description: "Organisation des 30 ans de Léa",
+			name: "Anniversaire Sophie",
+			description: "Surprise pour les 30 ans de Sophie",
 			type: ProjectType.Anniversaire,
-			appUserId: demo.id,
+			appUserId: steve.id,
 		},
 	});
 
-	for (const participantId of [pDemo.id, pAurore.id, pSophie.id, pMarco.id]) {
+	for (const pid of [pSteve.id, pAurore.id, pLudo.id, pJerem.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectAnniv.id, participantId } },
+			where: { projectId_participantId: { projectId: projectAnniv.id, participantId: pid } },
 			update: {},
-			create: { projectId: projectAnniv.id, participantId },
+			create: { projectId: projectAnniv.id, participantId: pid },
 		});
 	}
 
-	// Budget : 400 €, seuil 75 % → 257,80 € < 300 € → alerte resolved (le budget a été augmenté)
 	const budgetAnniv = await prisma.budget.upsert({
 		where: { projectId: projectAnniv.id },
 		update: {},
-		create: { amount: 400.0, limitCriteria: 75.0, projectId: projectAnniv.id },
+		create: { amount: 300.0, limitCriteria: 75.0, projectId: projectAnniv.id },
 	});
 
 	for (const op of [
 		{
-			id: 20,
-			name: "Location salle",
-			amount: 150.0,
-			isAmountCalculated: false,
-			date: "2026-06-01",
-			payerId: pDemo.id,
-			categoryId: loisir.id,
-			// Répartition inégale : Demo et Aurore organisent, paient plus
+			id: 40, name: "Location salle", amount: 120.0, isAmountCalculated: false, date: "2026-04-15",
+			payerId: pAurore.id, categoryId: loisir.id,
+			// Répartition inégale : organisateurs paient moins
 			split: [
-				{ participantId: pDemo.id, amount: 50.0, isCalculated: false },
-				{ participantId: pAurore.id, amount: 50.0, isCalculated: false },
-				{ participantId: pSophie.id, amount: 25.0, isCalculated: false },
-				{ participantId: pMarco.id, amount: 25.0, isCalculated: false },
+				{ participantId: pSteve.id, amount: 40.0, isCalculated: false },
+				{ participantId: pAurore.id, amount: 20.0, isCalculated: false },
+				{ participantId: pLudo.id, amount: 20.0, isCalculated: false },
+				{ participantId: pJerem.id, amount: 40.0, isCalculated: false },
 			],
 		},
 		{
-			id: 21,
-			name: "Gâteau personnalisé",
-			amount: 65.0,
-			isAmountCalculated: false,
-			date: "2026-06-01",
-			payerId: pAurore.id,
-			categoryId: restaurants.id,
+			id: 41, name: "Gâteau et buffet", amount: 95.0, isAmountCalculated: false, date: "2026-04-15",
+			payerId: pJerem.id, categoryId: restaurants.id,
 			split: [
-				{ participantId: pDemo.id, amount: 16.25, isCalculated: true },
-				{ participantId: pAurore.id, amount: 16.25, isCalculated: true },
-				{ participantId: pSophie.id, amount: 16.25, isCalculated: true },
-				{ participantId: pMarco.id, amount: 16.25, isCalculated: true },
+				{ participantId: pSteve.id, amount: 23.75, isCalculated: true },
+				{ participantId: pAurore.id, amount: 23.75, isCalculated: true },
+				{ participantId: pLudo.id, amount: 23.75, isCalculated: true },
+				{ participantId: pJerem.id, amount: 23.75, isCalculated: true },
 			],
 		},
 		{
-			id: 22,
-			name: "Décorations",
-			amount: 42.8,
-			isAmountCalculated: false,
-			date: "2026-05-28",
-			payerId: pSophie.id,
-			categoryId: loisir.id,
+			id: 42, name: "Décorations", amount: 38.0, isAmountCalculated: false, date: "2026-04-14",
+			payerId: pLudo.id, categoryId: loisir.id,
 			split: [
-				{ participantId: pDemo.id, amount: 10.7, isCalculated: true },
-				{ participantId: pAurore.id, amount: 10.7, isCalculated: true },
-				{ participantId: pSophie.id, amount: 10.7, isCalculated: true },
-				{ participantId: pMarco.id, amount: 10.7, isCalculated: true },
+				{ participantId: pSteve.id, amount: 9.5, isCalculated: true },
+				{ participantId: pAurore.id, amount: 9.5, isCalculated: true },
+				{ participantId: pLudo.id, amount: 9.5, isCalculated: true },
+				{ participantId: pJerem.id, amount: 9.5, isCalculated: true },
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectAnniv.id, appUserId: demo.id });
+		await seedOperation({ ...op, projectId: projectAnniv.id, ownerId: steve.id });
 	}
 
-	// Alerte resolved → l'alerte a été déclenchée puis le budget corrigé
 	await seedAlert({
-		id: 3,
-		status: "resolved",
-		message: "Le budget de Anniversaire Léa a dépassé 75 % du montant prévu. Seuil dépassé puis résolu.",
-		budgetId: budgetAnniv.id,
-		appUserIds: [demo.id],
+		id: 3, status: "resolved", threshold: 75,
+		totalSpent: 253.0, budgetAmount: 300.0,
+		budgetId: budgetAnniv.id, userId: steve.id,
 	});
 
-	console.log("✅ project 3 seeded — Anniversaire Léa (démo, alerte resolved)");
+	console.log("✅ project 3 seeded — Anniversaire Sophie (alerte resolved)");
 
 	// ============================================================
-	// PROJECT 4 — Soirée raclette (demo)
-	// Cas : projet SANS budget — aucun Budget lié
-	// Toutes les balances sont nulles (chacun a payé exactement sa part)
+	// PROJECT 4 — Soirée raclette (Steve)
 	// Type : Repas_Sortie ✅
+	// Sans budget
+	// Balances équilibrées → 0 remboursements
 	// ============================================================
 
 	const projectRaclette = await prisma.project.upsert({
@@ -529,81 +678,81 @@ async function main() {
 		update: {},
 		create: {
 			name: "Soirée raclette",
-			description: "Raclette du vendredi soir — pas de budget défini",
+			description: "Raclette du vendredi soir chez Steve",
 			type: ProjectType.Repas_Sortie,
-			appUserId: demo.id,
+			appUserId: steve.id,
 		},
 	});
 
-	for (const participantId of [pDemo.id, pJerem.id, pLea.id, pThomas.id]) {
+	for (const pid of [pSteve.id, pJerem.id, pLea.id, pThomas.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectRaclette.id, participantId } },
+			where: { projectId_participantId: { projectId: projectRaclette.id, participantId: pid } },
 			update: {},
-			create: { projectId: projectRaclette.id, participantId },
+			create: { projectId: projectRaclette.id, participantId: pid },
 		});
 	}
 
-	// Pas de budget → aucun prisma.budget.upsert ici
-
 	for (const op of [
 		{
-			id: 30,
-			name: "Fromages et charcuterie",
-			amount: 54.6,
-			isAmountCalculated: false,
-			date: "2026-05-24",
-			payerId: pDemo.id,
-			categoryId: courses.id,
+			id: 50, name: "Fromages et charcuterie", amount: 52.0, isAmountCalculated: false, date: "2026-05-09",
+			payerId: pSteve.id, categoryId: courses.id,
 			split: [
-				{ participantId: pDemo.id, amount: 13.65, isCalculated: true },
-				{ participantId: pJerem.id, amount: 13.65, isCalculated: true },
-				{ participantId: pLea.id, amount: 13.65, isCalculated: true },
-				{ participantId: pThomas.id, amount: 13.65, isCalculated: true },
+				{ participantId: pSteve.id, amount: 13.0, isCalculated: true },
+				{ participantId: pJerem.id, amount: 13.0, isCalculated: true },
+				{ participantId: pLea.id, amount: 13.0, isCalculated: true },
+				{ participantId: pThomas.id, amount: 13.0, isCalculated: true },
 			],
 		},
 		{
-			id: 31,
-			name: "Vins et boissons",
-			amount: 28.0,
-			isAmountCalculated: false,
-			date: "2026-05-24",
-			payerId: pJerem.id,
-			categoryId: courses.id,
+			id: 51, name: "Vins et boissons", amount: 28.0, isAmountCalculated: false, date: "2026-05-09",
+			payerId: pJerem.id, categoryId: courses.id,
 			split: [
-				{ participantId: pDemo.id, amount: 7.0, isCalculated: true },
+				{ participantId: pSteve.id, amount: 7.0, isCalculated: true },
 				{ participantId: pJerem.id, amount: 7.0, isCalculated: true },
 				{ participantId: pLea.id, amount: 7.0, isCalculated: true },
 				{ participantId: pThomas.id, amount: 7.0, isCalculated: true },
 			],
 		},
+		{
+			id: 52, name: "Pain et accompagnements", amount: 20.0, isAmountCalculated: false, date: "2026-05-09",
+			payerId: pLea.id, categoryId: courses.id,
+			split: [
+				{ participantId: pSteve.id, amount: 5.0, isCalculated: true },
+				{ participantId: pJerem.id, amount: 5.0, isCalculated: true },
+				{ participantId: pLea.id, amount: 5.0, isCalculated: true },
+				{ participantId: pThomas.id, amount: 5.0, isCalculated: true },
+			],
+		},
 	]) {
-		await seedOperation({ ...op, projectId: projectRaclette.id, appUserId: demo.id });
+		await seedOperation({ ...op, projectId: projectRaclette.id, ownerId: steve.id });
 	}
 
 	console.log("✅ project 4 seeded — Soirée raclette (sans budget, balances nulles)");
 
 	// ============================================================
-	// PROJECT 5 — Séminaire équipe (demo)
-	// Cas : budget large non dépassé (0 alerte)
+	// PROJECT 5 — Séminaire tech (Steve)
 	// Type : Pro_Travail ✅
+	// Budget : 3000 € / seuil 80 % → 1557.50 € → non atteint, 0 alerte
+	// Participants : Steve, Thomas, Léa, Marco (4)
+	// Greedy → 3 transactions
 	// ============================================================
 
 	const projectSeminaire = await prisma.project.upsert({
 		where: { id: 5 },
 		update: {},
 		create: {
-			name: "Séminaire équipe",
+			name: "Séminaire tech",
 			description: "Séminaire annuel de l'équipe tech",
 			type: ProjectType.Pro_Travail,
-			appUserId: demo.id,
+			appUserId: steve.id,
 		},
 	});
 
-	for (const participantId of [pDemo.id, pThomas.id, pLea.id, pMarco.id]) {
+	for (const pid of [pSteve.id, pThomas.id, pLea.id, pMarco.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectSeminaire.id, participantId } },
+			where: { projectId_participantId: { projectId: projectSeminaire.id, participantId: pid } },
 			update: {},
-			create: { projectId: projectSeminaire.id, participantId },
+			create: { projectId: projectSeminaire.id, participantId: pid },
 		});
 	}
 
@@ -615,170 +764,76 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 40,
-			name: "Hôtel 2 nuits équipe",
-			amount: 880.0,
-			isAmountCalculated: false,
-			date: "2026-04-10",
-			payerId: pDemo.id,
-			categoryId: hebergement.id,
+			id: 60, name: "Hôtel 2 nuits équipe", amount: 880.0, isAmountCalculated: false, date: "2026-04-10",
+			payerId: pSteve.id, categoryId: hebergement.id,
 			split: [
-				{ participantId: pDemo.id, amount: 220.0, isCalculated: true },
+				{ participantId: pSteve.id, amount: 220.0, isCalculated: true },
 				{ participantId: pThomas.id, amount: 220.0, isCalculated: true },
 				{ participantId: pLea.id, amount: 220.0, isCalculated: true },
 				{ participantId: pMarco.id, amount: 220.0, isCalculated: true },
 			],
 		},
 		{
-			id: 41,
-			name: "Dîner gala",
-			amount: 340.0,
-			isAmountCalculated: false,
-			date: "2026-04-11",
-			payerId: pThomas.id,
-			categoryId: restaurants.id,
+			id: 61, name: "Dîner gala", amount: 340.0, isAmountCalculated: false, date: "2026-04-11",
+			payerId: pThomas.id, categoryId: restaurants.id,
 			split: [
-				{ participantId: pDemo.id, amount: 85.0, isCalculated: true },
+				{ participantId: pSteve.id, amount: 85.0, isCalculated: true },
 				{ participantId: pThomas.id, amount: 85.0, isCalculated: true },
 				{ participantId: pLea.id, amount: 85.0, isCalculated: true },
 				{ participantId: pMarco.id, amount: 85.0, isCalculated: true },
 			],
 		},
 		{
-			id: 42,
-			name: "Matériel atelier",
-			amount: 127.5,
-			isAmountCalculated: false,
-			date: "2026-04-10",
-			payerId: pLea.id,
-			categoryId: divers.id,
+			id: 62, name: "Matériel atelier", amount: 127.5, isAmountCalculated: false, date: "2026-04-10",
+			payerId: pLea.id, categoryId: divers.id,
 			split: [
-				{ participantId: pDemo.id, amount: 31.88, isCalculated: true },
+				{ participantId: pSteve.id, amount: 31.88, isCalculated: true },
 				{ participantId: pThomas.id, amount: 31.87, isCalculated: true },
 				{ participantId: pLea.id, amount: 31.87, isCalculated: true },
 				{ participantId: pMarco.id, amount: 31.88, isCalculated: true },
 			],
 		},
 		{
-			id: 43,
-			name: "Transport groupe",
-			amount: 210.0,
-			isAmountCalculated: false,
-			date: "2026-04-10",
-			payerId: pDemo.id,
-			categoryId: transport.id,
+			id: 63, name: "Transport groupe", amount: 210.0, isAmountCalculated: false, date: "2026-04-10",
+			payerId: pSteve.id, categoryId: transport.id,
 			split: [
-				{ participantId: pDemo.id, amount: 52.5, isCalculated: true },
+				{ participantId: pSteve.id, amount: 52.5, isCalculated: true },
 				{ participantId: pThomas.id, amount: 52.5, isCalculated: true },
 				{ participantId: pLea.id, amount: 52.5, isCalculated: true },
 				{ participantId: pMarco.id, amount: 52.5, isCalculated: true },
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectSeminaire.id, appUserId: demo.id });
+		await seedOperation({ ...op, projectId: projectSeminaire.id, ownerId: steve.id });
 	}
 
-	console.log("✅ project 5 seeded — Séminaire équipe (Pro_Travail, budget non atteint)");
+	console.log("✅ project 5 seeded — Séminaire tech (Pro_Travail, 0 alerte)");
 
 	// ============================================================
-	// PROJECT 6 — Festival été 2025 (demo, ARCHIVÉ)
-	// Cas : projet archivé → visible uniquement dans onglet Archives
-	// Sans budget (projet clos)
-	// Type : Autre ✅
-	// ============================================================
-
-	const projectFestival = await prisma.project.upsert({
-		where: { id: 6 },
-		update: {},
-		create: {
-			name: "Festival été 2025",
-			description: "Hellfest avec les potes — édition 2025",
-			type: ProjectType.Autre,
-			appUserId: demo.id,
-			isArchived: true,
-		},
-	});
-
-	for (const participantId of [pDemo.id, pJerem.id, pThomas.id]) {
-		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectFestival.id, participantId } },
-			update: {},
-			create: { projectId: projectFestival.id, participantId },
-		});
-	}
-
-	for (const op of [
-		{
-			id: 50,
-			name: "Pass 3 jours x3",
-			amount: 450.0,
-			isAmountCalculated: false,
-			date: "2025-06-20",
-			payerId: pDemo.id,
-			categoryId: loisir.id,
-			split: [
-				{ participantId: pDemo.id, amount: 150.0, isCalculated: true },
-				{ participantId: pJerem.id, amount: 150.0, isCalculated: true },
-				{ participantId: pThomas.id, amount: 150.0, isCalculated: true },
-			],
-		},
-		{
-			id: 51,
-			name: "Camping sur place",
-			amount: 90.0,
-			isAmountCalculated: false,
-			date: "2025-06-20",
-			payerId: pJerem.id,
-			categoryId: hebergement.id,
-			split: [
-				{ participantId: pDemo.id, amount: 30.0, isCalculated: true },
-				{ participantId: pJerem.id, amount: 30.0, isCalculated: true },
-				{ participantId: pThomas.id, amount: 30.0, isCalculated: true },
-			],
-		},
-		{
-			id: 52,
-			name: "Nourriture festival",
-			amount: 138.0,
-			isAmountCalculated: false,
-			date: "2025-06-21",
-			payerId: pThomas.id,
-			categoryId: restaurants.id,
-			split: [
-				{ participantId: pDemo.id, amount: 46.0, isCalculated: true },
-				{ participantId: pJerem.id, amount: 46.0, isCalculated: true },
-				{ participantId: pThomas.id, amount: 46.0, isCalculated: true },
-			],
-		},
-	]) {
-		await seedOperation({ ...op, projectId: projectFestival.id, appUserId: demo.id });
-	}
-
-	console.log("✅ project 6 seeded — Festival été 2025 (archivé, Autre)");
-
-	// ============================================================
-	// PROJECT 7 — Road trip Bretagne (demo)
-	// Cas : balance greedy complexe — 4 participants, répartitions asymétriques
-	// → algo devrait produire n-1 = 3 transactions
+	// PROJECT 6 — Road trip Bretagne (Steve)
 	// Type : Voyage ✅
+	// Budget : 1800 € / seuil 85 % → non atteint, 0 alerte
+	// Participants : Steve, Sophie, Marco, Léa (4)
+	// Greedy complexe → 3 transactions
+	// Participant seul dans sa répartition (Léa, Airbnb)
 	// ============================================================
 
 	const projectBretagne = await prisma.project.upsert({
-		where: { id: 7 },
+		where: { id: 6 },
 		update: {},
 		create: {
 			name: "Road trip Bretagne",
-			description: "10 jours sur les côtes bretonnes",
+			description: "10 jours sur les côtes bretonnes — juillet 2026",
 			type: ProjectType.Voyage,
-			appUserId: demo.id,
+			appUserId: steve.id,
 		},
 	});
 
-	for (const participantId of [pDemo.id, pSophie.id, pMarco.id, pLea.id]) {
+	for (const pid of [pSteve.id, pSophie.id, pMarco.id, pLea.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectBretagne.id, participantId } },
+			where: { projectId_participantId: { projectId: projectBretagne.id, participantId: pid } },
 			update: {},
-			create: { projectId: projectBretagne.id, participantId },
+			create: { projectId: projectBretagne.id, participantId: pid },
 		});
 	}
 
@@ -788,110 +843,147 @@ async function main() {
 		create: { amount: 1800.0, limitCriteria: 85.0, projectId: projectBretagne.id },
 	});
 
-	// Répartitions intentionnellement asymétriques pour forcer un greedy non-trivial :
-	// Demo paie beaucoup, Sophie peu, Marco & Léa dépenses intermédiaires
 	for (const op of [
 		{
-			id: 60,
-			name: "Location voiture",
-			amount: 320.0,
-			isAmountCalculated: false,
-			date: "2026-07-01",
-			payerId: pDemo.id,
-			categoryId: transport.id,
+			id: 70, name: "Location voiture", amount: 320.0, isAmountCalculated: false, date: "2026-07-01",
+			payerId: pSteve.id, categoryId: transport.id,
 			split: [
-				{ participantId: pDemo.id, amount: 80.0, isCalculated: true },
+				{ participantId: pSteve.id, amount: 80.0, isCalculated: true },
 				{ participantId: pSophie.id, amount: 80.0, isCalculated: true },
 				{ participantId: pMarco.id, amount: 80.0, isCalculated: true },
 				{ participantId: pLea.id, amount: 80.0, isCalculated: true },
 			],
 		},
 		{
-			id: 61,
-			name: "Camping 5 nuits",
-			amount: 240.0,
-			isAmountCalculated: false,
-			date: "2026-07-02",
-			// Marco paie mais Léa n'y participe pas (elle dort en Airbnb séparément)
-			payerId: pMarco.id,
-			categoryId: hebergement.id,
+			id: 71, name: "Camping 5 nuits", amount: 240.0, isAmountCalculated: false, date: "2026-07-02",
+			// Léa ne participe pas au camping (dort en Airbnb séparément)
+			payerId: pMarco.id, categoryId: hebergement.id,
 			split: [
-				{ participantId: pDemo.id, amount: 80.0, isCalculated: false },
+				{ participantId: pSteve.id, amount: 80.0, isCalculated: false },
 				{ participantId: pSophie.id, amount: 80.0, isCalculated: false },
 				{ participantId: pMarco.id, amount: 80.0, isCalculated: false },
 			],
 		},
 		{
-			id: 62,
-			name: "Airbnb Léa",
-			amount: 150.0,
-			isAmountCalculated: false,
-			date: "2026-07-02",
-			payerId: pLea.id,
-			categoryId: hebergement.id,
-			// Léa paie et supporte seule le coût
+			id: 72, name: "Airbnb Léa", amount: 150.0, isAmountCalculated: false, date: "2026-07-02",
+			// Léa supporte seule → participant seul dans sa répartition
+			payerId: pLea.id, categoryId: hebergement.id,
 			split: [
 				{ participantId: pLea.id, amount: 150.0, isCalculated: false },
 			],
 		},
 		{
-			id: 63,
-			name: "Restaurants divers",
-			amount: 200.0,
-			isAmountCalculated: false,
-			date: "2026-07-04",
-			payerId: pSophie.id,
-			categoryId: restaurants.id,
+			id: 73, name: "Restaurants", amount: 178.5, isAmountCalculated: false, date: "2026-07-04",
+			payerId: pSophie.id, categoryId: restaurants.id,
 			split: [
-				{ participantId: pDemo.id, amount: 50.0, isCalculated: true },
-				{ participantId: pSophie.id, amount: 50.0, isCalculated: true },
-				{ participantId: pMarco.id, amount: 50.0, isCalculated: true },
-				{ participantId: pLea.id, amount: 50.0, isCalculated: true },
+				{ participantId: pSteve.id, amount: 44.63, isCalculated: true },
+				{ participantId: pSophie.id, amount: 44.62, isCalculated: true },
+				{ participantId: pMarco.id, amount: 44.62, isCalculated: true },
+				{ participantId: pLea.id, amount: 44.63, isCalculated: true },
 			],
 		},
 		{
-			id: 64,
-			name: "Carburant",
-			amount: 98.5,
-			isAmountCalculated: false,
-			date: "2026-07-03",
-			payerId: pDemo.id,
-			categoryId: transport.id,
+			id: 74, name: "Carburant", amount: 120.0, isAmountCalculated: false, date: "2026-07-03",
+			payerId: pSteve.id, categoryId: transport.id,
 			split: [
-				{ participantId: pDemo.id, amount: 24.63, isCalculated: true },
-				{ participantId: pSophie.id, amount: 24.62, isCalculated: true },
-				{ participantId: pMarco.id, amount: 24.62, isCalculated: true },
-				{ participantId: pLea.id, amount: 24.63, isCalculated: true },
+				{ participantId: pSteve.id, amount: 30.0, isCalculated: true },
+				{ participantId: pSophie.id, amount: 30.0, isCalculated: true },
+				{ participantId: pMarco.id, amount: 30.0, isCalculated: true },
+				{ participantId: pLea.id, amount: 30.0, isCalculated: true },
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectBretagne.id, appUserId: demo.id });
+		await seedOperation({ ...op, projectId: projectBretagne.id, ownerId: steve.id });
 	}
 
-	console.log("✅ project 7 seeded — Road trip Bretagne (greedy complexe, 4 participants)");
+	console.log("✅ project 6 seeded — Road trip Bretagne (greedy 4 participants)");
 
 	// ============================================================
-	// PROJECT 8 — Réno appart (demo)
-	// Cas : 2 participants, budget élevé très peu consommé
-	// Type : Maison_Coloc ✅ (bis, pour couvrir le type avec un 2e projet)
+	// PROJECT 7 — Cuisine du monde (Steve)
+	// Type : Repas_Sortie ✅
+	// Sans budget → test filtre catégorie Overview (tout en Courses)
+	// Participants : Steve, Sophie, Nina, Paul (4)
+	// ============================================================
+
+	const projectCuisine = await prisma.project.upsert({
+		where: { id: 7 },
+		update: {},
+		create: {
+			name: "Cuisine du monde",
+			description: "Soirées thématiques cuisine entre amis",
+			type: ProjectType.Repas_Sortie,
+			appUserId: steve.id,
+		},
+	});
+
+	for (const pid of [pSteve.id, pSophie.id, pNina.id, pPaul.id]) {
+		await prisma.projectParticipant.upsert({
+			where: { projectId_participantId: { projectId: projectCuisine.id, participantId: pid } },
+			update: {},
+			create: { projectId: projectCuisine.id, participantId: pid },
+		});
+	}
+
+	for (const op of [
+		{
+			id: 80, name: "Soirée japonaise", amount: 67.3, isAmountCalculated: false, date: "2026-03-15",
+			payerId: pSophie.id, categoryId: courses.id,
+			split: [
+				{ participantId: pSteve.id, amount: 16.83, isCalculated: true },
+				{ participantId: pSophie.id, amount: 16.82, isCalculated: true },
+				{ participantId: pNina.id, amount: 16.82, isCalculated: true },
+				{ participantId: pPaul.id, amount: 16.83, isCalculated: true },
+			],
+		},
+		{
+			id: 81, name: "Soirée mexicaine", amount: 54.9, isAmountCalculated: false, date: "2026-04-05",
+			payerId: pSteve.id, categoryId: courses.id,
+			split: [
+				{ participantId: pSteve.id, amount: 13.73, isCalculated: true },
+				{ participantId: pSophie.id, amount: 13.72, isCalculated: true },
+				{ participantId: pNina.id, amount: 13.72, isCalculated: true },
+				{ participantId: pPaul.id, amount: 13.73, isCalculated: true },
+			],
+		},
+		{
+			id: 82, name: "Soirée indienne", amount: 71.0, isAmountCalculated: false, date: "2026-05-03",
+			payerId: pNina.id, categoryId: courses.id,
+			split: [
+				{ participantId: pSteve.id, amount: 17.75, isCalculated: true },
+				{ participantId: pSophie.id, amount: 17.75, isCalculated: true },
+				{ participantId: pNina.id, amount: 17.75, isCalculated: true },
+				{ participantId: pPaul.id, amount: 17.75, isCalculated: true },
+			],
+		},
+	]) {
+		await seedOperation({ ...op, projectId: projectCuisine.id, ownerId: steve.id });
+	}
+
+	console.log("✅ project 7 seeded — Cuisine du monde (sans budget)");
+
+	// ============================================================
+	// PROJECT 8 — Réno appart (Steve)
+	// Type : Maison_Coloc ✅
+	// Budget : 5000 € / seuil 90 % → 1930 € → très loin du seuil
+	// 2 participants → 1 transaction greedy
 	// ============================================================
 
 	const projectReno = await prisma.project.upsert({
 		where: { id: 8 },
 		update: {},
 		create: {
-			name: "Réno appart Demo",
-			description: "Travaux de rénovation de l'appartement",
+			name: "Réno appart",
+			description: "Travaux de rénovation de l'appartement de Steve",
 			type: ProjectType.Maison_Coloc,
-			appUserId: demo.id,
+			appUserId: steve.id,
 		},
 	});
 
-	for (const participantId of [pDemo.id, pMarco.id]) {
+	for (const pid of [pSteve.id, pMarco.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectReno.id, participantId } },
+			where: { projectId_participantId: { projectId: projectReno.id, participantId: pid } },
 			update: {},
-			create: { projectId: projectReno.id, participantId },
+			create: { projectId: projectReno.id, participantId: pid },
 		});
 	}
 
@@ -903,214 +995,174 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 70,
-			name: "Peinture salon",
-			amount: 280.0,
-			isAmountCalculated: false,
-			date: "2026-02-10",
-			payerId: pDemo.id,
-			categoryId: divers.id,
+			id: 90, name: "Peinture salon", amount: 280.0, isAmountCalculated: false, date: "2026-02-10",
+			payerId: pSteve.id, categoryId: divers.id,
 			split: [
-				{ participantId: pDemo.id, amount: 140.0, isCalculated: true },
+				{ participantId: pSteve.id, amount: 140.0, isCalculated: true },
 				{ participantId: pMarco.id, amount: 140.0, isCalculated: true },
 			],
 		},
 		{
-			id: 71,
-			name: "Parquet chambre",
-			amount: 1200.0,
-			isAmountCalculated: false,
-			date: "2026-02-15",
-			payerId: pMarco.id,
-			categoryId: divers.id,
+			id: 91, name: "Parquet chambre", amount: 1200.0, isAmountCalculated: false, date: "2026-02-15",
+			payerId: pMarco.id, categoryId: divers.id,
 			split: [
-				{ participantId: pDemo.id, amount: 600.0, isCalculated: true },
+				{ participantId: pSteve.id, amount: 600.0, isCalculated: true },
 				{ participantId: pMarco.id, amount: 600.0, isCalculated: true },
 			],
 		},
 		{
-			id: 72,
-			name: "Électricien",
-			amount: 450.0,
-			isAmountCalculated: false,
-			date: "2026-03-01",
-			payerId: pDemo.id,
-			categoryId: divers.id,
+			id: 92, name: "Électricien", amount: 450.0, isAmountCalculated: false, date: "2026-03-01",
+			payerId: pSteve.id, categoryId: divers.id,
 			split: [
-				{ participantId: pDemo.id, amount: 225.0, isCalculated: true },
+				{ participantId: pSteve.id, amount: 225.0, isCalculated: true },
 				{ participantId: pMarco.id, amount: 225.0, isCalculated: true },
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectReno.id, appUserId: demo.id });
+		await seedOperation({ ...op, projectId: projectReno.id, ownerId: steve.id });
 	}
 
-	console.log("✅ project 8 seeded — Réno appart (2 participants, budget peu consommé)");
+	console.log("✅ project 8 seeded — Réno appart (2 participants)");
 
 	// ============================================================
-	// PROJECT 9 — Cuisine du monde (demo)
-	// Cas : plusieurs opérations sur différentes catégories → test du filtre catégorie Overview
-	// Pas de budget
-	// Type : Repas_Sortie ✅ (bis)
+	// PROJECT 9 — Festival été 2024 (Steve) — ARCHIVÉ
+	// Type : Autre ✅
+	// Sans budget — projet clos
 	// ============================================================
 
-	const projectCuisine = await prisma.project.upsert({
+	const projectFestival = await prisma.project.upsert({
 		where: { id: 9 },
 		update: {},
 		create: {
-			name: "Cuisine du monde",
-			description: "Soirées thématiques cuisine entre amis",
-			type: ProjectType.Repas_Sortie,
-			appUserId: demo.id,
+			name: "Festival été 2024",
+			description: "Hellfest avec les potes — édition 2024",
+			type: ProjectType.Autre,
+			appUserId: steve.id,
+			isArchived: true,
 		},
 	});
 
-	for (const participantId of [pDemo.id, pAurore.id, pLea.id, pSophie.id]) {
+	for (const pid of [pSteve.id, pJerem.id, pThomas.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectCuisine.id, participantId } },
+			where: { projectId_participantId: { projectId: projectFestival.id, participantId: pid } },
 			update: {},
-			create: { projectId: projectCuisine.id, participantId },
+			create: { projectId: projectFestival.id, participantId: pid },
 		});
 	}
 
 	for (const op of [
 		{
-			id: 80,
-			name: "Soirée japonaise",
-			amount: 67.3,
-			isAmountCalculated: false,
-			date: "2026-03-15",
-			payerId: pAurore.id,
-			categoryId: courses.id,
+			id: 100, name: "Pass 3 jours x3", amount: 450.0, isAmountCalculated: false, date: "2024-06-20",
+			payerId: pSteve.id, categoryId: loisir.id,
 			split: [
-				{ participantId: pDemo.id, amount: 16.83, isCalculated: true },
-				{ participantId: pAurore.id, amount: 16.82, isCalculated: true },
-				{ participantId: pLea.id, amount: 16.82, isCalculated: true },
-				{ participantId: pSophie.id, amount: 16.83, isCalculated: true },
+				{ participantId: pSteve.id, amount: 150.0, isCalculated: true },
+				{ participantId: pJerem.id, amount: 150.0, isCalculated: true },
+				{ participantId: pThomas.id, amount: 150.0, isCalculated: true },
 			],
 		},
 		{
-			id: 81,
-			name: "Soirée mexicaine",
-			amount: 54.9,
-			isAmountCalculated: false,
-			date: "2026-04-05",
-			payerId: pDemo.id,
-			categoryId: courses.id,
+			id: 101, name: "Camping sur place", amount: 90.0, isAmountCalculated: false, date: "2024-06-20",
+			payerId: pJerem.id, categoryId: hebergement.id,
 			split: [
-				{ participantId: pDemo.id, amount: 13.73, isCalculated: true },
-				{ participantId: pAurore.id, amount: 13.72, isCalculated: true },
-				{ participantId: pLea.id, amount: 13.72, isCalculated: true },
-				{ participantId: pSophie.id, amount: 13.73, isCalculated: true },
+				{ participantId: pSteve.id, amount: 30.0, isCalculated: true },
+				{ participantId: pJerem.id, amount: 30.0, isCalculated: true },
+				{ participantId: pThomas.id, amount: 30.0, isCalculated: true },
 			],
 		},
 		{
-			id: 82,
-			name: "Soirée indienne",
-			amount: 71.0,
-			isAmountCalculated: false,
-			date: "2026-05-03",
-			payerId: pLea.id,
-			categoryId: courses.id,
+			id: 102, name: "Nourriture festival", amount: 138.0, isAmountCalculated: false, date: "2024-06-21",
+			payerId: pThomas.id, categoryId: restaurants.id,
 			split: [
-				{ participantId: pDemo.id, amount: 17.75, isCalculated: true },
-				{ participantId: pAurore.id, amount: 17.75, isCalculated: true },
-				{ participantId: pLea.id, amount: 17.75, isCalculated: true },
-				{ participantId: pSophie.id, amount: 17.75, isCalculated: true },
+				{ participantId: pSteve.id, amount: 46.0, isCalculated: true },
+				{ participantId: pJerem.id, amount: 46.0, isCalculated: true },
+				{ participantId: pThomas.id, amount: 46.0, isCalculated: true },
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectCuisine.id, appUserId: demo.id });
+		await seedOperation({ ...op, projectId: projectFestival.id, ownerId: steve.id });
 	}
 
-	console.log("✅ project 9 seeded — Cuisine du monde (filtre catégorie, sans budget)");
+	console.log("✅ project 9 seeded — Festival 2024 (archivé, Autre)");
 
 	// ============================================================
-	// PROJECT 10 — Voyage Milan (steve)
-	// Cas : même type que le projet 1 mais appartenant à steve
-	// → teste la séparation de projets par utilisateur
-	// Type : Voyage ✅
+	// PROJECT 10 — Vacances Espagne 2023 (Steve) — ARCHIVÉ
+	// Type : Voyage ✅ — second projet archivé
+	// Avec budget — pour tester l'affichage budget sur projet archivé
 	// ============================================================
 
-	const projectMilanSteve = await prisma.project.upsert({
+	const projectEspagne = await prisma.project.upsert({
 		where: { id: 10 },
 		update: {},
 		create: {
-			name: "Week-end Paris",
-			description: "Séjour à Paris — compte steve",
+			name: "Vacances Espagne 2023",
+			description: "2 semaines à Barcelone et Séville",
 			type: ProjectType.Voyage,
 			appUserId: steve.id,
+			isArchived: true,
 		},
 	});
 
-	for (const participantId of [pSteve.id, pAurore.id, pLudo.id]) {
+	for (const pid of [pSteve.id, pAurore.id, pLudo.id, pSophie.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectMilanSteve.id, participantId } },
+			where: { projectId_participantId: { projectId: projectEspagne.id, participantId: pid } },
 			update: {},
-			create: { projectId: projectMilanSteve.id, participantId },
+			create: { projectId: projectEspagne.id, participantId: pid },
 		});
 	}
 
 	await prisma.budget.upsert({
-		where: { projectId: projectMilanSteve.id },
+		where: { projectId: projectEspagne.id },
 		update: {},
-		create: { amount: 600.0, limitCriteria: 80.0, projectId: projectMilanSteve.id },
+		create: { amount: 2000.0, limitCriteria: 80.0, projectId: projectEspagne.id },
 	});
 
 	for (const op of [
 		{
-			id: 90,
-			name: "Train aller-retour",
-			amount: 180.0,
-			isAmountCalculated: false,
-			date: "2026-05-21",
-			payerId: pSteve.id,
-			categoryId: transport.id,
+			id: 110, name: "Vols aller-retour", amount: 480.0, isAmountCalculated: false, date: "2023-07-10",
+			payerId: pSteve.id, categoryId: transport.id,
 			split: [
-				{ participantId: pSteve.id, amount: 60.0, isCalculated: true },
-				{ participantId: pAurore.id, amount: 60.0, isCalculated: true },
-				{ participantId: pLudo.id, amount: 60.0, isCalculated: true },
+				{ participantId: pSteve.id, amount: 120.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 120.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 120.0, isCalculated: true },
+				{ participantId: pSophie.id, amount: 120.0, isCalculated: true },
 			],
 		},
 		{
-			id: 91,
-			name: "Hôtel Paris",
-			amount: 240.0,
-			isAmountCalculated: false,
-			date: "2026-05-21",
-			payerId: pAurore.id,
-			categoryId: hebergement.id,
+			id: 111, name: "Appartement Barcelone", amount: 840.0, isAmountCalculated: false, date: "2023-07-10",
+			payerId: pAurore.id, categoryId: hebergement.id,
+			split: [
+				{ participantId: pSteve.id, amount: 210.0, isCalculated: true },
+				{ participantId: pAurore.id, amount: 210.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 210.0, isCalculated: true },
+				{ participantId: pSophie.id, amount: 210.0, isCalculated: true },
+			],
+		},
+		{
+			id: 112, name: "Restaurants et tapas", amount: 320.0, isAmountCalculated: false, date: "2023-07-15",
+			payerId: pLudo.id, categoryId: restaurants.id,
 			split: [
 				{ participantId: pSteve.id, amount: 80.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 80.0, isCalculated: true },
 				{ participantId: pLudo.id, amount: 80.0, isCalculated: true },
-			],
-		},
-		{
-			id: 92,
-			name: "Restos et sorties",
-			amount: 135.0,
-			isAmountCalculated: false,
-			date: "2026-05-22",
-			payerId: pLudo.id,
-			categoryId: restaurants.id,
-			split: [
-				{ participantId: pSteve.id, amount: 45.0, isCalculated: true },
-				{ participantId: pAurore.id, amount: 45.0, isCalculated: true },
-				{ participantId: pLudo.id, amount: 45.0, isCalculated: true },
+				{ participantId: pSophie.id, amount: 80.0, isCalculated: true },
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectMilanSteve.id, appUserId: steve.id });
+		await seedOperation({ ...op, projectId: projectEspagne.id, ownerId: steve.id });
 	}
 
-	console.log("✅ project 10 seeded — Week-end Paris (steve)");
+	console.log("✅ project 10 seeded — Vacances Espagne 2023 (archivé avec budget)");
+
+	// ╔══════════════════════════════════════════════════════════╗
+	// ║              PROJETS D'AURORE                           ║
+	// ║  Compte test 403 — aurore@lapince.fr / password123     ║
+	// ╚══════════════════════════════════════════════════════════╝
 
 	// ============================================================
-	// PROJECT 11 — Coloc Aurore (aurore)
-	// Tests séparation de comptes : aurore a ses propres projets
-	// Cas : alerte unread sur le compte aurore
+	// PROJECT 11 — Coloc bd Voltaire (Aurore)
 	// Type : Maison_Coloc ✅
+	// Budget : 1500 € / seuil 80 % → alerte UNREAD
+	// Participants : Aurore, Nina, Paul (3)
 	// ============================================================
 
 	const projectColocAurore = await prisma.project.upsert({
@@ -1124,11 +1176,11 @@ async function main() {
 		},
 	});
 
-	for (const participantId of [pAurore.id, pSophie.id, pThomas.id]) {
+	for (const pid of [pAurore.id, pNina.id, pPaul.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectColocAurore.id, participantId } },
+			where: { projectId_participantId: { projectId: projectColocAurore.id, participantId: pid } },
 			update: {},
-			create: { projectId: projectColocAurore.id, participantId },
+			create: { projectId: projectColocAurore.id, participantId: pid },
 		});
 	}
 
@@ -1140,82 +1192,204 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 100,
-			name: "Loyer mai",
-			amount: 900.0,
-			isAmountCalculated: false,
-			date: "2026-05-01",
-			payerId: pAurore.id,
-			categoryId: divers.id,
+			id: 120, name: "Loyer mai", amount: 900.0, isAmountCalculated: false, date: "2026-05-01",
+			payerId: pAurore.id, categoryId: divers.id,
 			split: [
 				{ participantId: pAurore.id, amount: 300.0, isCalculated: true },
-				{ participantId: pSophie.id, amount: 300.0, isCalculated: true },
-				{ participantId: pThomas.id, amount: 300.0, isCalculated: true },
+				{ participantId: pNina.id, amount: 300.0, isCalculated: true },
+				{ participantId: pPaul.id, amount: 300.0, isCalculated: true },
 			],
 		},
 		{
-			id: 101,
-			name: "EDF mai",
-			amount: 78.0,
-			isAmountCalculated: false,
-			date: "2026-05-10",
-			payerId: pSophie.id,
-			categoryId: divers.id,
+			id: 121, name: "EDF mai", amount: 78.0, isAmountCalculated: false, date: "2026-05-10",
+			payerId: pNina.id, categoryId: divers.id,
 			split: [
 				{ participantId: pAurore.id, amount: 26.0, isCalculated: true },
-				{ participantId: pSophie.id, amount: 26.0, isCalculated: true },
-				{ participantId: pThomas.id, amount: 26.0, isCalculated: true },
+				{ participantId: pNina.id, amount: 26.0, isCalculated: true },
+				{ participantId: pPaul.id, amount: 26.0, isCalculated: true },
 			],
 		},
 		{
-			id: 102,
-			name: "Courses communes",
-			amount: 245.0,
-			isAmountCalculated: false,
-			date: "2026-05-15",
-			payerId: pThomas.id,
-			categoryId: courses.id,
+			id: 122, name: "Courses communes", amount: 245.0, isAmountCalculated: false, date: "2026-05-15",
+			payerId: pPaul.id, categoryId: courses.id,
 			split: [
 				{ participantId: pAurore.id, amount: 81.67, isCalculated: true },
-				{ participantId: pSophie.id, amount: 81.67, isCalculated: true },
-				{ participantId: pThomas.id, amount: 81.66, isCalculated: true },
+				{ participantId: pNina.id, amount: 81.67, isCalculated: true },
+				{ participantId: pPaul.id, amount: 81.66, isCalculated: true },
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectColocAurore.id, appUserId: aurore.id });
+		await seedOperation({ ...op, projectId: projectColocAurore.id, ownerId: aurore.id });
 	}
 
-	// Alerte unread → 1223 € > 80 % de 1500 € (= 1200 €)
+	// 1223 € > 80 % de 1500 € (= 1200 €) → alerte unread
 	await seedAlert({
-		id: 4,
-		status: "unread",
-		message: "Le budget de Coloc bd Voltaire a dépassé 80 % du montant prévu (1 223,00 € sur 1 500,00 €).",
-		budgetId: budgetColocAurore.id,
-		appUserIds: [aurore.id],
+		id: 4, status: "unread", threshold: 80,
+		totalSpent: 1223.0, budgetAmount: 1500.0,
+		budgetId: budgetColocAurore.id, userId: aurore.id,
 	});
 
-	console.log("✅ project 11 seeded — Coloc bd Voltaire (aurore, alerte unread)");
+	console.log("✅ project 11 seeded — Coloc bd Voltaire (Aurore, alerte unread)");
 
 	// ============================================================
-	// RÉSUMÉ DES CAS COUVERTS
+	// PROJECT 12 — Week-end Lyon (Aurore)
+	// Type : Voyage ✅
+	// Sans budget
+	// Participants : Aurore, Ludo, Sophie (3)
+	// ============================================================
+
+	const projectLyon = await prisma.project.upsert({
+		where: { id: 12 },
+		update: {},
+		create: {
+			name: "Week-end Lyon",
+			description: "Escapade gastronomique à Lyon",
+			type: ProjectType.Voyage,
+			appUserId: aurore.id,
+		},
+	});
+
+	for (const pid of [pAurore.id, pLudo.id, pSophie.id]) {
+		await prisma.projectParticipant.upsert({
+			where: { projectId_participantId: { projectId: projectLyon.id, participantId: pid } },
+			update: {},
+			create: { projectId: projectLyon.id, participantId: pid },
+		});
+	}
+
+	for (const op of [
+		{
+			id: 130, name: "Train Lyon", amount: 108.0, isAmountCalculated: false, date: "2026-03-20",
+			payerId: pAurore.id, categoryId: transport.id,
+			split: [
+				{ participantId: pAurore.id, amount: 36.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 36.0, isCalculated: true },
+				{ participantId: pSophie.id, amount: 36.0, isCalculated: true },
+			],
+		},
+		{
+			id: 131, name: "Hôtel 2 nuits", amount: 210.0, isAmountCalculated: false, date: "2026-03-20",
+			payerId: pSophie.id, categoryId: hebergement.id,
+			split: [
+				{ participantId: pAurore.id, amount: 70.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 70.0, isCalculated: true },
+				{ participantId: pSophie.id, amount: 70.0, isCalculated: true },
+			],
+		},
+		{
+			id: 132, name: "Bouchon lyonnais", amount: 93.0, isAmountCalculated: false, date: "2026-03-21",
+			payerId: pLudo.id, categoryId: restaurants.id,
+			split: [
+				{ participantId: pAurore.id, amount: 31.0, isCalculated: true },
+				{ participantId: pLudo.id, amount: 31.0, isCalculated: true },
+				{ participantId: pSophie.id, amount: 31.0, isCalculated: true },
+			],
+		},
+	]) {
+		await seedOperation({ ...op, projectId: projectLyon.id, ownerId: aurore.id });
+	}
+
+	console.log("✅ project 12 seeded — Week-end Lyon (Aurore, sans budget)");
+
+	// ============================================================
+	// PROJECT 13 — Repas entre filles (Aurore)
+	// Type : Repas_Sortie ✅
+	// Sans budget — projet simple
+	// Participants : Aurore, Sophie, Nina (3)
+	// ============================================================
+
+	const projectRepas = await prisma.project.upsert({
+		where: { id: 13 },
+		update: {},
+		create: {
+			name: "Repas entre filles",
+			description: "Dîners mensuels entre amies",
+			type: ProjectType.Repas_Sortie,
+			appUserId: aurore.id,
+		},
+	});
+
+	for (const pid of [pAurore.id, pSophie.id, pNina.id]) {
+		await prisma.projectParticipant.upsert({
+			where: { projectId_participantId: { projectId: projectRepas.id, participantId: pid } },
+			update: {},
+			create: { projectId: projectRepas.id, participantId: pid },
+		});
+	}
+
+	for (const op of [
+		{
+			id: 140, name: "Restaurant japonais", amount: 75.0, isAmountCalculated: false, date: "2026-02-14",
+			payerId: pAurore.id, categoryId: restaurants.id,
+			split: [
+				{ participantId: pAurore.id, amount: 25.0, isCalculated: true },
+				{ participantId: pSophie.id, amount: 25.0, isCalculated: true },
+				{ participantId: pNina.id, amount: 25.0, isCalculated: true },
+			],
+		},
+		{
+			id: 141, name: "Dîner thaïlandais", amount: 69.0, isAmountCalculated: false, date: "2026-03-14",
+			payerId: pSophie.id, categoryId: restaurants.id,
+			split: [
+				{ participantId: pAurore.id, amount: 23.0, isCalculated: true },
+				{ participantId: pSophie.id, amount: 23.0, isCalculated: true },
+				{ participantId: pNina.id, amount: 23.0, isCalculated: true },
+			],
+		},
+		{
+			id: 142, name: "Cocktails bar", amount: 48.0, isAmountCalculated: false, date: "2026-04-14",
+			payerId: pNina.id, categoryId: restaurants.id,
+			split: [
+				{ participantId: pAurore.id, amount: 16.0, isCalculated: true },
+				{ participantId: pSophie.id, amount: 16.0, isCalculated: true },
+				{ participantId: pNina.id, amount: 16.0, isCalculated: true },
+			],
+		},
+	]) {
+		await seedOperation({ ...op, projectId: projectRepas.id, ownerId: aurore.id });
+	}
+
+	console.log("✅ project 13 seeded — Repas entre filles (Aurore, sans budget)");
+
+	// ============================================================
+	// RÉSUMÉ
 	// ============================================================
 	//
-	// ✅ Tous les ProjectType : Voyage, Maison_Coloc, Anniversaire, Repas_Sortie, Pro_Travail, Autre
-	// ✅ Projet archivé (isArchived: true) → project 6
-	// ✅ Projet sans budget → projects 4, 6, 9
-	// ✅ Alerte unread → projects 1, 11
-	// ✅ Alerte read (historique) → project 2
-	// ✅ Alerte resolved → project 3
-	// ✅ Pas d'alerte → projects 5, 7, 8, 10
-	// ✅ Payeur absent de sa propre répartition → project 1 op 2 (Sophie)
-	// ✅ Répartition inégale (parts custom) → project 3 op 1 (Location salle)
-	// ✅ Participant seul dans sa répartition → project 7 op 3 (Léa, Airbnb)
-	// ✅ Balances nulles (tout équilibré) → project 4 (Raclette)
-	// ✅ Greedy 3 participants → project 1
-	// ✅ Greedy 4 participants complexe → project 7
-	// ✅ Multi-utilisateurs (demo, steve, aurore) avec projets séparés
-	// ✅ Participants avec compte (5) et sans compte (4)
-	// ✅ Compte démo prêt pour la présentation jury (email: demo@lapince.fr, mdp: demo1234)
+	// ┌─────────────────────────────────────────────────────────┐
+	// │ steve@lapince.fr  / password123  → 10 projets          │
+	// │ aurore@lapince.fr / password123  → 3 projets (test 403)│
+	// └─────────────────────────────────────────────────────────┘
+	//
+	// PROJETS STEVE :
+	//   1  Voyage Milan         Voyage        budget  alerte UNREAD   15 ops pagination
+	//   2  Coloc rue Pasteur    Maison_Coloc  budget  alerte READ     15 ops pagination
+	//   3  Anniversaire Sophie  Anniversaire  budget  alerte RESOLVED répartition inégale
+	//   4  Soirée raclette      Repas_Sortie  -       -               balances nulles
+	//   5  Séminaire tech       Pro_Travail   budget  -               4 participants
+	//   6  Road trip Bretagne   Voyage        budget  -               greedy complexe
+	//   7  Cuisine du monde     Repas_Sortie  -       -               filtre catégorie
+	//   8  Réno appart          Maison_Coloc  budget  -               2 participants
+	//   9  Festival 2024        Autre         -       -               ARCHIVÉ sans budget
+	//  10  Vacances Espagne     Voyage        budget  -               ARCHIVÉ avec budget
+	//
+	// PROJETS AURORE :
+	//  11  Coloc bd Voltaire    Maison_Coloc  budget  alerte UNREAD
+	//  12  Week-end Lyon        Voyage        -       -
+	//  13  Repas entre filles   Repas_Sortie  -       -
+	//
+	// CAS MÉTIER COUVERTS :
+	//   ✅ Tous les ProjectType
+	//   ✅ 3 statuts d'alerte (unread, read, resolved)
+	//   ✅ 2 projets archivés (avec et sans budget)
+	//   ✅ Projets sans budget
+	//   ✅ Pagination (~15 ops sur projects 1 et 2)
+	//   ✅ Payeur absent de sa répartition (project 1 op 5)
+	//   ✅ Répartition inégale (project 3 op 1)
+	//   ✅ Participant seul dans répartition (project 6 op 3)
+	//   ✅ Balances nulles (project 4)
+	//   ✅ Greedy 2, 3, 4 participants
+	//   ✅ KPI Steve à recevoir (projects 1, 2) et à payer (project 3)
+	//   ✅ Test 403 : token Aurore sur projets Steve → accès refusé
 	//
 	// ============================================================
 
