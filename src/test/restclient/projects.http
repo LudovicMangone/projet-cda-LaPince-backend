@@ -11,11 +11,11 @@ Content-Type: application/json
 }
 
 ### Get one project by ID
-GET {{baseUrl}}/projects/1
+GET {{baseUrl}}/projects/15
 Authorization: Bearer {{token}}
 
 ### Delet one project by ID
-DELETE {{baseUrl}}/projects/1
+DELETE {{baseUrl}}/projects/19
 Authorization: Bearer {{token}}
 
 ### Patch one project
