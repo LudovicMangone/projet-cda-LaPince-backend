@@ -3,7 +3,6 @@ import { BadRequestError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 import { assertProjectOwner } from "../lib/projectOwner";
 
-
 export async function updateProjectParticipants(
 	participantsData: IParticipant[],
 	projectId: number,

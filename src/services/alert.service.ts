@@ -49,7 +49,6 @@ export async function getAlertsByUser(userId: number) {
 	});
 
 	return userAlerts.map(mapUserAlert);
-
 }
 
 // Marque une alerte comme lue ou non lue
@@ -178,7 +177,6 @@ export async function getAlertsByProject(projectId: number, userId: number) {
 	});
 
 	return userAlerts.map(mapUserAlert);
-
 }
 
 // Résout les alertes actives si le total des dépenses repasse sous le seuil.
