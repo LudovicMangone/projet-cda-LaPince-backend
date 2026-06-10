@@ -9,6 +9,7 @@ import { swaggerSpec } from "./config/swagger.config";
 import { apiRateLimiter } from "./lib/rateLimiter";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { notFoundHandler } from "./middlewares/notFound.middleware";
+import alertRouter from "./routers/alert.router";
 import authRouter from "./routers/auth.router";
 import balanceRouter from "./routers/balance.router";
 import categoriesRouter from "./routers/categories.router";
@@ -37,6 +38,8 @@ app.use("/api/auth", authRouter);
 app.use("/api/projects", projectsRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/balance", balanceRouter);
+app.use("/api/alertes", alertRouter);
+
 
 // ============== ERRORS HANDLERS ===========
 app.use(notFoundHandler);

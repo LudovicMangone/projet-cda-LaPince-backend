@@ -1,14 +1,34 @@
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
-import type { CreateOperationInput } from "../schemas/operation.schema";
+import type {
+	CreateOperationInput,
+	DeleteOperationInput,
+} from "../schemas/operation.schema";
+import { checkAndCreateAlert } from "./alert.service";
 
 export async function getOperationsByPojectId(
 	projectId: number,
 	userId: number,
 ) {
+	const project = await prisma.project.findUnique({
+		where: { id: projectId },
+		select: { appUserId: true },
+	});
+
+	if (!project) {
+		throw new NotFoundError("Project not found");
+	}
+
+	if (project.appUserId !== userId) {
+		throw new ForbiddenError("Only the owner of the project can access it");
+	}
+
 	const operations = await prisma.operation.findMany({
+		orderBy: {
+			date: "asc",
+		},
 		where: {
-			projectId: projectId,
+			projectId,
 		},
 		select: {
 			id: true,
@@ -16,38 +36,29 @@ export async function getOperationsByPojectId(
 			appUserId: true,
 			categoryId: true,
 			amount: true,
+			isAmountCalculated: true,
 			date: true,
 			payerParticipantId: true,
 			appUser: {
 				select: {
-					name: true,
 					id: true,
+					name: true,
 				},
 			},
 			operationParticipants: {
 				select: {
 					repartitionAmount: true,
+					isRepartitionAmountCalculated: true,
 					participant: {
 						select: {
-							name: true,
 							id: true,
+							name: true,
 						},
 					},
 				},
 			},
 		},
 	});
-
-	if (!operations) {
-		throw new NotFoundError("Operations not found");
-	}
-
-	// Check that the user is the owner of the project
-	const isOwner = userId === operations[0].appUserId;
-
-	if (!isOwner) {
-		throw new ForbiddenError("Only the owner of the project can access it");
-	}
 
 	return operations;
 }
@@ -65,6 +76,7 @@ export async function createOperation(
 				projectId: data.projectId,
 				categoryId: data.categoryId,
 				payerParticipantId: data.payerParticipantId,
+				isAmountCalculated: data.isAmountCalculated,
 				appUserId: userId,
 			},
 		});
@@ -74,9 +86,12 @@ export async function createOperation(
 					operationId: operation.id,
 					participantId: participant.participantId,
 					repartitionAmount: participant.repartitionAmount,
+					isRepartitionAmountCalculated:
+						participant.isRepartitionAmountCalculated,
 				})),
 			});
 		}
+		await checkAndCreateAlert(data.projectId, userId, tx);
 		return operation;
 	});
 }
@@ -113,6 +128,7 @@ export async function updateOperation(
 				projectId: data.projectId,
 				categoryId: data.categoryId,
 				payerParticipantId: data.payerParticipantId,
+				isAmountCalculated: data.isAmountCalculated,
 			},
 		});
 
@@ -128,10 +144,22 @@ export async function updateOperation(
 					operationId,
 					participantId: participant.participantId,
 					repartitionAmount: participant.repartitionAmount,
+					isRepartitionAmountCalculated:
+						participant.isRepartitionAmountCalculated,
 				})),
 			});
 		}
-
+		await checkAndCreateAlert(data.projectId, userId, tx);
+		
 		return updatedOperation;
+	});
+}
+
+export async function deleteOperationsByPojectId(data: DeleteOperationInput) {
+	await prisma.operation.delete({
+		where: {
+			id: data.operationId,
+			projectId: data.projectId,
+		},
 	});
 }

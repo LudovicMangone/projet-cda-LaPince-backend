@@ -4,6 +4,8 @@ import type { IUpdateProject } from "../@types/projects";
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 import type { CreateProjectInput } from "../schemas/projects.schema";
+import { resolveAlertIfNeeded } from "./alert.service";
+
 
 const typeMap: Record<string, ProjectType> = {
 	Voyage: ProjectType.Voyage,
@@ -48,7 +50,11 @@ export async function createProject(userId: number, data: CreateProjectInput) {
 		if (data.participants?.length) {
 			for (const p of data.participants) {
 				const participant = await tx.participant.create({
-					data: { name: p.name },
+					data: {
+						name: p.name,
+						// Link to the app user if this participant is the project owner
+						appUserId: p.isMe ? userId : undefined,
+					},
 				});
 				await tx.projectParticipant.create({
 					data: { projectId: project.id, participantId: participant.id },
@@ -81,7 +87,7 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 	const take = 5;
 	const [projects, total, userParticipants] = await Promise.all([
 		prisma.project.findMany({
-			where: { appUserId: userId, isArchived: false },
+			where: { appUserId: userId },
 			orderBy: { updatedAt: "desc" },
 			take: take + 1,
 			...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
@@ -89,6 +95,7 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 				id: true,
 				name: true,
 				type: true,
+				isArchived: true,
 				updatedAt: true,
 				_count: {
 					select: { operations: true },
@@ -125,7 +132,7 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 			},
 		}),
 		prisma.project.count({
-			where: { appUserId: userId, isArchived: false },
+			where: { appUserId: userId },
 		}),
 		// Fetch all participants linked to the user to compute per-project balance
 		prisma.participant.findMany({
@@ -188,6 +195,7 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 				id: project.id,
 				name: project.name,
 				type: project.type,
+				isArchived: project.isArchived,
 				updatedAt: project.updatedAt,
 				operationsCount: project._count.operations,
 				participants,
@@ -297,15 +305,27 @@ export async function updateProjectById(
 			},
 		};
 	}
-
-	const updateProject = await prisma.project.update({
+	if (projectData.deleteBudget) {
+  const existingBudget = await prisma.budget.findUnique({
+    where: { projectId },
+  });
+  if (existingBudget) {
+    dataToUpdate.budget = { delete: true };
+  }
+}
+	return prisma.$transaction(async (tx) => {
+	const updateProject = await tx.project.update({
 		where: { id: projectId },
 		data: dataToUpdate,
 	});
+	if (projectData.budget || projectData.deleteBudget) {
+			await resolveAlertIfNeeded(projectId, userId, tx);
+		}
 	return {
 		project: updateProject,
 		budget: projectData.budget,
 	};
+	});
 }
 
 export async function deleteProjectById(projectId: number, userId: number) {
