@@ -19,8 +19,7 @@ export function errorHandler(
 
 	// If an error from zod validation happen :
 	if (error instanceof z.ZodError) {
-		console.info("ZodError", error);
-
+		if (isDev) console.info("ZodError", error);
 		return res.status(422).json({
 			status: 422,
 			error: z.prettifyError(error),

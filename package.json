@@ -18,7 +18,7 @@
 		"doc": "doc"
 	},
 	"scripts": {
-		"dev": "tsx watch src/app.ts",
+		"dev": "tsx watch src/server.ts",
 		"lint": "biome lint ./src",
 		"lint:fix": "biome lint --write ./src",
 		"format": "biome format --write ./src",
@@ -34,7 +34,7 @@
 		"db:seed": "docker exec lapince-api npx prisma db seed",
 		"db:reset": "docker exec lapince-api npx prisma migrate reset --force",
 		"db:generate": "docker exec lapince-api npx prisma generate",
-		"start": "tsx src/app.ts"
+		"start": "tsx src/server.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",

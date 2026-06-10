@@ -16,6 +16,7 @@ import categoriesRouter from "./routers/categories.router";
 import projectsRouter from "./routers/projects.router";
 
 // ============== SETTINGS ==================
+
 export const app = express(); // CORS: allows external clients (frontend, tools, other APIs) to call the API
 app.set("trust proxy", 1); // Required for Render/reverse proxy
 app.use(cors({ origin: allowedOrigins }));
@@ -41,11 +42,11 @@ app.use("/api/balance", balanceRouter);
 app.use("/api/alertes", alertRouter);
 
 // ============== ERRORS HANDLERS ===========
+// Only for integration tests on error handler :
+if (process.env.NODE_ENV === "test") {
+	app.get("/test/error", () => {
+		throw new Error("Test error");
+	});
+}
 app.use(notFoundHandler);
 app.use(errorHandler);
-
-// ============== LISTENER ==================
-
-app.listen(envConfig.port, () => {
-	console.log(`Server is running on http://localhost:${envConfig.port}`);
-});
