@@ -39,4 +39,5 @@ export type IUpdateProject = {
 		amount: number;
 		limitCriteria: number;
 	};
+	deleteBudget?: boolean;
 };

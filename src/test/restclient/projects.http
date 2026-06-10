@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:{{$dotenv PORT}}/api
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDMyNzg4NSwiZXhwIjoxNzgwOTMyNjg1fQ.QeWHuVa-1521PVXe3XS_D4SLlTCzVBI847I7iYy7l5k
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MTA3NjE0NCwiZXhwIjoxNzgxNjgwOTQ0fQ.WxMDO4QQsC8UYy2U7Kl2YPDuBEIxCu-f-woNwz8-8Cg
 
 ### Login — seeded user Steve
 POST {{baseUrl}}/auth/login
@@ -86,4 +86,18 @@ Authorization: Bearer {{token}}
 
 ### GET GLOBAL BALANCE
 GET http://localhost:3000/api/balance
+Authorization: Bearer {{token}}
+
+
+### PATCH - Delete budget
+PATCH {{baseUrl}}/projects/4
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "deleteBudget": true
+}
+
+### GET - Budgets (doit retourner totalLimit: null)
+GET {{baseUrl}}/projects/4/budgets
 Authorization: Bearer {{token}}
