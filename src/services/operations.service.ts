@@ -151,7 +151,7 @@ export async function updateOperation(
 		}
 		await resolveAlertIfNeeded(data.projectId, userId, tx);
 		await checkAndCreateAlert(data.projectId, userId, tx);
-		
+
 		return updatedOperation;
 	});
 }

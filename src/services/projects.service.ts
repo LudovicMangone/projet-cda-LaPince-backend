@@ -6,7 +6,6 @@ import { prisma } from "../lib/prisma";
 import type { CreateProjectInput } from "../schemas/projects.schema";
 import { resolveAlertIfNeeded } from "./alert.service";
 
-
 const typeMap: Record<string, ProjectType> = {
 	Voyage: ProjectType.Voyage,
 	Maison_Coloc: ProjectType.Maison_Coloc,
@@ -306,25 +305,25 @@ export async function updateProjectById(
 		};
 	}
 	if (projectData.deleteBudget) {
-  const existingBudget = await prisma.budget.findUnique({
-    where: { projectId },
-  });
-  if (existingBudget) {
-    dataToUpdate.budget = { delete: true };
-  }
-}
+		const existingBudget = await prisma.budget.findUnique({
+			where: { projectId },
+		});
+		if (existingBudget) {
+			dataToUpdate.budget = { delete: true };
+		}
+	}
 	return prisma.$transaction(async (tx) => {
-	const updateProject = await tx.project.update({
-		where: { id: projectId },
-		data: dataToUpdate,
-	});
-	if (projectData.budget || projectData.deleteBudget) {
+		const updateProject = await tx.project.update({
+			where: { id: projectId },
+			data: dataToUpdate,
+		});
+		if (projectData.budget || projectData.deleteBudget) {
 			await resolveAlertIfNeeded(projectId, userId, tx);
 		}
-	return {
-		project: updateProject,
-		budget: projectData.budget,
-	};
+		return {
+			project: updateProject,
+			budget: projectData.budget,
+		};
 	});
 }
 
