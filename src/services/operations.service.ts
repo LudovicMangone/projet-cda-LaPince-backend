@@ -1,5 +1,6 @@
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
+import { assertProjectOwner } from "../lib/projectOwner";
 import type {
 	CreateOperationInput,
 	DeleteOperationInput,
@@ -10,18 +11,7 @@ export async function getOperationsByPojectId(
 	projectId: number,
 	userId: number,
 ) {
-	const project = await prisma.project.findUnique({
-		where: { id: projectId },
-		select: { appUserId: true },
-	});
-
-	if (!project) {
-		throw new NotFoundError("Project not found");
-	}
-
-	if (project.appUserId !== userId) {
-		throw new ForbiddenError("Only the owner of the project can access it");
-	}
+	await assertProjectOwner(projectId, userId);
 
 	const operations = await prisma.operation.findMany({
 		orderBy: {
@@ -157,13 +147,13 @@ export async function updateOperation(
 }
 
 export async function deleteOperationsByPojectId(
-  data: DeleteOperationInput,
-  userId: number,
+	data: DeleteOperationInput,
+	userId: number,
 ) {
-  return prisma.$transaction(async (tx) => {
-    await tx.operation.delete({
-      where: { id: data.operationId, projectId: data.projectId },
-    });
-    await resolveAlertIfNeeded(data.projectId, userId, tx);
-  });
+	return prisma.$transaction(async (tx) => {
+		await tx.operation.delete({
+			where: { id: data.operationId, projectId: data.projectId },
+		});
+		await resolveAlertIfNeeded(data.projectId, userId, tx);
+	});
 }

@@ -1,7 +1,31 @@
 import type { Prisma } from "../../generated/prisma";
-import { ForbiddenError, NotFoundError } from "../lib/errors";
+import { NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 import type { UpdateAlertInput } from "../schemas/alert.schema";
+
+function mapUserAlert(ua: {
+	alert: {
+		id: number;
+		status: string;
+		message: string;
+		budgetId: number;
+		createdAt: Date;
+		budget: {
+			amount: { toString(): string } | number;
+			project: { name: string };
+		};
+	};
+}) {
+	return {
+		id: ua.alert.id,
+		status: ua.alert.status,
+		message: ua.alert.message,
+		budgetId: ua.alert.budgetId,
+		budgetAmount: Number(ua.alert.budget.amount),
+		projectName: ua.alert.budget.project.name,
+		createdAt: ua.alert.createdAt,
+	};
+}
 
 // Récupère toutes les alertes de l'utilisateur connecté, les plus récentes en premier
 export async function getAlertsByUser(userId: number) {
@@ -24,15 +48,8 @@ export async function getAlertsByUser(userId: number) {
 		orderBy: { alert: { createdAt: "desc" } },
 	});
 
-	return userAlerts.map((ua) => ({
-		id: ua.alert.id,
-		status: ua.alert.status,
-		message: ua.alert.message,
-		budgetId: ua.alert.budgetId,
-		budgetAmount: Number(ua.alert.budget.amount),
-		projectName: ua.alert.budget.project.name,
-		createdAt: ua.alert.createdAt,
-	}));
+	return userAlerts.map(mapUserAlert);
+
 }
 
 // Marque une alerte comme lue ou non lue
@@ -160,15 +177,8 @@ export async function getAlertsByProject(projectId: number, userId: number) {
 		orderBy: { alert: { createdAt: "desc" } },
 	});
 
-	return userAlerts.map((ua) => ({
-		id: ua.alert.id,
-		status: ua.alert.status,
-		message: ua.alert.message,
-		budgetId: ua.alert.budgetId,
-		budgetAmount: Number(ua.alert.budget.amount),
-		projectName: ua.alert.budget.project.name,
-		createdAt: ua.alert.createdAt,
-	}));
+	return userAlerts.map(mapUserAlert);
+
 }
 
 // Résout les alertes actives si le total des dépenses repasse sous le seuil.
