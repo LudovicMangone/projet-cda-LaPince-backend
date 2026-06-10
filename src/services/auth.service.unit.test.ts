@@ -30,6 +30,7 @@ vi.mock("jsonwebtoken", () => ({
 // ─── Setup ───────────────────────────────────────────────────
 beforeEach(() => {
 	vi.clearAllMocks();
+	process.env.JWT_SECRET = "test-secret";
 });
 
 // ─── registerUser ────────────────────────────────────────────

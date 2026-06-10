@@ -49,3 +49,4 @@ app.use(errorHandler);
 app.listen(envConfig.port, () => {
 	console.log(`Server is running on http://localhost:${envConfig.port}`);
 });
+
