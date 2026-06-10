@@ -305,12 +305,20 @@ export async function updateProjectById(
 			},
 		};
 	}
+	if (projectData.deleteBudget) {
+  const existingBudget = await prisma.budget.findUnique({
+    where: { projectId },
+  });
+  if (existingBudget) {
+    dataToUpdate.budget = { delete: true };
+  }
+}
 	return prisma.$transaction(async (tx) => {
 	const updateProject = await tx.project.update({
 		where: { id: projectId },
 		data: dataToUpdate,
 	});
-	if (projectData.budget) {
+	if (projectData.budget || projectData.deleteBudget) {
 			await resolveAlertIfNeeded(projectId, userId, tx);
 		}
 	return {
