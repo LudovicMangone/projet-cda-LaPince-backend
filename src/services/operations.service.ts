@@ -1,27 +1,17 @@
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
+import { assertProjectOwner } from "../lib/projectOwner";
 import type {
 	CreateOperationInput,
 	DeleteOperationInput,
 } from "../schemas/operation.schema";
-import { checkAndCreateAlert } from "./alert.service";
+import { checkAndCreateAlert, resolveAlertIfNeeded } from "./alert.service";
 
 export async function getOperationsByPojectId(
 	projectId: number,
 	userId: number,
 ) {
-	const project = await prisma.project.findUnique({
-		where: { id: projectId },
-		select: { appUserId: true },
-	});
-
-	if (!project) {
-		throw new NotFoundError("Project not found");
-	}
-
-	if (project.appUserId !== userId) {
-		throw new ForbiddenError("Only the owner of the project can access it");
-	}
+	await assertProjectOwner(projectId, userId);
 
 	const operations = await prisma.operation.findMany({
 		orderBy: {
@@ -149,17 +139,21 @@ export async function updateOperation(
 				})),
 			});
 		}
+		await resolveAlertIfNeeded(data.projectId, userId, tx);
 		await checkAndCreateAlert(data.projectId, userId, tx);
 
 		return updatedOperation;
 	});
 }
 
-export async function deleteOperationsByPojectId(data: DeleteOperationInput) {
-	await prisma.operation.delete({
-		where: {
-			id: data.operationId,
-			projectId: data.projectId,
-		},
+export async function deleteOperationsByPojectId(
+	data: DeleteOperationInput,
+	userId: number,
+) {
+	return prisma.$transaction(async (tx) => {
+		await tx.operation.delete({
+			where: { id: data.operationId, projectId: data.projectId },
+		});
+		await resolveAlertIfNeeded(data.projectId, userId, tx);
 	});
 }

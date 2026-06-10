@@ -21,9 +21,16 @@ vi.mock("argon2", () => ({
 	},
 }));
 
+vi.mock("jsonwebtoken", () => ({
+	default: {
+		sign: vi.fn().mockReturnValue("mocked_token"),
+	},
+}));
+
 // ─── Setup ───────────────────────────────────────────────────
 beforeEach(() => {
 	vi.clearAllMocks();
+	process.env.JWT_SECRET = "test-secret";
 });
 
 // ─── registerUser ────────────────────────────────────────────
@@ -35,10 +42,7 @@ describe("[registerUser]", () => {
 			id: 1,
 			name: "Ludo",
 			email: "ludo@lapince.fr",
-			password: "hashed_password",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+		} as never);
 
 		// ACT
 		const result = await registerUser({
@@ -95,7 +99,7 @@ describe("[loginUser]", () => {
 		});
 
 		// ASSERT
-		expect(result).toHaveProperty("token");
+		expect(result.token).toBe("mocked_token");
 		expect(result.user).toEqual({
 			id: 1,
 			name: "Steve",
@@ -140,10 +144,7 @@ describe("[getMe]", () => {
 			id: 1,
 			name: "Steve",
 			email: "steve@lapince.fr",
-			password: "hashed_password",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+		} as never);
 
 		// ACT
 		const result = await getMe(1);

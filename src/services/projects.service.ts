@@ -1,8 +1,8 @@
 import type { Prisma } from "../../generated/prisma";
 import { ProjectType } from "../../generated/prisma";
 import type { IUpdateProject } from "../@types/projects";
-import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
+import { assertProjectOwner } from "../lib/projectOwner";
 import type { CreateProjectInput } from "../schemas/projects.schema";
 import { resolveAlertIfNeeded } from "./alert.service";
 
@@ -217,11 +217,11 @@ export async function getProjectsDashboard(userId: number, cursor?: number) {
 }
 
 export async function getProjectById(projectId: number, userId: number) {
-	const project = await prisma.project.findUnique({
+	await assertProjectOwner(projectId, userId);
+	return prisma.project.findUnique({
 		where: { id: projectId },
 		select: {
 			id: true,
-			appUserId: true,
 			name: true,
 			description: true,
 			isArchived: true,
@@ -250,19 +250,6 @@ export async function getProjectById(projectId: number, userId: number) {
 			},
 		},
 	});
-
-	if (!project) {
-		throw new NotFoundError("Project not found");
-	}
-
-	// Check that the user is the owner of the project
-	const isOwner = userId === project.appUserId;
-
-	if (!isOwner) {
-		throw new ForbiddenError("Only the owner of the project can access it");
-	}
-
-	return project;
 }
 
 export async function updateProjectById(
@@ -270,17 +257,7 @@ export async function updateProjectById(
 	projectId: number,
 	userId: number,
 ) {
-	const project = await prisma.project.findUnique({
-		where: { id: projectId },
-	});
-	// Checks before updating
-	if (!project) {
-		throw new NotFoundError("Project not found");
-	}
-	const isOwner = userId === project.appUserId;
-	if (!isOwner) {
-		throw new ForbiddenError("Only the owner of the project can access it");
-	}
+	await assertProjectOwner(projectId, userId);
 
 	const dataToUpdate: Prisma.ProjectUpdateInput = {
 		name: projectData.name,
@@ -328,17 +305,7 @@ export async function updateProjectById(
 }
 
 export async function deleteProjectById(projectId: number, userId: number) {
-	const project = await prisma.project.findUnique({
-		where: { id: projectId },
-	});
-	// Checks before delete
-	if (!project) {
-		throw new NotFoundError("Project not found");
-	}
-	const isOwner = userId === project.appUserId;
-	if (!isOwner) {
-		throw new ForbiddenError("Only the owner of the project can access it");
-	}
+	await assertProjectOwner(projectId, userId);
 
 	const projectDelete = await prisma.project.delete({
 		where: { id: projectId },

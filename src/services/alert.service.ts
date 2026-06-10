@@ -3,6 +3,30 @@ import { NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 import type { UpdateAlertInput } from "../schemas/alert.schema";
 
+function mapUserAlert(ua: {
+	alert: {
+		id: number;
+		status: string;
+		message: string;
+		budgetId: number;
+		createdAt: Date;
+		budget: {
+			amount: { toString(): string } | number;
+			project: { name: string };
+		};
+	};
+}) {
+	return {
+		id: ua.alert.id,
+		status: ua.alert.status,
+		message: ua.alert.message,
+		budgetId: ua.alert.budgetId,
+		budgetAmount: Number(ua.alert.budget.amount),
+		projectName: ua.alert.budget.project.name,
+		createdAt: ua.alert.createdAt,
+	};
+}
+
 // Récupère toutes les alertes de l'utilisateur connecté, les plus récentes en premier
 export async function getAlertsByUser(userId: number) {
 	const userAlerts = await prisma.appUserAlert.findMany({
@@ -24,15 +48,8 @@ export async function getAlertsByUser(userId: number) {
 		orderBy: { alert: { createdAt: "desc" } },
 	});
 
-	return userAlerts.map((ua) => ({
-		id: ua.alert.id,
-		status: ua.alert.status,
-		message: ua.alert.message,
-		budgetId: ua.alert.budgetId,
-		budgetAmount: Number(ua.alert.budget.amount),
-		projectName: ua.alert.budget.project.name,
-		createdAt: ua.alert.createdAt,
-	}));
+	return userAlerts.map(mapUserAlert);
+
 }
 
 // Marque une alerte comme lue ou non lue
@@ -105,7 +122,7 @@ export async function checkAndCreateAlert(
 	// Seuil non atteint : rien à faire
 	if (totalSpent < (budgetAmount * threshold) / 100) return;
 
-	// Évite les doublons : ne crée pas d'alerte si une alerte non lue existe déjà pour ce budget
+	// Évite les doublons : ne crée pas d'alerte si une alerte active existe déjà pour ce budget
 	const existingAlert = await tx.appUserAlert.findFirst({
 		where: {
 			appUserId: userId,
@@ -160,17 +177,12 @@ export async function getAlertsByProject(projectId: number, userId: number) {
 		orderBy: { alert: { createdAt: "desc" } },
 	});
 
-	return userAlerts.map((ua) => ({
-		id: ua.alert.id,
-		status: ua.alert.status,
-		message: ua.alert.message,
-		budgetId: ua.alert.budgetId,
-		budgetAmount: Number(ua.alert.budget.amount),
-		projectName: ua.alert.budget.project.name,
-		createdAt: ua.alert.createdAt,
-	}));
+	return userAlerts.map(mapUserAlert);
+
 }
 
+// Résout les alertes actives si le total des dépenses repasse sous le seuil.
+// Appelée après une suppression/modification d'opération ou une modification de budget.
 export async function resolveAlertIfNeeded(
 	projectId: number,
 	userId: number,
@@ -196,15 +208,24 @@ export async function resolveAlertIfNeeded(
 	// Seuil encore dépassé : on ne touche pas aux alertes
 	if (totalSpent >= (budgetAmount * threshold) / 100) return;
 
-	// Seuil repassé en dessous : alertes unread et read → resolved
-	await tx.alert.updateMany({
+	// Seuil repassé en dessous : récupère chaque alerte active individuellement
+	// pour pouvoir mettre à jour son message en plus du statut
+	const alerts = await tx.alert.findMany({
 		where: {
 			budgetId: budget.id,
 			status: { in: ["unread", "read"] },
-			appUserAlerts: {
-				some: { appUserId: userId },
-			},
+			appUserAlerts: { some: { appUserId: userId } },
 		},
-		data: { status: "resolved" },
+		select: { id: true, message: true },
 	});
+
+	for (const alert of alerts) {
+		await tx.alert.update({
+			where: { id: alert.id },
+			data: {
+				status: "resolved",
+				message: `${alert.message} Seuil dépassé puis résolu.`,
+			},
+		});
+	}
 }

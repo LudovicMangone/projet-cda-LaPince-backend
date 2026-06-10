@@ -46,6 +46,6 @@ export async function deleteOperationsController(req: Request, res: Response) {
 		operationId: Number(req.params.operationId),
 	});
 
-	await deleteOperationsByPojectId(data);
+	await deleteOperationsByPojectId(data, Number(req.userId));
 	return res.status(204).send();
 }

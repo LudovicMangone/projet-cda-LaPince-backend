@@ -1,6 +1,6 @@
-import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { computeReimbursements } from "../lib/greedy";
 import { prisma } from "../lib/prisma";
+import { assertProjectOwner } from "../lib/projectOwner";
 
 // Phase 1 — Compute the net balance of each participant in a project.
 // balance > 0 : creditor (should receive money)
@@ -50,18 +50,7 @@ export async function computeProjectBalances(projectId: number) {
 // Phase 2 — Run the greedy algorithm on Phase 1 balances
 // to produce the minimum number of reimbursement transactions.
 export async function getProjectBalance(projectId: number, userId: number) {
-	const project = await prisma.project.findUnique({
-		where: { id: projectId },
-		select: { appUserId: true },
-	});
-
-	if (!project) {
-		throw new NotFoundError("Projet introuvable");
-	}
-
-	if (project.appUserId !== userId) {
-		throw new ForbiddenError("Accès refusé à ce projet");
-	}
+	await assertProjectOwner(projectId, userId);
 
 	const balances = await computeProjectBalances(projectId);
 

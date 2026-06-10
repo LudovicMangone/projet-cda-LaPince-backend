@@ -1,25 +1,15 @@
 import type { IParticipant } from "../@types/projects";
-import { BadRequestError, ForbiddenError, NotFoundError } from "../lib/errors";
+import { BadRequestError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
+import { assertProjectOwner } from "../lib/projectOwner";
+
 
 export async function updateProjectParticipants(
 	participantsData: IParticipant[],
 	projectId: number,
 	userId: number,
 ) {
-	const project = await prisma.project.findUnique({
-		where: { id: projectId },
-	});
-	if (!project) {
-		throw new NotFoundError("Project not found");
-	}
-
-	// Check that the user is the owner of the project
-	const isOwner = userId === project.appUserId;
-
-	if (!isOwner) {
-		throw new ForbiddenError("Only the owner of the project can access it");
-	}
+	await assertProjectOwner(projectId, userId);
 
 	// Search current participants linked to the project
 	const currentParticipants = await prisma.projectParticipant.findMany({
