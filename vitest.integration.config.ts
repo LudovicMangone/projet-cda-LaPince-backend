@@ -2,11 +2,32 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
 	test: {
+		// Only run files matching this pattern as integration tests
 		include: ["**/*.integration.test.ts"],
-		// Set DATABASE_URL to localhost before dotenv loads .env
-		setupFiles: ["./src/test/config/setup.integration.ts"],
-		// Run test files sequentially to avoid port conflicts (app.listen on same port)
+
+		// Runs once before/after the entire test suite (starts Docker, server, migrations)
+		globalSetup: ["./src/test/config/global-setup.ts"],
+
+		// Runs before each test file (resets DB, mocks, etc.)
+		setupFiles: ["./src/test/config/integration-setup.ts"],
+
+		// Disable parallel execution: integration tests share a single DB and server instance
 		fileParallelism: false,
-		hookTimeout: 30000,
+
+		coverage: {
+			provider: "v8",
+			reporter: ["text", "html"],
+			// Track coverage for all source files...
+			include: ["src/**/*.ts"],
+			// ...except entry points and generated/config files which are not business logic
+			exclude: [
+				"src/app.ts",
+				"src/server.ts",
+				"src/generated/**",
+				"src/config/**",
+				"src/**/*.test.ts",
+				"src/test/**",
+			],
+		},
 	},
 });

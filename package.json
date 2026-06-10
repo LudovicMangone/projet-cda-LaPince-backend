@@ -18,12 +18,16 @@
 		"doc": "doc"
 	},
 	"scripts": {
-		"dev": "tsx watch src/app.ts",
+		"dev": "tsx watch src/server.ts",
+		"start": "tsx src/server.ts",
 		"lint": "biome lint ./src",
 		"lint:fix": "biome lint --write ./src",
 		"format": "biome format --write ./src",
 		"test:unit": "vitest run --config vitest.unit.config.ts",
+		"test:unit:coverage": "vitest run --config vitest.unit.config.ts --coverage",
 		"test:integration": "dotenv -e .env.test -- vitest run --config vitest.integration.config.ts",
+		"test:integration:coverage": "dotenv -e .env.test -- vitest run --config vitest.integration.config.ts --coverage",
+		"test:coverage": "npm run test:unit:coverage && npm run test:integration:coverage",
 		"check": "biome check --write ./src",
 		"prepare": "husky || true",
 		"docker:up": "docker compose -f docker-compose-dev.yml up",
@@ -31,8 +35,7 @@
 		"db:migrate": "docker exec lapince-api npx prisma migrate dev",
 		"db:seed": "docker exec lapince-api npx prisma db seed",
 		"db:reset": "docker exec lapince-api npx prisma migrate reset --force",
-		"db:generate": "docker exec lapince-api npx prisma generate",
-		"start": "tsx src/app.ts"
+		"db:generate": "docker exec lapince-api npx prisma generate"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",
@@ -44,6 +47,7 @@
 		"@types/pg": "^8.20.0",
 		"@types/swagger-jsdoc": "^6.0.4",
 		"@types/swagger-ui-express": "^4.1.8",
+		"@vitest/coverage-v8": "^4.1.8",
 		"dotenv-cli": "^11.0.0",
 		"husky": "^9.1.7",
 		"prisma": "^7.8.0",
