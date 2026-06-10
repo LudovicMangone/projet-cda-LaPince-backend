@@ -24,6 +24,7 @@ vi.mock("argon2", () => ({
 // ─── Setup ───────────────────────────────────────────────────
 beforeEach(() => {
 	vi.clearAllMocks();
+	process.env.JWT_SECRET = "test-secret";
 });
 
 // ─── registerUser ────────────────────────────────────────────
@@ -35,10 +36,7 @@ describe("[registerUser]", () => {
 			id: 1,
 			name: "Ludo",
 			email: "ludo@lapince.fr",
-			password: "hashed_password",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+		} as never);
 
 		// ACT
 		const result = await registerUser({
@@ -140,10 +138,7 @@ describe("[getMe]", () => {
 			id: 1,
 			name: "Steve",
 			email: "steve@lapince.fr",
-			password: "hashed_password",
-			createdAt: new Date(),
-			updatedAt: new Date(),
-		});
+		} as never);
 
 		// ACT
 		const result = await getMe(1);
