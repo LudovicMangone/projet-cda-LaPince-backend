@@ -1,5 +1,5 @@
 import type { Prisma } from "../../generated/prisma";
-import { ForbiddenError, NotFoundError } from "../lib/errors";
+import { NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 import type { UpdateAlertInput } from "../schemas/alert.schema";
 
@@ -131,7 +131,6 @@ export async function checkAndCreateAlert(
 
 	return alert;
 }
-
 
 // Récupère les alertes d'un projet spécifique pour l'utilisateur connecté
 export async function getAlertsByProject(projectId: number, userId: number) {
