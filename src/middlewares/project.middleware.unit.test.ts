@@ -1,7 +1,10 @@
 import type { NextFunction, Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
 import { BadRequestError } from "../../src/lib/errors";
-import { validateProjectUpdate } from "../../src/middlewares/project.middleware";
+import {
+	validateProjectParticipantsUpdate,
+	validateProjectUpdate,
+} from "../../src/middlewares/project.middleware";
 
 describe("validateProjectUpdate", () => {
 	// The response object is not used by this middleware,
@@ -224,5 +227,167 @@ describe("validateProjectUpdate", () => {
 				BadRequestError,
 			);
 		});
+	});
+});
+
+describe("validateProjectParticipantsUpdate", () => {
+	it("should validate a valid participants list", () => {
+		// ARRANGE
+		const req = {
+			body: [
+				{
+					name: "Alice",
+				},
+				{
+					name: "Bob",
+				},
+			],
+		} as Request;
+
+		const res = {} as Response;
+
+		// Mock next() to verify that the middleware allows the request
+		// to continue when validation succeeds.
+		const next: NextFunction = vi.fn();
+
+		// ACT
+		validateProjectParticipantsUpdate(req, res, next);
+
+		// ASSERT
+		expect(next).toHaveBeenCalledOnce();
+	});
+
+	it("should validate a participant linked to an application user", () => {
+		// ARRANGE
+		const req = {
+			body: [
+				{
+					name: "Alice",
+					appUser: {
+						id: 1,
+					},
+				},
+			],
+		} as Request;
+
+		const res = {} as Response;
+		const next: NextFunction = vi.fn();
+
+		// ACT
+		validateProjectParticipantsUpdate(req, res, next);
+
+		// ASSERT
+		expect(next).toHaveBeenCalledOnce();
+	});
+
+	it("should throw an error when body is not an array", () => {
+		// ARRANGE
+		const req = {
+			body: {
+				name: "Alice",
+			},
+		} as Request;
+
+		const res = {} as Response;
+		const next: NextFunction = vi.fn();
+
+		// ACT / ASSERT
+		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
+			BadRequestError,
+		);
+
+		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
+			"Invalid input: expected array, received object",
+		);
+	});
+
+	it("should throw an error when participant name is shorter than 2 characters", () => {
+		// ARRANGE
+		const req = {
+			body: [
+				{
+					name: "A",
+				},
+			],
+		} as Request;
+
+		const res = {} as Response;
+		const next: NextFunction = vi.fn();
+
+		// ACT / ASSERT
+		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
+			BadRequestError,
+		);
+
+		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
+			"Au moins deux lettres doivent être renseignées",
+		);
+	});
+
+	it("should throw an error when participant name exceeds 100 characters", () => {
+		// ARRANGE
+		const req = {
+			body: [
+				{
+					name: "a".repeat(101),
+				},
+			],
+		} as Request;
+
+		const res = {} as Response;
+		const next: NextFunction = vi.fn();
+
+		// ACT / ASSERT
+		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
+			BadRequestError,
+		);
+
+		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow();
+	});
+
+	it("should throw an error when participant id is invalid", () => {
+		// ARRANGE
+		const req = {
+			body: [
+				{
+					id: -1,
+					name: "Alice",
+				},
+			],
+		} as Request;
+
+		const res = {} as Response;
+		const next: NextFunction = vi.fn();
+
+		// ACT / ASSERT
+		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
+			BadRequestError,
+		);
+
+		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow();
+	});
+
+	it("should throw an error when application user id is invalid", () => {
+		// ARRANGE
+		const req = {
+			body: [
+				{
+					name: "Alice",
+					appUser: {
+						id: -1,
+					},
+				},
+			],
+		} as Request;
+
+		const res = {} as Response;
+		const next: NextFunction = vi.fn();
+
+		// ACT / ASSERT
+		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
+			BadRequestError,
+		);
+
+		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow();
 	});
 });
