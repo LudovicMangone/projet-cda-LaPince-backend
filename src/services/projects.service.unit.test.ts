@@ -1,9 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { prisma } from "../lib/prisma";
-import {
-	createProject,
-	getProjectsDashboard,
-} from "./projects.service";
+import { createProject, getProjectsDashboard } from "./projects.service";
 
 // ─── Mocks ───────────────────────────────────────────────────
 vi.mock("../lib/prisma", () => ({
@@ -43,8 +40,8 @@ describe("[createProject]", () => {
 				}),
 			},
 		};
-		vi.mocked(prisma.$transaction).mockImplementation(
-			(cb: unknown) => (cb as (tx: typeof txMock) => Promise<unknown>)(txMock),
+		vi.mocked(prisma.$transaction).mockImplementation((cb: unknown) =>
+			(cb as (tx: typeof txMock) => Promise<unknown>)(txMock),
 		);
 
 		// ACT
@@ -69,8 +66,8 @@ describe("[createProject]", () => {
 				create: vi.fn().mockResolvedValue({}),
 			},
 		};
-		vi.mocked(prisma.$transaction).mockImplementation(
-			(cb: unknown) => (cb as (tx: typeof txMock) => Promise<unknown>)(txMock),
+		vi.mocked(prisma.$transaction).mockImplementation((cb: unknown) =>
+			(cb as (tx: typeof txMock) => Promise<unknown>)(txMock),
 		);
 
 		// ACT
@@ -100,8 +97,8 @@ describe("[createProject]", () => {
 				create: vi.fn().mockResolvedValue({}),
 			},
 		};
-		vi.mocked(prisma.$transaction).mockImplementation(
-			(cb: unknown) => (cb as (tx: typeof txMock) => Promise<unknown>)(txMock),
+		vi.mocked(prisma.$transaction).mockImplementation((cb: unknown) =>
+			(cb as (tx: typeof txMock) => Promise<unknown>)(txMock),
 		);
 
 		// ACT
@@ -129,14 +126,18 @@ describe("[getProjectsDashboard]", () => {
 		isArchived: false,
 		updatedAt: new Date(),
 		_count: { operations: 3 },
-		projectParticipants: [{ participant: { id: 10, name: "Alice", appUserId: 42 } }],
+		projectParticipants: [
+			{ participant: { id: 10, name: "Alice", appUserId: 42 } },
+		],
 		budget: null,
 		operations: [{ amount: 100 }, { amount: 50 }],
 	};
 
 	it("should return paginated projects with userBalance", async () => {
 		// ARRANGE
-		vi.mocked(prisma.project.findMany).mockResolvedValue([mockProjectRow] as never);
+		vi.mocked(prisma.project.findMany).mockResolvedValue([
+			mockProjectRow,
+		] as never);
 		vi.mocked(prisma.project.count).mockResolvedValue(1);
 		vi.mocked(prisma.participant.findMany).mockResolvedValue([
 			{
@@ -180,7 +181,9 @@ describe("[getProjectsDashboard]", () => {
 
 	it("should return null userBalance when user is not a participant", async () => {
 		// ARRANGE
-		vi.mocked(prisma.project.findMany).mockResolvedValue([mockProjectRow] as never);
+		vi.mocked(prisma.project.findMany).mockResolvedValue([
+			mockProjectRow,
+		] as never);
 		vi.mocked(prisma.project.count).mockResolvedValue(1);
 		vi.mocked(prisma.participant.findMany).mockResolvedValue([] as never);
 
@@ -191,4 +194,3 @@ describe("[getProjectsDashboard]", () => {
 		expect(result.projects[0].userBalance).toBeNull();
 	});
 });
-

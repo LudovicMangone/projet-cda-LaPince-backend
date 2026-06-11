@@ -79,4 +79,3 @@ describe("[GET] /api/projects", () => {
 		expect(body).toHaveProperty("hasMore");
 	});
 });
-
