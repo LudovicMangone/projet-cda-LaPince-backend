@@ -248,7 +248,7 @@ describe("[PATCH] /api/projects/:id", () => {
 		expect(getBody.project.budget).toBeNull();
 	});
 
-	it("should return 400 if no field is provided", async () => {
+	it("should return 422 if no field is provided", async () => {
 		// ARRANGE
 		const token = await registerAndLogin("patch-empty@lapince.fr");
 		const projectId = await createProject(token);
@@ -264,10 +264,10 @@ describe("[PATCH] /api/projects/:id", () => {
 		});
 
 		// ASSERT — schema refine requires at least one field
-		expect(res.status).toBe(400);
+		expect(res.status).toBe(422);
 	});
 
-	it("should return 400 if data is invalid", async () => {
+	it("should return 422 if data is invalid", async () => {
 		// ARRANGE
 		const token = await registerAndLogin("patch-invalid@lapince.fr");
 		const projectId = await createProject(token);
@@ -283,7 +283,7 @@ describe("[PATCH] /api/projects/:id", () => {
 		});
 
 		// ASSERT
-		expect(res.status).toBe(400);
+		expect(res.status).toBe(422);
 	});
 
 	it("should return 401 when no token is provided", async () => {
@@ -457,7 +457,7 @@ describe("[PATCH] /api/projects/:id/participants", () => {
 		expect(body[0].participant.name).toBe(participants[0].name);
 	});
 
-	it("should return 400 if data is invalid", async () => {
+	it("should return 422 if data is invalid", async () => {
 		// ARRANGE
 		const token = await registerAndLogin("part-invalid@lapince.fr");
 		const projectId = await createProject(token);
@@ -473,7 +473,7 @@ describe("[PATCH] /api/projects/:id/participants", () => {
 		});
 
 		// ASSERT
-		expect(res.status).toBe(400);
+		expect(res.status).toBe(422);
 	});
 
 	it("should return 401 when no token is provided", async () => {

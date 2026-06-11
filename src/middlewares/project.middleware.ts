@@ -1,6 +1,4 @@
 import type { NextFunction, Request, Response } from "express";
-import { ZodError } from "zod";
-import { BadRequestError } from "../lib/errors";
 import {
 	updateProjectParticipantsSchema,
 	updateProjectSchema,
@@ -15,9 +13,6 @@ export function validateProjectUpdate(
 		updateProjectSchema.parse(req.body);
 		next();
 	} catch (error) {
-		if (error instanceof ZodError) {
-			throw new BadRequestError(error.issues[0].message);
-		}
 		next(error);
 	}
 }
@@ -30,9 +25,6 @@ export function validateProjectParticipantsUpdate(
 		updateProjectParticipantsSchema.parse(req.body);
 		next();
 	} catch (error) {
-		if (error instanceof ZodError) {
-			throw new BadRequestError(error.issues[0].message);
-		}
 		next(error);
 	}
 }

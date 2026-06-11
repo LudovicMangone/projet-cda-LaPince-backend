@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
-import { BadRequestError } from "../../src/lib/errors";
+import { ZodError } from "zod";
 import {
 	validateProjectParticipantsUpdate,
 	validateProjectUpdate,
@@ -29,6 +29,7 @@ describe("validateProjectUpdate", () => {
 
 			// ASSERT
 			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith();
 		});
 
 		it("should validate update with only description", () => {
@@ -46,6 +47,7 @@ describe("validateProjectUpdate", () => {
 
 			// ASSERT
 			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith();
 		});
 
 		it("should validate update with only isArchived", () => {
@@ -63,6 +65,7 @@ describe("validateProjectUpdate", () => {
 
 			// ASSERT
 			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith();
 		});
 
 		it("should validate update with only budget", () => {
@@ -83,6 +86,7 @@ describe("validateProjectUpdate", () => {
 
 			// ASSERT
 			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith();
 		});
 
 		it("should validate update with only deleteBudget", () => {
@@ -100,30 +104,30 @@ describe("validateProjectUpdate", () => {
 
 			// ASSERT
 			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith();
 		});
 	});
 
 	describe("invalid payloads", () => {
-		it("should throw if no field is provided", () => {
+		it("should forward a ZodError to next if no field is provided", () => {
 			// ARRANGE
 			const req = {
 				body: {},
 			} as Request;
 
-			// Mock next() because Express normally injects it.
-			// It should never be called when validation fails.
+			// Mock next() to capture the error forwarded by the middleware
+			// instead of throwing it directly.
 			const next: NextFunction = vi.fn();
 
-			// ACT + ASSERT
-			expect(() => validateProjectUpdate(req, res, next)).toThrow(
-				BadRequestError,
-			);
-			expect(() => validateProjectUpdate(req, res, next)).toThrow(
-				"Au moins un champs doit être renseigné",
-			);
+			// ACT
+			validateProjectUpdate(req, res, next);
+
+			// ASSERT — next must be called once with a ZodError
+			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 		});
 
-		it("should throw if name contains less than 2 characters", () => {
+		it("should forward a ZodError to next if name contains less than 2 characters", () => {
 			// ARRANGE
 			const req = {
 				body: {
@@ -133,13 +137,15 @@ describe("validateProjectUpdate", () => {
 
 			const next: NextFunction = vi.fn();
 
-			// ACT + ASSERT
-			expect(() => validateProjectUpdate(req, res, next)).toThrow(
-				BadRequestError,
-			);
+			// ACT
+			validateProjectUpdate(req, res, next);
+
+			// ASSERT
+			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 		});
 
-		it("should throw if name exceeds 100 characters", () => {
+		it("should forward a ZodError to next if name exceeds 100 characters", () => {
 			// ARRANGE
 			const req = {
 				body: {
@@ -149,13 +155,15 @@ describe("validateProjectUpdate", () => {
 
 			const next: NextFunction = vi.fn();
 
-			// ACT + ASSERT
-			expect(() => validateProjectUpdate(req, res, next)).toThrow(
-				BadRequestError,
-			);
+			// ACT
+			validateProjectUpdate(req, res, next);
+
+			// ASSERT
+			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 		});
 
-		it("should throw if description exceeds 500 characters", () => {
+		it("should forward a ZodError to next if description exceeds 500 characters", () => {
 			// ARRANGE
 			const req = {
 				body: {
@@ -165,13 +173,15 @@ describe("validateProjectUpdate", () => {
 
 			const next: NextFunction = vi.fn();
 
-			// ACT + ASSERT
-			expect(() => validateProjectUpdate(req, res, next)).toThrow(
-				BadRequestError,
-			);
+			// ACT
+			validateProjectUpdate(req, res, next);
+
+			// ASSERT
+			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 		});
 
-		it("should throw if budget.amount is less than or equal to 0", () => {
+		it("should forward a ZodError to next if budget.amount is less than or equal to 0", () => {
 			// ARRANGE
 			const req = {
 				body: {
@@ -184,13 +194,15 @@ describe("validateProjectUpdate", () => {
 
 			const next: NextFunction = vi.fn();
 
-			// ACT + ASSERT
-			expect(() => validateProjectUpdate(req, res, next)).toThrow(
-				BadRequestError,
-			);
+			// ACT
+			validateProjectUpdate(req, res, next);
+
+			// ASSERT
+			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 		});
 
-		it("should throw if budget.limitCriteria is less than 0", () => {
+		it("should forward a ZodError to next if budget.limitCriteria is less than 0", () => {
 			// ARRANGE
 			const req = {
 				body: {
@@ -203,13 +215,15 @@ describe("validateProjectUpdate", () => {
 
 			const next: NextFunction = vi.fn();
 
-			// ACT + ASSERT
-			expect(() => validateProjectUpdate(req, res, next)).toThrow(
-				BadRequestError,
-			);
+			// ACT
+			validateProjectUpdate(req, res, next);
+
+			// ASSERT
+			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 		});
 
-		it("should throw if budget.limitCriteria exceeds 100", () => {
+		it("should forward a ZodError to next if budget.limitCriteria exceeds 100", () => {
 			// ARRANGE
 			const req = {
 				body: {
@@ -222,10 +236,12 @@ describe("validateProjectUpdate", () => {
 
 			const next: NextFunction = vi.fn();
 
-			// ACT + ASSERT
-			expect(() => validateProjectUpdate(req, res, next)).toThrow(
-				BadRequestError,
-			);
+			// ACT
+			validateProjectUpdate(req, res, next);
+
+			// ASSERT
+			expect(next).toHaveBeenCalledOnce();
+			expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 		});
 	});
 });
@@ -255,6 +271,7 @@ describe("validateProjectParticipantsUpdate", () => {
 
 		// ASSERT
 		expect(next).toHaveBeenCalledOnce();
+		expect(next).toHaveBeenCalledWith();
 	});
 
 	it("should validate a participant linked to an application user", () => {
@@ -278,9 +295,10 @@ describe("validateProjectParticipantsUpdate", () => {
 
 		// ASSERT
 		expect(next).toHaveBeenCalledOnce();
+		expect(next).toHaveBeenCalledWith();
 	});
 
-	it("should throw an error when body is not an array", () => {
+	it("should forward a ZodError to next when body is not an array", () => {
 		// ARRANGE
 		const req = {
 			body: {
@@ -291,17 +309,15 @@ describe("validateProjectParticipantsUpdate", () => {
 		const res = {} as Response;
 		const next: NextFunction = vi.fn();
 
-		// ACT / ASSERT
-		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
-			BadRequestError,
-		);
+		// ACT
+		validateProjectParticipantsUpdate(req, res, next);
 
-		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
-			"Invalid input: expected array, received object",
-		);
+		// ASSERT
+		expect(next).toHaveBeenCalledOnce();
+		expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 	});
 
-	it("should throw an error when participant name is shorter than 2 characters", () => {
+	it("should forward a ZodError to next when participant name is shorter than 2 characters", () => {
 		// ARRANGE
 		const req = {
 			body: [
@@ -314,17 +330,15 @@ describe("validateProjectParticipantsUpdate", () => {
 		const res = {} as Response;
 		const next: NextFunction = vi.fn();
 
-		// ACT / ASSERT
-		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
-			BadRequestError,
-		);
+		// ACT
+		validateProjectParticipantsUpdate(req, res, next);
 
-		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
-			"Au moins deux lettres doivent être renseignées",
-		);
+		// ASSERT
+		expect(next).toHaveBeenCalledOnce();
+		expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 	});
 
-	it("should throw an error when participant name exceeds 100 characters", () => {
+	it("should forward a ZodError to next when participant name exceeds 100 characters", () => {
 		// ARRANGE
 		const req = {
 			body: [
@@ -337,15 +351,15 @@ describe("validateProjectParticipantsUpdate", () => {
 		const res = {} as Response;
 		const next: NextFunction = vi.fn();
 
-		// ACT / ASSERT
-		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
-			BadRequestError,
-		);
+		// ACT
+		validateProjectParticipantsUpdate(req, res, next);
 
-		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow();
+		// ASSERT
+		expect(next).toHaveBeenCalledOnce();
+		expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 	});
 
-	it("should throw an error when participant id is invalid", () => {
+	it("should forward a ZodError to next when participant id is invalid", () => {
 		// ARRANGE
 		const req = {
 			body: [
@@ -359,15 +373,15 @@ describe("validateProjectParticipantsUpdate", () => {
 		const res = {} as Response;
 		const next: NextFunction = vi.fn();
 
-		// ACT / ASSERT
-		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
-			BadRequestError,
-		);
+		// ACT
+		validateProjectParticipantsUpdate(req, res, next);
 
-		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow();
+		// ASSERT
+		expect(next).toHaveBeenCalledOnce();
+		expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 	});
 
-	it("should throw an error when application user id is invalid", () => {
+	it("should forward a ZodError to next when application user id is invalid", () => {
 		// ARRANGE
 		const req = {
 			body: [
@@ -383,11 +397,11 @@ describe("validateProjectParticipantsUpdate", () => {
 		const res = {} as Response;
 		const next: NextFunction = vi.fn();
 
-		// ACT / ASSERT
-		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow(
-			BadRequestError,
-		);
+		// ACT
+		validateProjectParticipantsUpdate(req, res, next);
 
-		expect(() => validateProjectParticipantsUpdate(req, res, next)).toThrow();
+		// ASSERT
+		expect(next).toHaveBeenCalledOnce();
+		expect(next).toHaveBeenCalledWith(expect.any(ZodError));
 	});
 });
