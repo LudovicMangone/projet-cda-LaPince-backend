@@ -12,7 +12,7 @@ const operationParticipantSchema = z.object({
 		.number()
 		.nonnegative()
 		.refine(
-			(value) => Number.isInteger(value * 100),
+			(value) => Number.isInteger(Math.round(value * 100)),
 			"Le montant ne peut pas avoir plus de 2 décimales",
 		),
 });
@@ -23,7 +23,7 @@ export const createOperationSchema = z.object({
 		.number()
 		.positive()
 		.refine(
-			(value) => Number.isInteger(value * 100),
+			(value) => Number.isInteger(Math.round(value * 100)),
 			"Le montant ne peut pas avoir plus de 2 décimales",
 		),
 	date: z.coerce.date(),
