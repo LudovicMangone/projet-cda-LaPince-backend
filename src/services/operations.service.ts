@@ -155,6 +155,14 @@ export async function deleteOperationsByPojectId(
 	return prisma.$transaction(async (tx) => {
 		await assertProjectOwner(data.projectId, userId, tx);
 
+		const operation = await tx.operation.findUnique({
+			where: { id: data.operationId, projectId: data.projectId },
+		});
+
+		if (!operation) {
+			throw new NotFoundError("Operation not found");
+		}
+
 		await tx.operation.delete({
 			where: { id: data.operationId, projectId: data.projectId },
 		});
