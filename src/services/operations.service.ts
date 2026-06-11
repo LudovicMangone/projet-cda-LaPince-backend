@@ -152,8 +152,6 @@ export async function deleteOperationsByPojectId(
 	userId: number,
 ) {
 	return prisma.$transaction(async (tx) => {
-		await assertProjectOwner(data.projectId, userId, tx);
-		
 		await tx.operation.delete({
 			where: { id: data.operationId, projectId: data.projectId },
 		});
