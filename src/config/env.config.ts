@@ -19,6 +19,6 @@ export const envConfig = {
 	// than to fail unexpectedly in production.
 	jwtSecret: requireEnv("JWT_SECRET"),
 	// Setups for protections against attacs
-	jsonLimit: process.env.NODE_ENV === "production" ? "100kb" : "1mb",
-	rateLimitMax: process.env.NODE_ENV === "production" ? 100 : 1000,
+	jsonLimit: process.env.NODE_ENV === "production" ? "250kb" : "1mb",
+	rateLimitMax: process.env.NODE_ENV === "production" ? 200 : 1000,
 };

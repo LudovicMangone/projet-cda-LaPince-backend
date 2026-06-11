@@ -1,6 +1,4 @@
 import type { NextFunction, Request, Response } from "express";
-import { ZodError } from "zod";
-import { BadRequestError } from "../lib/errors";
 import {
 	updateProjectParticipantsSchema,
 	updateProjectSchema,

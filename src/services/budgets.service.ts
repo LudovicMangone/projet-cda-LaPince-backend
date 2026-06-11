@@ -39,9 +39,7 @@ export async function getProjectBudgets(projectId: number, userId: number) {
 	return {
 		totalSpent,
 		totalLimit: budget ? Number(budget.amount) : null,
-		alertThreshold: budget
-			? Number(budget.limitCriteria)
-			: null,
+		alertThreshold: budget ? Number(budget.limitCriteria) : null,
 		spentByCategory,
 	};
 }

@@ -37,7 +37,7 @@ const appUserSchema = z.object({
 const participantSchema = z.object({
 	id: z.number().positive().optional(),
 	name: z
-		.string("Au moins deux lettres doivent être renseignées")
+		.string()
 		.min(2, "Au moins deux lettres doivent être renseignées")
 		.max(100),
 	appUser: appUserSchema.nullable().optional(),
