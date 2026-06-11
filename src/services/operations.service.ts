@@ -15,7 +15,7 @@ export async function getOperationsByPojectId(
 
 	const operations = await prisma.operation.findMany({
 		orderBy: {
-			date: "asc",
+			createdAt: "asc",
 		},
 		where: {
 			projectId,
@@ -57,6 +57,8 @@ export async function createOperation(
 	data: CreateOperationInput,
 	userId: number,
 ) {
+	await assertProjectOwner(data.projectId, userId);
+
 	return prisma.$transaction(async (tx) => {
 		const operation = await tx.operation.create({
 			data: {
@@ -91,13 +93,14 @@ export async function updateOperation(
 	data: CreateOperationInput,
 	userId: number,
 ) {
+	await assertProjectOwner(data.projectId, userId);
+
 	return prisma.$transaction(async (tx) => {
 		const operation = await tx.operation.findUnique({
 			where: { id: operationId },
 			select: {
 				id: true,
 				projectId: true,
-				appUserId: true,
 			},
 		});
 
@@ -105,8 +108,8 @@ export async function updateOperation(
 			throw new NotFoundError("Operation not found");
 		}
 
-		if (operation.appUserId !== userId) {
-			throw new ForbiddenError("Only the owner can update this operation");
+		if (operation.projectId !== data.projectId) {
+			throw new ForbiddenError("Operation does not belong to this project");
 		}
 
 		const updatedOperation = await tx.operation.update({
@@ -115,7 +118,6 @@ export async function updateOperation(
 				name: data.name,
 				amount: data.amount,
 				date: data.date,
-				projectId: data.projectId,
 				categoryId: data.categoryId,
 				payerParticipantId: data.payerParticipantId,
 				isAmountCalculated: data.isAmountCalculated,
@@ -150,6 +152,8 @@ export async function deleteOperationsByPojectId(
 	data: DeleteOperationInput,
 	userId: number,
 ) {
+	await assertProjectOwner(data.projectId, userId);
+
 	return prisma.$transaction(async (tx) => {
 		await tx.operation.delete({
 			where: { id: data.operationId, projectId: data.projectId },
