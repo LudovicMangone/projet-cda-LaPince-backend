@@ -110,6 +110,10 @@ export async function updateOperation(
 		if (operation.appUserId !== userId) {
 			throw new ForbiddenError("Only the owner can update this operation");
 		}
+		// Prevent moving an operation from one project to another
+		if (operation.projectId !== data.projectId) {
+			throw new ForbiddenError("Operation does not belong to this project");
+		}
 
 		const updatedOperation = await tx.operation.update({
 			where: { id: operationId },
