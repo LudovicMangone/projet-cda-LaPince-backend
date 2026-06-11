@@ -18,11 +18,13 @@ export const updateProjectSchema = z
 	})
 	.refine(
 		(data) =>
+			
 			data.name !== undefined ||
 			data.description !== undefined ||
 			data.isArchived !== undefined ||
 			data.budget !== undefined ||
-			data.deleteBudget !== undefined,
+			data.deleteBudget !== undefined ||
+			data.type !== undefined,
 		{
 			message: "Au moins un champs doit être renseigné",
 		},
