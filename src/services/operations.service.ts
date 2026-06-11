@@ -58,7 +58,6 @@ export async function createOperation(
 	userId: number,
 ) {
 	return prisma.$transaction(async (tx) => {
-		await assertProjectOwner(data.projectId, userId, tx);
 		const operation = await tx.operation.create({
 			data: {
 				name: data.name,
