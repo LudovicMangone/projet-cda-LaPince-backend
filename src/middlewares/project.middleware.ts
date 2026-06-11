@@ -9,22 +9,16 @@ export function validateProjectUpdate(
 	_res: Response,
 	next: NextFunction,
 ) {
-	try {
-		updateProjectSchema.parse(req.body);
-		next();
-	} catch (error) {
-		next(error);
-	}
+	// Parse and overwrite req.body so Zod transforms and stripping reach the controller
+	req.body = updateProjectSchema.parse(req.body);
+	next();
 }
 export function validateProjectParticipantsUpdate(
 	req: Request,
 	_res: Response,
 	next: NextFunction,
 ) {
-	try {
-		updateProjectParticipantsSchema.parse(req.body);
-		next();
-	} catch (error) {
-		next(error);
-	}
+	// Parse and overwrite req.body so Zod transforms and stripping reach the controller
+	req.body = updateProjectParticipantsSchema.parse(req.body);
+	next();
 }

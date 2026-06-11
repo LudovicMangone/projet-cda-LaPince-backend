@@ -1,5 +1,6 @@
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
+import { envConfig } from "../config/env.config";
 import { ConflictError, UnauthorizedError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 import type { LoginInput, RegisterInput } from "../schemas/auth.schema";
@@ -41,11 +42,9 @@ export async function loginUser(data: LoginInput) {
 		throw new UnauthorizedError("Email ou mot de passe incorrect");
 	}
 
-	const token = jwt.sign(
-		{ userId: user.id },
-		process.env.JWT_SECRET as string,
-		{ expiresIn: "7d" },
-	);
+	const token = jwt.sign({ userId: user.id }, envConfig.jwtSecret, {
+		expiresIn: "7d",
+	});
 
 	return {
 		user: { id: user.id, name: user.name, email: user.email },

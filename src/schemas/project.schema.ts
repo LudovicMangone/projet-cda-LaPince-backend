@@ -1,8 +1,10 @@
 import { z } from "zod";
+import { projectTypeEnum } from "./projects.schema";
+
 
 const budgetSchema = z.object({
 	amount: z.number().positive(),
-	limitCriteria: z.number().min(0).max(100),
+	limitCriteria: z.number().min(1).max(100),
 });
 
 export const updateProjectSchema = z
@@ -12,15 +14,17 @@ export const updateProjectSchema = z
 		isArchived: z.boolean().optional(),
 		budget: budgetSchema.optional(),
 		deleteBudget: z.boolean().optional(),
-		type: z.string().optional(),
+		type: projectTypeEnum.optional(),
 	})
 	.refine(
 		(data) =>
+			
 			data.name !== undefined ||
 			data.description !== undefined ||
 			data.isArchived !== undefined ||
 			data.budget !== undefined ||
-			data.deleteBudget !== undefined,
+			data.deleteBudget !== undefined ||
+			data.type !== undefined,
 		{
 			message: "Au moins un champs doit être renseigné",
 		},
