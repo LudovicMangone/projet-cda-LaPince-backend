@@ -60,13 +60,21 @@ async function main() {
 	const steve = await prisma.appUser.upsert({
 		where: { email: "steve@lapince.fr" },
 		update: {},
-		create: { name: "Steve", email: "steve@lapince.fr", password: passwordHash },
+		create: {
+			name: "Steve",
+			email: "steve@lapince.fr",
+			password: passwordHash,
+		},
 	});
 
 	const aurore = await prisma.appUser.upsert({
 		where: { email: "aurore@lapince.fr" },
 		update: {},
-		create: { name: "Aurore", email: "aurore@lapince.fr", password: passwordHash },
+		create: {
+			name: "Aurore",
+			email: "aurore@lapince.fr",
+			password: passwordHash,
+		},
 	});
 
 	console.log("✅ 2 users seeded");
@@ -212,7 +220,9 @@ async function main() {
 			},
 		});
 		await prisma.appUserAlert.upsert({
-			where: { appUserId_alertId: { appUserId: alert.userId, alertId: alert.id } },
+			where: {
+				appUserId_alertId: { appUserId: alert.userId, alertId: alert.id },
+			},
 			update: {},
 			create: { appUserId: alert.userId, alertId: alert.id },
 		});
@@ -246,7 +256,12 @@ async function main() {
 
 	for (const pid of [pSteve.id, pAurore.id, pLudo.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectMilan.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectMilan.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectMilan.id, participantId: pid },
 		});
@@ -260,8 +275,13 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 1, name: "Hôtel — nuit 1", amount: 135.0, isAmountCalculated: false, date: "2026-05-15",
-			payerId: pSteve.id, categoryId: hebergement.id,
+			id: 1,
+			name: "Hôtel — nuit 1",
+			amount: 135.0,
+			isAmountCalculated: false,
+			date: "2026-05-15",
+			payerId: pSteve.id,
+			categoryId: hebergement.id,
 			split: [
 				{ participantId: pSteve.id, amount: 45.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 45.0, isCalculated: true },
@@ -269,8 +289,13 @@ async function main() {
 			],
 		},
 		{
-			id: 2, name: "Hôtel — nuit 2", amount: 135.0, isAmountCalculated: false, date: "2026-05-16",
-			payerId: pSteve.id, categoryId: hebergement.id,
+			id: 2,
+			name: "Hôtel — nuit 2",
+			amount: 135.0,
+			isAmountCalculated: false,
+			date: "2026-05-16",
+			payerId: pSteve.id,
+			categoryId: hebergement.id,
 			split: [
 				{ participantId: pSteve.id, amount: 45.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 45.0, isCalculated: true },
@@ -278,8 +303,13 @@ async function main() {
 			],
 		},
 		{
-			id: 3, name: "Billets de train aller", amount: 75.0, isAmountCalculated: false, date: "2026-05-15",
-			payerId: pSteve.id, categoryId: transport.id,
+			id: 3,
+			name: "Billets de train aller",
+			amount: 75.0,
+			isAmountCalculated: false,
+			date: "2026-05-15",
+			payerId: pSteve.id,
+			categoryId: transport.id,
 			split: [
 				{ participantId: pSteve.id, amount: 25.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 25.0, isCalculated: true },
@@ -287,8 +317,13 @@ async function main() {
 			],
 		},
 		{
-			id: 4, name: "Billets de train retour", amount: 75.0, isAmountCalculated: false, date: "2026-05-17",
-			payerId: pSteve.id, categoryId: transport.id,
+			id: 4,
+			name: "Billets de train retour",
+			amount: 75.0,
+			isAmountCalculated: false,
+			date: "2026-05-17",
+			payerId: pSteve.id,
+			categoryId: transport.id,
 			split: [
 				{ participantId: pSteve.id, amount: 25.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 25.0, isCalculated: true },
@@ -296,17 +331,27 @@ async function main() {
 			],
 		},
 		{
-			id: 5, name: "Restaurant Il Duomo",  amount: 84.0, isAmountCalculated: false, date: "2026-05-15",
+			id: 5,
+			name: "Restaurant Il Duomo",
+			amount: 84.0,
+			isAmountCalculated: false,
+			date: "2026-05-15",
 			// Aurore paie mais ne mange pas → payeur absent de sa propre répartition
-			payerId: pAurore.id, categoryId: restaurants.id,
+			payerId: pAurore.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pSteve.id, amount: 42.0, isCalculated: false },
 				{ participantId: pLudo.id, amount: 42.0, isCalculated: false },
 			],
 		},
 		{
-			id: 6, name: "Pizzeria Brera", amount: 54.0, isAmountCalculated: false, date: "2026-05-16",
-			payerId: pLudo.id, categoryId: restaurants.id,
+			id: 6,
+			name: "Pizzeria Brera",
+			amount: 54.0,
+			isAmountCalculated: false,
+			date: "2026-05-16",
+			payerId: pLudo.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pSteve.id, amount: 18.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 18.0, isCalculated: true },
@@ -314,8 +359,13 @@ async function main() {
 			],
 		},
 		{
-			id: 7, name: "Apéro bar Navigli", amount: 39.0, isAmountCalculated: false, date: "2026-05-16",
-			payerId: pAurore.id, categoryId: restaurants.id,
+			id: 7,
+			name: "Apéro bar Navigli",
+			amount: 39.0,
+			isAmountCalculated: false,
+			date: "2026-05-16",
+			payerId: pAurore.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pSteve.id, amount: 13.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 13.0, isCalculated: true },
@@ -323,8 +373,13 @@ async function main() {
 			],
 		},
 		{
-			id: 8, name: "Courses petit-déj", amount: 18.0, isAmountCalculated: false, date: "2026-05-16",
-			payerId: pSteve.id, categoryId: courses.id,
+			id: 8,
+			name: "Courses petit-déj",
+			amount: 18.0,
+			isAmountCalculated: false,
+			date: "2026-05-16",
+			payerId: pSteve.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 6.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 6.0, isCalculated: true },
@@ -332,8 +387,13 @@ async function main() {
 			],
 		},
 		{
-			id: 9, name: "Taxi aéroport", amount: 27.0, isAmountCalculated: false, date: "2026-05-15",
-			payerId: pLudo.id, categoryId: transport.id,
+			id: 9,
+			name: "Taxi aéroport",
+			amount: 27.0,
+			isAmountCalculated: false,
+			date: "2026-05-15",
+			payerId: pLudo.id,
+			categoryId: transport.id,
 			split: [
 				{ participantId: pSteve.id, amount: 9.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 9.0, isCalculated: true },
@@ -341,8 +401,13 @@ async function main() {
 			],
 		},
 		{
-			id: 10, name: "Musée Pinacothèque", amount: 36.0, isAmountCalculated: false, date: "2026-05-16",
-			payerId: pSteve.id, categoryId: loisir.id,
+			id: 10,
+			name: "Musée Pinacothèque",
+			amount: 36.0,
+			isAmountCalculated: false,
+			date: "2026-05-16",
+			payerId: pSteve.id,
+			categoryId: loisir.id,
 			split: [
 				{ participantId: pSteve.id, amount: 12.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 12.0, isCalculated: true },
@@ -350,8 +415,13 @@ async function main() {
 			],
 		},
 		{
-			id: 11, name: "Visite Duomo", amount: 15.0, isAmountCalculated: false, date: "2026-05-16",
-			payerId: pAurore.id, categoryId: loisir.id,
+			id: 11,
+			name: "Visite Duomo",
+			amount: 15.0,
+			isAmountCalculated: false,
+			date: "2026-05-16",
+			payerId: pAurore.id,
+			categoryId: loisir.id,
 			split: [
 				{ participantId: pSteve.id, amount: 5.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 5.0, isCalculated: true },
@@ -359,8 +429,13 @@ async function main() {
 			],
 		},
 		{
-			id: 12, name: "Souvenirs marché", amount: 30.0, isAmountCalculated: false, date: "2026-05-17",
-			payerId: pLudo.id, categoryId: divers.id,
+			id: 12,
+			name: "Souvenirs marché",
+			amount: 30.0,
+			isAmountCalculated: false,
+			date: "2026-05-17",
+			payerId: pLudo.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 10.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 10.0, isCalculated: true },
@@ -368,8 +443,13 @@ async function main() {
 			],
 		},
 		{
-			id: 13, name: "Glaces Grom", amount: 12.0, isAmountCalculated: false, date: "2026-05-17",
-			payerId: pSteve.id, categoryId: restaurants.id,
+			id: 13,
+			name: "Glaces Grom",
+			amount: 12.0,
+			isAmountCalculated: false,
+			date: "2026-05-17",
+			payerId: pSteve.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pSteve.id, amount: 4.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 4.0, isCalculated: true },
@@ -377,8 +457,13 @@ async function main() {
 			],
 		},
 		{
-			id: 14, name: "Bus aéroport retour", amount: 18.0, isAmountCalculated: false, date: "2026-05-17",
-			payerId: pAurore.id, categoryId: transport.id,
+			id: 14,
+			name: "Bus aéroport retour",
+			amount: 18.0,
+			isAmountCalculated: false,
+			date: "2026-05-17",
+			payerId: pAurore.id,
+			categoryId: transport.id,
 			split: [
 				{ participantId: pSteve.id, amount: 6.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 6.0, isCalculated: true },
@@ -386,8 +471,13 @@ async function main() {
 			],
 		},
 		{
-			id: 15, name: "Dîner dernière nuit", amount: 66.0, isAmountCalculated: false, date: "2026-05-17",
-			payerId: pSteve.id, categoryId: restaurants.id,
+			id: 15,
+			name: "Dîner dernière nuit",
+			amount: 66.0,
+			isAmountCalculated: false,
+			date: "2026-05-17",
+			payerId: pSteve.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pSteve.id, amount: 22.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 22.0, isCalculated: true },
@@ -395,13 +485,21 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectMilan.id, ownerId: steve.id });
+		await seedOperation({
+			...op,
+			projectId: projectMilan.id,
+			ownerId: steve.id,
+		});
 	}
 
 	await seedAlert({
-		id: 1, status: "unread", threshold: 80,
-		totalSpent: 819.0, budgetAmount: 600.0,
-		budgetId: budgetMilan.id, userId: steve.id,
+		id: 1,
+		status: "unread",
+		threshold: 80,
+		totalSpent: 819.0,
+		budgetAmount: 600.0,
+		budgetId: budgetMilan.id,
+		userId: steve.id,
 	});
 
 	console.log("✅ project 1 seeded — Voyage Milan (15 ops, alerte unread)");
@@ -428,7 +526,12 @@ async function main() {
 
 	for (const pid of [pSteve.id, pLudo.id, pJerem.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectColoc.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectColoc.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectColoc.id, participantId: pid },
 		});
@@ -442,8 +545,13 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 20, name: "Loyer avril", amount: 900.0, isAmountCalculated: false, date: "2026-04-01",
-			payerId: pSteve.id, categoryId: divers.id,
+			id: 20,
+			name: "Loyer avril",
+			amount: 900.0,
+			isAmountCalculated: false,
+			date: "2026-04-01",
+			payerId: pSteve.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 300.0, isCalculated: true },
 				{ participantId: pLudo.id, amount: 300.0, isCalculated: true },
@@ -451,8 +559,13 @@ async function main() {
 			],
 		},
 		{
-			id: 21, name: "Loyer mai", amount: 900.0, isAmountCalculated: false, date: "2026-05-01",
-			payerId: pSteve.id, categoryId: divers.id,
+			id: 21,
+			name: "Loyer mai",
+			amount: 900.0,
+			isAmountCalculated: false,
+			date: "2026-05-01",
+			payerId: pSteve.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 300.0, isCalculated: true },
 				{ participantId: pLudo.id, amount: 300.0, isCalculated: true },
@@ -460,8 +573,13 @@ async function main() {
 			],
 		},
 		{
-			id: 22, name: "Électricité avril", amount: 58.0, isAmountCalculated: false, date: "2026-04-05",
-			payerId: pSteve.id, categoryId: divers.id,
+			id: 22,
+			name: "Électricité avril",
+			amount: 58.0,
+			isAmountCalculated: false,
+			date: "2026-04-05",
+			payerId: pSteve.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 19.34, isCalculated: true },
 				{ participantId: pLudo.id, amount: 19.33, isCalculated: true },
@@ -469,8 +587,13 @@ async function main() {
 			],
 		},
 		{
-			id: 23, name: "Électricité mai", amount: 62.0, isAmountCalculated: false, date: "2026-05-05",
-			payerId: pSteve.id, categoryId: divers.id,
+			id: 23,
+			name: "Électricité mai",
+			amount: 62.0,
+			isAmountCalculated: false,
+			date: "2026-05-05",
+			payerId: pSteve.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 20.67, isCalculated: true },
 				{ participantId: pLudo.id, amount: 20.67, isCalculated: true },
@@ -478,8 +601,13 @@ async function main() {
 			],
 		},
 		{
-			id: 24, name: "Internet + box", amount: 39.99, isAmountCalculated: false, date: "2026-04-05",
-			payerId: pJerem.id, categoryId: divers.id,
+			id: 24,
+			name: "Internet + box",
+			amount: 39.99,
+			isAmountCalculated: false,
+			date: "2026-04-05",
+			payerId: pJerem.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 13.33, isCalculated: true },
 				{ participantId: pLudo.id, amount: 13.33, isCalculated: true },
@@ -487,8 +615,13 @@ async function main() {
 			],
 		},
 		{
-			id: 25, name: "Internet + box", amount: 39.99, isAmountCalculated: false, date: "2026-05-05",
-			payerId: pJerem.id, categoryId: divers.id,
+			id: 25,
+			name: "Internet + box",
+			amount: 39.99,
+			isAmountCalculated: false,
+			date: "2026-05-05",
+			payerId: pJerem.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 13.33, isCalculated: true },
 				{ participantId: pLudo.id, amount: 13.33, isCalculated: true },
@@ -496,8 +629,13 @@ async function main() {
 			],
 		},
 		{
-			id: 26, name: "Courses Leclerc", amount: 87.4, isAmountCalculated: false, date: "2026-04-10",
-			payerId: pLudo.id, categoryId: courses.id,
+			id: 26,
+			name: "Courses Leclerc",
+			amount: 87.4,
+			isAmountCalculated: false,
+			date: "2026-04-10",
+			payerId: pLudo.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 29.14, isCalculated: true },
 				{ participantId: pLudo.id, amount: 29.13, isCalculated: true },
@@ -505,8 +643,13 @@ async function main() {
 			],
 		},
 		{
-			id: 27, name: "Courses Monoprix", amount: 64.2, isAmountCalculated: false, date: "2026-04-20",
-			payerId: pSteve.id, categoryId: courses.id,
+			id: 27,
+			name: "Courses Monoprix",
+			amount: 64.2,
+			isAmountCalculated: false,
+			date: "2026-04-20",
+			payerId: pSteve.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 21.4, isCalculated: true },
 				{ participantId: pLudo.id, amount: 21.4, isCalculated: true },
@@ -514,8 +657,13 @@ async function main() {
 			],
 		},
 		{
-			id: 28, name: "Courses Leclerc", amount: 92.6, isAmountCalculated: false, date: "2026-05-12",
-			payerId: pLudo.id, categoryId: courses.id,
+			id: 28,
+			name: "Courses Leclerc",
+			amount: 92.6,
+			isAmountCalculated: false,
+			date: "2026-05-12",
+			payerId: pLudo.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 30.87, isCalculated: true },
 				{ participantId: pLudo.id, amount: 30.87, isCalculated: true },
@@ -523,8 +671,13 @@ async function main() {
 			],
 		},
 		{
-			id: 29, name: "Produits ménagers", amount: 28.5, isAmountCalculated: false, date: "2026-04-15",
-			payerId: pJerem.id, categoryId: courses.id,
+			id: 29,
+			name: "Produits ménagers",
+			amount: 28.5,
+			isAmountCalculated: false,
+			date: "2026-04-15",
+			payerId: pJerem.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 9.5, isCalculated: true },
 				{ participantId: pLudo.id, amount: 9.5, isCalculated: true },
@@ -532,8 +685,13 @@ async function main() {
 			],
 		},
 		{
-			id: 30, name: "Produits ménagers", amount: 31.0, isAmountCalculated: false, date: "2026-05-18",
-			payerId: pSteve.id, categoryId: courses.id,
+			id: 30,
+			name: "Produits ménagers",
+			amount: 31.0,
+			isAmountCalculated: false,
+			date: "2026-05-18",
+			payerId: pSteve.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 10.34, isCalculated: true },
 				{ participantId: pLudo.id, amount: 10.33, isCalculated: true },
@@ -541,8 +699,13 @@ async function main() {
 			],
 		},
 		{
-			id: 31, name: "Eau chaude (plombier)", amount: 120.0, isAmountCalculated: false, date: "2026-04-22",
-			payerId: pSteve.id, categoryId: divers.id,
+			id: 31,
+			name: "Eau chaude (plombier)",
+			amount: 120.0,
+			isAmountCalculated: false,
+			date: "2026-04-22",
+			payerId: pSteve.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 40.0, isCalculated: true },
 				{ participantId: pLudo.id, amount: 40.0, isCalculated: true },
@@ -550,8 +713,13 @@ async function main() {
 			],
 		},
 		{
-			id: 32, name: "Abonnement Netflix partagé", amount: 17.99, isAmountCalculated: false, date: "2026-04-01",
-			payerId: pLudo.id, categoryId: loisir.id,
+			id: 32,
+			name: "Abonnement Netflix partagé",
+			amount: 17.99,
+			isAmountCalculated: false,
+			date: "2026-04-01",
+			payerId: pLudo.id,
+			categoryId: loisir.id,
 			split: [
 				{ participantId: pSteve.id, amount: 6.0, isCalculated: false },
 				{ participantId: pLudo.id, amount: 6.0, isCalculated: false },
@@ -559,8 +727,13 @@ async function main() {
 			],
 		},
 		{
-			id: 33, name: "Abonnement Netflix partagé", amount: 17.99, isAmountCalculated: false, date: "2026-05-01",
-			payerId: pLudo.id, categoryId: loisir.id,
+			id: 33,
+			name: "Abonnement Netflix partagé",
+			amount: 17.99,
+			isAmountCalculated: false,
+			date: "2026-05-01",
+			payerId: pLudo.id,
+			categoryId: loisir.id,
 			split: [
 				{ participantId: pSteve.id, amount: 6.0, isCalculated: false },
 				{ participantId: pLudo.id, amount: 6.0, isCalculated: false },
@@ -568,8 +741,13 @@ async function main() {
 			],
 		},
 		{
-			id: 34, name: "Assurance habitation", amount: 42.0, isAmountCalculated: false, date: "2026-04-01",
-			payerId: pJerem.id, categoryId: divers.id,
+			id: 34,
+			name: "Assurance habitation",
+			amount: 42.0,
+			isAmountCalculated: false,
+			date: "2026-04-01",
+			payerId: pJerem.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 14.0, isCalculated: true },
 				{ participantId: pLudo.id, amount: 14.0, isCalculated: true },
@@ -577,13 +755,21 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectColoc.id, ownerId: steve.id });
+		await seedOperation({
+			...op,
+			projectId: projectColoc.id,
+			ownerId: steve.id,
+		});
 	}
 
 	await seedAlert({
-		id: 2, status: "read", threshold: 90,
-		totalSpent: 2503.66, budgetAmount: 2000.0,
-		budgetId: budgetColoc.id, userId: steve.id,
+		id: 2,
+		status: "read",
+		threshold: 90,
+		totalSpent: 2503.66,
+		budgetAmount: 2000.0,
+		budgetId: budgetColoc.id,
+		userId: steve.id,
 	});
 
 	console.log("✅ project 2 seeded — Coloc rue Pasteur (15 ops, alerte read)");
@@ -610,7 +796,12 @@ async function main() {
 
 	for (const pid of [pSteve.id, pAurore.id, pLudo.id, pJerem.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectAnniv.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectAnniv.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectAnniv.id, participantId: pid },
 		});
@@ -624,8 +815,13 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 40, name: "Location salle", amount: 120.0, isAmountCalculated: false, date: "2026-04-15",
-			payerId: pAurore.id, categoryId: loisir.id,
+			id: 40,
+			name: "Location salle",
+			amount: 120.0,
+			isAmountCalculated: false,
+			date: "2026-04-15",
+			payerId: pAurore.id,
+			categoryId: loisir.id,
 			// Répartition inégale : organisateurs paient moins
 			split: [
 				{ participantId: pSteve.id, amount: 40.0, isCalculated: false },
@@ -635,8 +831,13 @@ async function main() {
 			],
 		},
 		{
-			id: 41, name: "Gâteau et buffet", amount: 95.0, isAmountCalculated: false, date: "2026-04-15",
-			payerId: pJerem.id, categoryId: restaurants.id,
+			id: 41,
+			name: "Gâteau et buffet",
+			amount: 95.0,
+			isAmountCalculated: false,
+			date: "2026-04-15",
+			payerId: pJerem.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pSteve.id, amount: 23.75, isCalculated: true },
 				{ participantId: pAurore.id, amount: 23.75, isCalculated: true },
@@ -645,8 +846,13 @@ async function main() {
 			],
 		},
 		{
-			id: 42, name: "Décorations", amount: 38.0, isAmountCalculated: false, date: "2026-04-14",
-			payerId: pLudo.id, categoryId: loisir.id,
+			id: 42,
+			name: "Décorations",
+			amount: 38.0,
+			isAmountCalculated: false,
+			date: "2026-04-14",
+			payerId: pLudo.id,
+			categoryId: loisir.id,
 			split: [
 				{ participantId: pSteve.id, amount: 9.5, isCalculated: true },
 				{ participantId: pAurore.id, amount: 9.5, isCalculated: true },
@@ -655,13 +861,21 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectAnniv.id, ownerId: steve.id });
+		await seedOperation({
+			...op,
+			projectId: projectAnniv.id,
+			ownerId: steve.id,
+		});
 	}
 
 	await seedAlert({
-		id: 3, status: "resolved", threshold: 75,
-		totalSpent: 253.0, budgetAmount: 300.0,
-		budgetId: budgetAnniv.id, userId: steve.id,
+		id: 3,
+		status: "resolved",
+		threshold: 75,
+		totalSpent: 253.0,
+		budgetAmount: 300.0,
+		budgetId: budgetAnniv.id,
+		userId: steve.id,
 	});
 
 	console.log("✅ project 3 seeded — Anniversaire Sophie (alerte resolved)");
@@ -686,7 +900,12 @@ async function main() {
 
 	for (const pid of [pSteve.id, pJerem.id, pLea.id, pThomas.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectRaclette.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectRaclette.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectRaclette.id, participantId: pid },
 		});
@@ -694,8 +913,13 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 50, name: "Fromages et charcuterie", amount: 52.0, isAmountCalculated: false, date: "2026-05-09",
-			payerId: pSteve.id, categoryId: courses.id,
+			id: 50,
+			name: "Fromages et charcuterie",
+			amount: 52.0,
+			isAmountCalculated: false,
+			date: "2026-05-09",
+			payerId: pSteve.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 13.0, isCalculated: true },
 				{ participantId: pJerem.id, amount: 13.0, isCalculated: true },
@@ -704,8 +928,13 @@ async function main() {
 			],
 		},
 		{
-			id: 51, name: "Vins et boissons", amount: 28.0, isAmountCalculated: false, date: "2026-05-09",
-			payerId: pJerem.id, categoryId: courses.id,
+			id: 51,
+			name: "Vins et boissons",
+			amount: 28.0,
+			isAmountCalculated: false,
+			date: "2026-05-09",
+			payerId: pJerem.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 7.0, isCalculated: true },
 				{ participantId: pJerem.id, amount: 7.0, isCalculated: true },
@@ -714,8 +943,13 @@ async function main() {
 			],
 		},
 		{
-			id: 52, name: "Pain et accompagnements", amount: 20.0, isAmountCalculated: false, date: "2026-05-09",
-			payerId: pLea.id, categoryId: courses.id,
+			id: 52,
+			name: "Pain et accompagnements",
+			amount: 20.0,
+			isAmountCalculated: false,
+			date: "2026-05-09",
+			payerId: pLea.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 5.0, isCalculated: true },
 				{ participantId: pJerem.id, amount: 5.0, isCalculated: true },
@@ -724,10 +958,16 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectRaclette.id, ownerId: steve.id });
+		await seedOperation({
+			...op,
+			projectId: projectRaclette.id,
+			ownerId: steve.id,
+		});
 	}
 
-	console.log("✅ project 4 seeded — Soirée raclette (sans budget, balances nulles)");
+	console.log(
+		"✅ project 4 seeded — Soirée raclette (sans budget, balances nulles)",
+	);
 
 	// ============================================================
 	// PROJECT 5 — Séminaire tech (Steve)
@@ -750,7 +990,12 @@ async function main() {
 
 	for (const pid of [pSteve.id, pThomas.id, pLea.id, pMarco.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectSeminaire.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectSeminaire.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectSeminaire.id, participantId: pid },
 		});
@@ -759,13 +1004,22 @@ async function main() {
 	await prisma.budget.upsert({
 		where: { projectId: projectSeminaire.id },
 		update: {},
-		create: { amount: 3000.0, limitCriteria: 80.0, projectId: projectSeminaire.id },
+		create: {
+			amount: 3000.0,
+			limitCriteria: 80.0,
+			projectId: projectSeminaire.id,
+		},
 	});
 
 	for (const op of [
 		{
-			id: 60, name: "Hôtel 2 nuits équipe", amount: 880.0, isAmountCalculated: false, date: "2026-04-10",
-			payerId: pSteve.id, categoryId: hebergement.id,
+			id: 60,
+			name: "Hôtel 2 nuits équipe",
+			amount: 880.0,
+			isAmountCalculated: false,
+			date: "2026-04-10",
+			payerId: pSteve.id,
+			categoryId: hebergement.id,
 			split: [
 				{ participantId: pSteve.id, amount: 220.0, isCalculated: true },
 				{ participantId: pThomas.id, amount: 220.0, isCalculated: true },
@@ -774,8 +1028,13 @@ async function main() {
 			],
 		},
 		{
-			id: 61, name: "Dîner gala", amount: 340.0, isAmountCalculated: false, date: "2026-04-11",
-			payerId: pThomas.id, categoryId: restaurants.id,
+			id: 61,
+			name: "Dîner gala",
+			amount: 340.0,
+			isAmountCalculated: false,
+			date: "2026-04-11",
+			payerId: pThomas.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pSteve.id, amount: 85.0, isCalculated: true },
 				{ participantId: pThomas.id, amount: 85.0, isCalculated: true },
@@ -784,8 +1043,13 @@ async function main() {
 			],
 		},
 		{
-			id: 62, name: "Matériel atelier", amount: 127.5, isAmountCalculated: false, date: "2026-04-10",
-			payerId: pLea.id, categoryId: divers.id,
+			id: 62,
+			name: "Matériel atelier",
+			amount: 127.5,
+			isAmountCalculated: false,
+			date: "2026-04-10",
+			payerId: pLea.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 31.88, isCalculated: true },
 				{ participantId: pThomas.id, amount: 31.87, isCalculated: true },
@@ -794,8 +1058,13 @@ async function main() {
 			],
 		},
 		{
-			id: 63, name: "Transport groupe", amount: 210.0, isAmountCalculated: false, date: "2026-04-10",
-			payerId: pSteve.id, categoryId: transport.id,
+			id: 63,
+			name: "Transport groupe",
+			amount: 210.0,
+			isAmountCalculated: false,
+			date: "2026-04-10",
+			payerId: pSteve.id,
+			categoryId: transport.id,
 			split: [
 				{ participantId: pSteve.id, amount: 52.5, isCalculated: true },
 				{ participantId: pThomas.id, amount: 52.5, isCalculated: true },
@@ -804,7 +1073,11 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectSeminaire.id, ownerId: steve.id });
+		await seedOperation({
+			...op,
+			projectId: projectSeminaire.id,
+			ownerId: steve.id,
+		});
 	}
 
 	console.log("✅ project 5 seeded — Séminaire tech (Pro_Travail, 0 alerte)");
@@ -831,7 +1104,12 @@ async function main() {
 
 	for (const pid of [pSteve.id, pSophie.id, pMarco.id, pLea.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectBretagne.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectBretagne.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectBretagne.id, participantId: pid },
 		});
@@ -840,13 +1118,22 @@ async function main() {
 	await prisma.budget.upsert({
 		where: { projectId: projectBretagne.id },
 		update: {},
-		create: { amount: 1800.0, limitCriteria: 85.0, projectId: projectBretagne.id },
+		create: {
+			amount: 1800.0,
+			limitCriteria: 85.0,
+			projectId: projectBretagne.id,
+		},
 	});
 
 	for (const op of [
 		{
-			id: 70, name: "Location voiture", amount: 320.0, isAmountCalculated: false, date: "2026-07-01",
-			payerId: pSteve.id, categoryId: transport.id,
+			id: 70,
+			name: "Location voiture",
+			amount: 320.0,
+			isAmountCalculated: false,
+			date: "2026-07-01",
+			payerId: pSteve.id,
+			categoryId: transport.id,
 			split: [
 				{ participantId: pSteve.id, amount: 80.0, isCalculated: true },
 				{ participantId: pSophie.id, amount: 80.0, isCalculated: true },
@@ -855,9 +1142,14 @@ async function main() {
 			],
 		},
 		{
-			id: 71, name: "Camping 5 nuits", amount: 240.0, isAmountCalculated: false, date: "2026-07-02",
+			id: 71,
+			name: "Camping 5 nuits",
+			amount: 240.0,
+			isAmountCalculated: false,
+			date: "2026-07-02",
 			// Léa ne participe pas au camping (dort en Airbnb séparément)
-			payerId: pMarco.id, categoryId: hebergement.id,
+			payerId: pMarco.id,
+			categoryId: hebergement.id,
 			split: [
 				{ participantId: pSteve.id, amount: 80.0, isCalculated: false },
 				{ participantId: pSophie.id, amount: 80.0, isCalculated: false },
@@ -865,16 +1157,24 @@ async function main() {
 			],
 		},
 		{
-			id: 72, name: "Airbnb Léa", amount: 150.0, isAmountCalculated: false, date: "2026-07-02",
+			id: 72,
+			name: "Airbnb Léa",
+			amount: 150.0,
+			isAmountCalculated: false,
+			date: "2026-07-02",
 			// Léa supporte seule → participant seul dans sa répartition
-			payerId: pLea.id, categoryId: hebergement.id,
-			split: [
-				{ participantId: pLea.id, amount: 150.0, isCalculated: false },
-			],
+			payerId: pLea.id,
+			categoryId: hebergement.id,
+			split: [{ participantId: pLea.id, amount: 150.0, isCalculated: false }],
 		},
 		{
-			id: 73, name: "Restaurants", amount: 178.5, isAmountCalculated: false, date: "2026-07-04",
-			payerId: pSophie.id, categoryId: restaurants.id,
+			id: 73,
+			name: "Restaurants",
+			amount: 178.5,
+			isAmountCalculated: false,
+			date: "2026-07-04",
+			payerId: pSophie.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pSteve.id, amount: 44.63, isCalculated: true },
 				{ participantId: pSophie.id, amount: 44.62, isCalculated: true },
@@ -883,8 +1183,13 @@ async function main() {
 			],
 		},
 		{
-			id: 74, name: "Carburant", amount: 120.0, isAmountCalculated: false, date: "2026-07-03",
-			payerId: pSteve.id, categoryId: transport.id,
+			id: 74,
+			name: "Carburant",
+			amount: 120.0,
+			isAmountCalculated: false,
+			date: "2026-07-03",
+			payerId: pSteve.id,
+			categoryId: transport.id,
 			split: [
 				{ participantId: pSteve.id, amount: 30.0, isCalculated: true },
 				{ participantId: pSophie.id, amount: 30.0, isCalculated: true },
@@ -893,10 +1198,16 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectBretagne.id, ownerId: steve.id });
+		await seedOperation({
+			...op,
+			projectId: projectBretagne.id,
+			ownerId: steve.id,
+		});
 	}
 
-	console.log("✅ project 6 seeded — Road trip Bretagne (greedy 4 participants)");
+	console.log(
+		"✅ project 6 seeded — Road trip Bretagne (greedy 4 participants)",
+	);
 
 	// ============================================================
 	// PROJECT 7 — Cuisine du monde (Steve)
@@ -918,7 +1229,12 @@ async function main() {
 
 	for (const pid of [pSteve.id, pSophie.id, pNina.id, pPaul.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectCuisine.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectCuisine.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectCuisine.id, participantId: pid },
 		});
@@ -926,8 +1242,13 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 80, name: "Soirée japonaise", amount: 67.3, isAmountCalculated: false, date: "2026-03-15",
-			payerId: pSophie.id, categoryId: courses.id,
+			id: 80,
+			name: "Soirée japonaise",
+			amount: 67.3,
+			isAmountCalculated: false,
+			date: "2026-03-15",
+			payerId: pSophie.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 16.83, isCalculated: true },
 				{ participantId: pSophie.id, amount: 16.82, isCalculated: true },
@@ -936,8 +1257,13 @@ async function main() {
 			],
 		},
 		{
-			id: 81, name: "Soirée mexicaine", amount: 54.9, isAmountCalculated: false, date: "2026-04-05",
-			payerId: pSteve.id, categoryId: courses.id,
+			id: 81,
+			name: "Soirée mexicaine",
+			amount: 54.9,
+			isAmountCalculated: false,
+			date: "2026-04-05",
+			payerId: pSteve.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 13.73, isCalculated: true },
 				{ participantId: pSophie.id, amount: 13.72, isCalculated: true },
@@ -946,8 +1272,13 @@ async function main() {
 			],
 		},
 		{
-			id: 82, name: "Soirée indienne", amount: 71.0, isAmountCalculated: false, date: "2026-05-03",
-			payerId: pNina.id, categoryId: courses.id,
+			id: 82,
+			name: "Soirée indienne",
+			amount: 71.0,
+			isAmountCalculated: false,
+			date: "2026-05-03",
+			payerId: pNina.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pSteve.id, amount: 17.75, isCalculated: true },
 				{ participantId: pSophie.id, amount: 17.75, isCalculated: true },
@@ -956,7 +1287,11 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectCuisine.id, ownerId: steve.id });
+		await seedOperation({
+			...op,
+			projectId: projectCuisine.id,
+			ownerId: steve.id,
+		});
 	}
 
 	console.log("✅ project 7 seeded — Cuisine du monde (sans budget)");
@@ -981,7 +1316,12 @@ async function main() {
 
 	for (const pid of [pSteve.id, pMarco.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectReno.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectReno.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectReno.id, participantId: pid },
 		});
@@ -995,31 +1335,50 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 90, name: "Peinture salon", amount: 280.0, isAmountCalculated: false, date: "2026-02-10",
-			payerId: pSteve.id, categoryId: divers.id,
+			id: 90,
+			name: "Peinture salon",
+			amount: 280.0,
+			isAmountCalculated: false,
+			date: "2026-02-10",
+			payerId: pSteve.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 140.0, isCalculated: true },
 				{ participantId: pMarco.id, amount: 140.0, isCalculated: true },
 			],
 		},
 		{
-			id: 91, name: "Parquet chambre", amount: 1200.0, isAmountCalculated: false, date: "2026-02-15",
-			payerId: pMarco.id, categoryId: divers.id,
+			id: 91,
+			name: "Parquet chambre",
+			amount: 1200.0,
+			isAmountCalculated: false,
+			date: "2026-02-15",
+			payerId: pMarco.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 600.0, isCalculated: true },
 				{ participantId: pMarco.id, amount: 600.0, isCalculated: true },
 			],
 		},
 		{
-			id: 92, name: "Électricien", amount: 450.0, isAmountCalculated: false, date: "2026-03-01",
-			payerId: pSteve.id, categoryId: divers.id,
+			id: 92,
+			name: "Électricien",
+			amount: 450.0,
+			isAmountCalculated: false,
+			date: "2026-03-01",
+			payerId: pSteve.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pSteve.id, amount: 225.0, isCalculated: true },
 				{ participantId: pMarco.id, amount: 225.0, isCalculated: true },
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectReno.id, ownerId: steve.id });
+		await seedOperation({
+			...op,
+			projectId: projectReno.id,
+			ownerId: steve.id,
+		});
 	}
 
 	console.log("✅ project 8 seeded — Réno appart (2 participants)");
@@ -1044,7 +1403,12 @@ async function main() {
 
 	for (const pid of [pSteve.id, pJerem.id, pThomas.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectFestival.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectFestival.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectFestival.id, participantId: pid },
 		});
@@ -1052,8 +1416,13 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 100, name: "Pass 3 jours x3", amount: 450.0, isAmountCalculated: false, date: "2024-06-20",
-			payerId: pSteve.id, categoryId: loisir.id,
+			id: 100,
+			name: "Pass 3 jours x3",
+			amount: 450.0,
+			isAmountCalculated: false,
+			date: "2024-06-20",
+			payerId: pSteve.id,
+			categoryId: loisir.id,
 			split: [
 				{ participantId: pSteve.id, amount: 150.0, isCalculated: true },
 				{ participantId: pJerem.id, amount: 150.0, isCalculated: true },
@@ -1061,8 +1430,13 @@ async function main() {
 			],
 		},
 		{
-			id: 101, name: "Camping sur place", amount: 90.0, isAmountCalculated: false, date: "2024-06-20",
-			payerId: pJerem.id, categoryId: hebergement.id,
+			id: 101,
+			name: "Camping sur place",
+			amount: 90.0,
+			isAmountCalculated: false,
+			date: "2024-06-20",
+			payerId: pJerem.id,
+			categoryId: hebergement.id,
 			split: [
 				{ participantId: pSteve.id, amount: 30.0, isCalculated: true },
 				{ participantId: pJerem.id, amount: 30.0, isCalculated: true },
@@ -1070,8 +1444,13 @@ async function main() {
 			],
 		},
 		{
-			id: 102, name: "Nourriture festival", amount: 138.0, isAmountCalculated: false, date: "2024-06-21",
-			payerId: pThomas.id, categoryId: restaurants.id,
+			id: 102,
+			name: "Nourriture festival",
+			amount: 138.0,
+			isAmountCalculated: false,
+			date: "2024-06-21",
+			payerId: pThomas.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pSteve.id, amount: 46.0, isCalculated: true },
 				{ participantId: pJerem.id, amount: 46.0, isCalculated: true },
@@ -1079,7 +1458,11 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectFestival.id, ownerId: steve.id });
+		await seedOperation({
+			...op,
+			projectId: projectFestival.id,
+			ownerId: steve.id,
+		});
 	}
 
 	console.log("✅ project 9 seeded — Festival 2024 (archivé, Autre)");
@@ -1104,7 +1487,12 @@ async function main() {
 
 	for (const pid of [pSteve.id, pAurore.id, pLudo.id, pSophie.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectEspagne.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectEspagne.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectEspagne.id, participantId: pid },
 		});
@@ -1113,13 +1501,22 @@ async function main() {
 	await prisma.budget.upsert({
 		where: { projectId: projectEspagne.id },
 		update: {},
-		create: { amount: 2000.0, limitCriteria: 80.0, projectId: projectEspagne.id },
+		create: {
+			amount: 2000.0,
+			limitCriteria: 80.0,
+			projectId: projectEspagne.id,
+		},
 	});
 
 	for (const op of [
 		{
-			id: 110, name: "Vols aller-retour", amount: 480.0, isAmountCalculated: false, date: "2023-07-10",
-			payerId: pSteve.id, categoryId: transport.id,
+			id: 110,
+			name: "Vols aller-retour",
+			amount: 480.0,
+			isAmountCalculated: false,
+			date: "2023-07-10",
+			payerId: pSteve.id,
+			categoryId: transport.id,
 			split: [
 				{ participantId: pSteve.id, amount: 120.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 120.0, isCalculated: true },
@@ -1128,8 +1525,13 @@ async function main() {
 			],
 		},
 		{
-			id: 111, name: "Appartement Barcelone", amount: 840.0, isAmountCalculated: false, date: "2023-07-10",
-			payerId: pAurore.id, categoryId: hebergement.id,
+			id: 111,
+			name: "Appartement Barcelone",
+			amount: 840.0,
+			isAmountCalculated: false,
+			date: "2023-07-10",
+			payerId: pAurore.id,
+			categoryId: hebergement.id,
 			split: [
 				{ participantId: pSteve.id, amount: 210.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 210.0, isCalculated: true },
@@ -1138,8 +1540,13 @@ async function main() {
 			],
 		},
 		{
-			id: 112, name: "Restaurants et tapas", amount: 320.0, isAmountCalculated: false, date: "2023-07-15",
-			payerId: pLudo.id, categoryId: restaurants.id,
+			id: 112,
+			name: "Restaurants et tapas",
+			amount: 320.0,
+			isAmountCalculated: false,
+			date: "2023-07-15",
+			payerId: pLudo.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pSteve.id, amount: 80.0, isCalculated: true },
 				{ participantId: pAurore.id, amount: 80.0, isCalculated: true },
@@ -1148,10 +1555,16 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectEspagne.id, ownerId: steve.id });
+		await seedOperation({
+			...op,
+			projectId: projectEspagne.id,
+			ownerId: steve.id,
+		});
 	}
 
-	console.log("✅ project 10 seeded — Vacances Espagne 2023 (archivé avec budget)");
+	console.log(
+		"✅ project 10 seeded — Vacances Espagne 2023 (archivé avec budget)",
+	);
 
 	// ╔══════════════════════════════════════════════════════════╗
 	// ║              PROJETS D'AURORE                           ║
@@ -1178,7 +1591,12 @@ async function main() {
 
 	for (const pid of [pAurore.id, pNina.id, pPaul.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectColocAurore.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectColocAurore.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectColocAurore.id, participantId: pid },
 		});
@@ -1187,13 +1605,22 @@ async function main() {
 	const budgetColocAurore = await prisma.budget.upsert({
 		where: { projectId: projectColocAurore.id },
 		update: {},
-		create: { amount: 1500.0, limitCriteria: 80.0, projectId: projectColocAurore.id },
+		create: {
+			amount: 1500.0,
+			limitCriteria: 80.0,
+			projectId: projectColocAurore.id,
+		},
 	});
 
 	for (const op of [
 		{
-			id: 120, name: "Loyer mai", amount: 900.0, isAmountCalculated: false, date: "2026-05-01",
-			payerId: pAurore.id, categoryId: divers.id,
+			id: 120,
+			name: "Loyer mai",
+			amount: 900.0,
+			isAmountCalculated: false,
+			date: "2026-05-01",
+			payerId: pAurore.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pAurore.id, amount: 300.0, isCalculated: true },
 				{ participantId: pNina.id, amount: 300.0, isCalculated: true },
@@ -1201,8 +1628,13 @@ async function main() {
 			],
 		},
 		{
-			id: 121, name: "EDF mai", amount: 78.0, isAmountCalculated: false, date: "2026-05-10",
-			payerId: pNina.id, categoryId: divers.id,
+			id: 121,
+			name: "EDF mai",
+			amount: 78.0,
+			isAmountCalculated: false,
+			date: "2026-05-10",
+			payerId: pNina.id,
+			categoryId: divers.id,
 			split: [
 				{ participantId: pAurore.id, amount: 26.0, isCalculated: true },
 				{ participantId: pNina.id, amount: 26.0, isCalculated: true },
@@ -1210,8 +1642,13 @@ async function main() {
 			],
 		},
 		{
-			id: 122, name: "Courses communes", amount: 245.0, isAmountCalculated: false, date: "2026-05-15",
-			payerId: pPaul.id, categoryId: courses.id,
+			id: 122,
+			name: "Courses communes",
+			amount: 245.0,
+			isAmountCalculated: false,
+			date: "2026-05-15",
+			payerId: pPaul.id,
+			categoryId: courses.id,
 			split: [
 				{ participantId: pAurore.id, amount: 81.67, isCalculated: true },
 				{ participantId: pNina.id, amount: 81.67, isCalculated: true },
@@ -1219,17 +1656,27 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectColocAurore.id, ownerId: aurore.id });
+		await seedOperation({
+			...op,
+			projectId: projectColocAurore.id,
+			ownerId: aurore.id,
+		});
 	}
 
 	// 1223 € > 80 % de 1500 € (= 1200 €) → alerte unread
 	await seedAlert({
-		id: 4, status: "unread", threshold: 80,
-		totalSpent: 1223.0, budgetAmount: 1500.0,
-		budgetId: budgetColocAurore.id, userId: aurore.id,
+		id: 4,
+		status: "unread",
+		threshold: 80,
+		totalSpent: 1223.0,
+		budgetAmount: 1500.0,
+		budgetId: budgetColocAurore.id,
+		userId: aurore.id,
 	});
 
-	console.log("✅ project 11 seeded — Coloc bd Voltaire (Aurore, alerte unread)");
+	console.log(
+		"✅ project 11 seeded — Coloc bd Voltaire (Aurore, alerte unread)",
+	);
 
 	// ============================================================
 	// PROJECT 12 — Week-end Lyon (Aurore)
@@ -1251,7 +1698,12 @@ async function main() {
 
 	for (const pid of [pAurore.id, pLudo.id, pSophie.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectLyon.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectLyon.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectLyon.id, participantId: pid },
 		});
@@ -1259,8 +1711,13 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 130, name: "Train Lyon", amount: 108.0, isAmountCalculated: false, date: "2026-03-20",
-			payerId: pAurore.id, categoryId: transport.id,
+			id: 130,
+			name: "Train Lyon",
+			amount: 108.0,
+			isAmountCalculated: false,
+			date: "2026-03-20",
+			payerId: pAurore.id,
+			categoryId: transport.id,
 			split: [
 				{ participantId: pAurore.id, amount: 36.0, isCalculated: true },
 				{ participantId: pLudo.id, amount: 36.0, isCalculated: true },
@@ -1268,8 +1725,13 @@ async function main() {
 			],
 		},
 		{
-			id: 131, name: "Hôtel 2 nuits", amount: 210.0, isAmountCalculated: false, date: "2026-03-20",
-			payerId: pSophie.id, categoryId: hebergement.id,
+			id: 131,
+			name: "Hôtel 2 nuits",
+			amount: 210.0,
+			isAmountCalculated: false,
+			date: "2026-03-20",
+			payerId: pSophie.id,
+			categoryId: hebergement.id,
 			split: [
 				{ participantId: pAurore.id, amount: 70.0, isCalculated: true },
 				{ participantId: pLudo.id, amount: 70.0, isCalculated: true },
@@ -1277,8 +1739,13 @@ async function main() {
 			],
 		},
 		{
-			id: 132, name: "Bouchon lyonnais", amount: 93.0, isAmountCalculated: false, date: "2026-03-21",
-			payerId: pLudo.id, categoryId: restaurants.id,
+			id: 132,
+			name: "Bouchon lyonnais",
+			amount: 93.0,
+			isAmountCalculated: false,
+			date: "2026-03-21",
+			payerId: pLudo.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pAurore.id, amount: 31.0, isCalculated: true },
 				{ participantId: pLudo.id, amount: 31.0, isCalculated: true },
@@ -1286,7 +1753,11 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectLyon.id, ownerId: aurore.id });
+		await seedOperation({
+			...op,
+			projectId: projectLyon.id,
+			ownerId: aurore.id,
+		});
 	}
 
 	console.log("✅ project 12 seeded — Week-end Lyon (Aurore, sans budget)");
@@ -1311,7 +1782,12 @@ async function main() {
 
 	for (const pid of [pAurore.id, pSophie.id, pNina.id]) {
 		await prisma.projectParticipant.upsert({
-			where: { projectId_participantId: { projectId: projectRepas.id, participantId: pid } },
+			where: {
+				projectId_participantId: {
+					projectId: projectRepas.id,
+					participantId: pid,
+				},
+			},
 			update: {},
 			create: { projectId: projectRepas.id, participantId: pid },
 		});
@@ -1319,8 +1795,13 @@ async function main() {
 
 	for (const op of [
 		{
-			id: 140, name: "Restaurant japonais", amount: 75.0, isAmountCalculated: false, date: "2026-02-14",
-			payerId: pAurore.id, categoryId: restaurants.id,
+			id: 140,
+			name: "Restaurant japonais",
+			amount: 75.0,
+			isAmountCalculated: false,
+			date: "2026-02-14",
+			payerId: pAurore.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pAurore.id, amount: 25.0, isCalculated: true },
 				{ participantId: pSophie.id, amount: 25.0, isCalculated: true },
@@ -1328,8 +1809,13 @@ async function main() {
 			],
 		},
 		{
-			id: 141, name: "Dîner thaïlandais", amount: 69.0, isAmountCalculated: false, date: "2026-03-14",
-			payerId: pSophie.id, categoryId: restaurants.id,
+			id: 141,
+			name: "Dîner thaïlandais",
+			amount: 69.0,
+			isAmountCalculated: false,
+			date: "2026-03-14",
+			payerId: pSophie.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pAurore.id, amount: 23.0, isCalculated: true },
 				{ participantId: pSophie.id, amount: 23.0, isCalculated: true },
@@ -1337,8 +1823,13 @@ async function main() {
 			],
 		},
 		{
-			id: 142, name: "Cocktails bar", amount: 48.0, isAmountCalculated: false, date: "2026-04-14",
-			payerId: pNina.id, categoryId: restaurants.id,
+			id: 142,
+			name: "Cocktails bar",
+			amount: 48.0,
+			isAmountCalculated: false,
+			date: "2026-04-14",
+			payerId: pNina.id,
+			categoryId: restaurants.id,
 			split: [
 				{ participantId: pAurore.id, amount: 16.0, isCalculated: true },
 				{ participantId: pSophie.id, amount: 16.0, isCalculated: true },
@@ -1346,10 +1837,16 @@ async function main() {
 			],
 		},
 	]) {
-		await seedOperation({ ...op, projectId: projectRepas.id, ownerId: aurore.id });
+		await seedOperation({
+			...op,
+			projectId: projectRepas.id,
+			ownerId: aurore.id,
+		});
 	}
 
-	console.log("✅ project 13 seeded — Repas entre filles (Aurore, sans budget)");
+	console.log(
+		"✅ project 13 seeded — Repas entre filles (Aurore, sans budget)",
+	);
 
 	// ============================================================
 	// RÉSUMÉ
@@ -1393,6 +1890,14 @@ async function main() {
 	//
 	// ============================================================
 
+	// Reset all sequences to avoid conflicts with explicit IDs
+	await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('alert', 'id'), (SELECT MAX(id) FROM alert))`;
+	await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('participant', 'id'), (SELECT MAX(id) FROM participant))`;
+	await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('project', 'id'), (SELECT MAX(id) FROM project))`;
+	await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('operation', 'id'), (SELECT MAX(id) FROM operation))`;
+	await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('app_user', 'id'), (SELECT MAX(id) FROM app_user))`;
+	await prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('budget', 'id'), (SELECT MAX(id) FROM budget))`;
+	console.log("✅ Sequences reset");
 	console.log("🎉 Seeding complete!");
 }
 
