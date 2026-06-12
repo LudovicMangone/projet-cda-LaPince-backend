@@ -100,16 +100,14 @@ describe("[registerUser]", () => {
 				appUserAlert: { create: vi.fn().mockResolvedValue({}) },
 				projectParticipant: { createMany: vi.fn().mockResolvedValue({}) },
 				operation: {
-					create: vi
-						.fn()
-						.mockResolvedValue({
-							id: 1,
-							amount: { div: vi.fn().mockReturnValue(60) },
-						}),
+					create: vi.fn().mockResolvedValue({
+						id: 1,
+						amount: { div: vi.fn().mockReturnValue(60) },
+					}),
 				},
 				operationParticipant: { createMany: vi.fn().mockResolvedValue({}) },
 			};
-			return cb(tx);
+			return cb(tx as never); // ← as never ici
 		});
 
 		// ACT

@@ -28,4 +28,16 @@ async function truncateTables() {
       END LOOP;
     END $$;
   `);
+
+	// Re-seed categories required by demo project operations
+	await prisma.category.createMany({
+		data: [
+			{ name: "Divers", color: "#A9A9A9" },
+			{ name: "Restaurants", color: "#228B22" },
+			{ name: "Hébergement", color: "#1E90FF" },
+			{ name: "Transport", color: "#FF8C00" },
+			{ name: "Courses", color: "#6B8E23" },
+			{ name: "Loisir", color: "#9370DB" },
+		],
+	});
 }

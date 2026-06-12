@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { projectTypeEnum } from "./projects.schema";
 
-
 const budgetSchema = z.object({
 	amount: z.number().positive(),
 	limitCriteria: z.number().min(1).max(100),
@@ -18,7 +17,6 @@ export const updateProjectSchema = z
 	})
 	.refine(
 		(data) =>
-			
 			data.name !== undefined ||
 			data.description !== undefined ||
 			data.isArchived !== undefined ||

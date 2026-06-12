@@ -50,7 +50,6 @@ describe("[GET] /api/projects", () => {
 
 	it("should return 200 and empty list when no projects (200)", async () => {
 		const token = await registerAndLogin("get-list@lapince.fr");
-
 		const res = await fetch(PROJECTS_URL, {
 			headers: { Authorization: `Bearer ${token}` },
 		});
@@ -58,7 +57,8 @@ describe("[GET] /api/projects", () => {
 
 		expect(res.status).toBe(200);
 		expect(body.projects).toBeInstanceOf(Array);
-		expect(body.total).toBe(0);
+		// A demo project is automatically created on registration
+		expect(body.total).toBe(1);
 		expect(body.hasMore).toBe(false);
 	});
 
@@ -66,15 +66,15 @@ describe("[GET] /api/projects", () => {
 		const token = await registerAndLogin("get-paginated@lapince.fr");
 		await createProject(token, { name: "Projet 1", type: "Voyage" });
 		await createProject(token, { name: "Projet 2", type: "Anniversaire" });
-
 		const res = await fetch(PROJECTS_URL, {
 			headers: { Authorization: `Bearer ${token}` },
 		});
 		const body = await res.json();
 
 		expect(res.status).toBe(200);
-		expect(body.projects).toHaveLength(2);
-		expect(body.total).toBe(2);
+		// 2 manually created + 1 demo project created on registration
+		expect(body.projects).toHaveLength(3);
+		expect(body.total).toBe(3);
 		expect(body).toHaveProperty("nextCursor");
 		expect(body).toHaveProperty("hasMore");
 	});
