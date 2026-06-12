@@ -1,5 +1,5 @@
 @baseUrl = http://localhost:{{$dotenv PORT}}/api
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MTA3NjE0NCwiZXhwIjoxNzgxNjgwOTQ0fQ.WxMDO4QQsC8UYy2U7Kl2YPDuBEIxCu-f-woNwz8-8Cg
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MTI1MDQwMywiZXhwIjoxNzgxODU1MjAzfQ.F7ganpEfYvlqkOrsDB87l7U1STWcdykcbVRgJ7ptFrM
 
 ### Login — seeded user Steve
 POST {{baseUrl}}/auth/login
@@ -11,7 +11,7 @@ Content-Type: application/json
 }
 
 ### Get one project by ID
-GET {{baseUrl}}/projects/15
+GET {{baseUrl}}/projects/10
 Authorization: Bearer {{token}}
 
 ### Delet one project by ID
