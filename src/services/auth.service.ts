@@ -6,7 +6,21 @@ import { ConflictError, UnauthorizedError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 import type { LoginInput, RegisterInput } from "../schemas/auth.schema";
 
-export async function registerUser(data: RegisterInput) {
+type RegisterUserResult = {
+	user: {
+		id: number;
+		name: string;
+		email: string;
+	};
+	project: any;
+	budget: any;
+	alert: any;
+	token: string;
+};
+
+export async function registerUser(
+	data: RegisterInput,
+): Promise<RegisterUserResult> {
 	const existingUser = await prisma.appUser.findUnique({
 		where: { email: data.email },
 	});
@@ -136,7 +150,22 @@ export async function registerUser(data: RegisterInput) {
 		};
 	});
 
-	return result;
+	// Add : token creation for automatique redirect
+	const token = jwt.sign({ userId: result.user.id }, envConfig.jwtSecret, {
+		expiresIn: "7d",
+	});
+
+	return {
+		user: {
+			id: result.user.id,
+			name: result.user.name,
+			email: result.user.email,
+		},
+		project: result.project,
+		budget: result.budget,
+		alert: result.alert,
+		token,
+	};
 }
 
 export async function loginUser(data: LoginInput) {
