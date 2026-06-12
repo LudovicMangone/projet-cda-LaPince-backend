@@ -11,6 +11,44 @@ vi.mock("../lib/prisma", () => ({
 			findUnique: vi.fn(),
 			create: vi.fn(),
 		},
+		participant: {
+			create: vi.fn(),
+		},
+		project: {
+			create: vi.fn(),
+		},
+		budget: {
+			create: vi.fn(),
+		},
+		alert: {
+			create: vi.fn(),
+		},
+		appUserAlert: {
+			create: vi.fn(),
+		},
+		projectParticipant: {
+			createMany: vi.fn(),
+		},
+		operation: {
+			create: vi.fn(),
+		},
+		operationParticipant: {
+			createMany: vi.fn(),
+		},
+		// Executes the transaction callback with the mock itself as `tx`
+		$transaction: vi.fn((cb) =>
+			cb({
+				appUser: { create: vi.fn() },
+				participant: { create: vi.fn() },
+				project: { create: vi.fn() },
+				budget: { create: vi.fn() },
+				alert: { create: vi.fn() },
+				appUserAlert: { create: vi.fn() },
+				projectParticipant: { createMany: vi.fn() },
+				operation: { create: vi.fn() },
+				operationParticipant: { createMany: vi.fn() },
+			}),
+		),
 	},
 }));
 
@@ -37,12 +75,42 @@ beforeEach(() => {
 describe("[registerUser]", () => {
 	it("should create and return a user", async () => {
 		// ARRANGE
-		vi.mocked(prisma.appUser.findUnique).mockResolvedValue(null);
-		vi.mocked(prisma.appUser.create).mockResolvedValue({
+		const mockUser = {
 			id: 1,
 			name: "Ludo",
 			email: "ludo@lapince.fr",
-		} as never);
+			password: "hashed_password",
+			createdAt: new Date(),
+			updatedAt: new Date(),
+		};
+
+		vi.mocked(prisma.appUser.findUnique).mockResolvedValue(null);
+
+		// $transaction executes the callback with a tx mock — we capture it
+		// and stub tx.appUser.create to return the demo user
+		vi.mocked(prisma.$transaction).mockImplementation(async (cb) => {
+			const tx = {
+				appUser: { create: vi.fn().mockResolvedValue(mockUser) },
+				participant: {
+					create: vi.fn().mockResolvedValue({ id: 1, name: "Alice" }),
+				},
+				project: { create: vi.fn().mockResolvedValue({ id: 1, name: "Demo" }) },
+				budget: { create: vi.fn().mockResolvedValue({ id: 1 }) },
+				alert: { create: vi.fn().mockResolvedValue({ id: 1 }) },
+				appUserAlert: { create: vi.fn().mockResolvedValue({}) },
+				projectParticipant: { createMany: vi.fn().mockResolvedValue({}) },
+				operation: {
+					create: vi
+						.fn()
+						.mockResolvedValue({
+							id: 1,
+							amount: { div: vi.fn().mockReturnValue(60) },
+						}),
+				},
+				operationParticipant: { createMany: vi.fn().mockResolvedValue({}) },
+			};
+			return cb(tx);
+		});
 
 		// ACT
 		const result = await registerUser({
@@ -51,9 +119,13 @@ describe("[registerUser]", () => {
 			password: "Password123",
 		});
 
-		// ASSERT
-		expect(result).toEqual({ id: 1, name: "Ludo", email: "ludo@lapince.fr" });
-		expect(prisma.appUser.create).toHaveBeenCalledOnce();
+		// ASSERT — registerUser returns the full transaction result { user, project, budget, alert }
+		expect(result.user).toMatchObject({
+			id: 1,
+			name: "Ludo",
+			email: "ludo@lapince.fr",
+		});
+		expect(prisma.$transaction).toHaveBeenCalledOnce();
 	});
 
 	it("should throw ConflictError if email already exists", async () => {
