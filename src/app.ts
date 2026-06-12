@@ -16,11 +16,10 @@ import categoriesRouter from "./routers/categories.router";
 import projectsRouter from "./routers/projects.router";
 
 // ============== SETTINGS ==================
+
 export const app = express(); // CORS: allows external clients (frontend, tools, other APIs) to call the API
 app.set("trust proxy", 1); // Required for Render/reverse proxy
 app.use(cors({ origin: allowedOrigins }));
-// XSS sanitizer: protects against malicious scripts injected in user input
-app.use(xss());
 // Standard headers reforced, hidden infos and XSS attack blocker
 app.use((req, res, next) => {
 	if (req.path === "/" || req.path.startsWith("/-/")) return next();
@@ -28,6 +27,8 @@ app.use((req, res, next) => {
 });
 // Parses JSON request bodies: required to read req.body in POST / PATCH / PUT requests. Using a limit for payload attac
 app.use(express.json({ limit: envConfig.jsonLimit }));
+// XSS sanitizer: protects against malicious scripts injected in user input
+app.use(xss());
 // Rate limiter to protect the API against abuse and excessive requests (basic DDoS / brute-force protection)
 app.use(apiRateLimiter);
 
@@ -40,13 +41,12 @@ app.use("/api/categories", categoriesRouter);
 app.use("/api/balance", balanceRouter);
 app.use("/api/alertes", alertRouter);
 
-
 // ============== ERRORS HANDLERS ===========
+// Only for integration tests on error handler :
+if (process.env.NODE_ENV === "test") {
+	app.get("/test/error", () => {
+		throw new Error("Test error");
+	});
+}
 app.use(notFoundHandler);
 app.use(errorHandler);
-
-// ============== LISTENER ==================
-
-app.listen(envConfig.port, () => {
-	console.log(`Server is running on http://localhost:${envConfig.port}`);
-});

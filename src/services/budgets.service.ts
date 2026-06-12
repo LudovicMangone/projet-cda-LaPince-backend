@@ -1,27 +1,13 @@
-import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
+import { assertProjectOwner } from "../lib/projectOwner";
 
 export async function getProjectBudgets(projectId: number, userId: number) {
-	const project = await prisma.project.findUnique({
-		where: { id: projectId },
-		select: {
-			appUserId: true,
-			budget: {
-				select: {
-					amount: true,
-					limitCriteria: true,
-				},
-			},
-		},
+	await assertProjectOwner(projectId, userId);
+
+	const budget = await prisma.budget.findUnique({
+		where: { projectId },
+		select: { amount: true, limitCriteria: true },
 	});
-
-	if (!project) {
-		throw new NotFoundError("Projet introuvable");
-	}
-
-	if (project.appUserId !== userId) {
-		throw new ForbiddenError("Accès refusé à ce projet");
-	}
 
 	const operationsByCategory = await prisma.operation.groupBy({
 		by: ["categoryId"],
@@ -52,10 +38,8 @@ export async function getProjectBudgets(projectId: number, userId: number) {
 
 	return {
 		totalSpent,
-		totalLimit: project.budget ? Number(project.budget.amount) : null,
-		alertThreshold: project.budget
-			? Number(project.budget.limitCriteria)
-			: null,
+		totalLimit: budget ? Number(budget.amount) : null,
+		alertThreshold: budget ? Number(budget.limitCriteria) : null,
 		spentByCategory,
 	};
 }

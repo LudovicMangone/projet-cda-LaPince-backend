@@ -4,8 +4,9 @@ import { getMe, loginUser, registerUser } from "../services/auth.service";
 
 export async function register(req: Request, res: Response) {
 	const data = await registerSchema.parseAsync(req.body);
-	const user = await registerUser(data);
-	res.status(201).json({ user });
+	const { user, token } = await registerUser(data);
+	// Password is already stripped in the service — safe to send directly
+	res.status(201).json({ user, token });
 }
 
 export async function login(req: Request, res: Response) {

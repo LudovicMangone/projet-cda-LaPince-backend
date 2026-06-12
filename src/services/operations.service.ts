@@ -1,31 +1,21 @@
 import { ForbiddenError, NotFoundError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
+import { assertProjectOwner } from "../lib/projectOwner";
 import type {
 	CreateOperationInput,
 	DeleteOperationInput,
 } from "../schemas/operation.schema";
-import { checkAndCreateAlert } from "./alert.service";
+import { checkAndCreateAlert, resolveAlertIfNeeded } from "./alert.service";
 
 export async function getOperationsByPojectId(
 	projectId: number,
 	userId: number,
 ) {
-	const project = await prisma.project.findUnique({
-		where: { id: projectId },
-		select: { appUserId: true },
-	});
-
-	if (!project) {
-		throw new NotFoundError("Project not found");
-	}
-
-	if (project.appUserId !== userId) {
-		throw new ForbiddenError("Only the owner of the project can access it");
-	}
+	await assertProjectOwner(projectId, userId);
 
 	const operations = await prisma.operation.findMany({
 		orderBy: {
-			date: "asc",
+			createdAt: "asc",
 		},
 		where: {
 			projectId,
@@ -67,6 +57,8 @@ export async function createOperation(
 	data: CreateOperationInput,
 	userId: number,
 ) {
+	await assertProjectOwner(data.projectId, userId);
+
 	return prisma.$transaction(async (tx) => {
 		const operation = await tx.operation.create({
 			data: {
@@ -101,13 +93,14 @@ export async function updateOperation(
 	data: CreateOperationInput,
 	userId: number,
 ) {
+	await assertProjectOwner(data.projectId, userId);
+
 	return prisma.$transaction(async (tx) => {
 		const operation = await tx.operation.findUnique({
 			where: { id: operationId },
 			select: {
 				id: true,
 				projectId: true,
-				appUserId: true,
 			},
 		});
 
@@ -115,8 +108,8 @@ export async function updateOperation(
 			throw new NotFoundError("Operation not found");
 		}
 
-		if (operation.appUserId !== userId) {
-			throw new ForbiddenError("Only the owner can update this operation");
+		if (operation.projectId !== data.projectId) {
+			throw new ForbiddenError("Operation does not belong to this project");
 		}
 
 		const updatedOperation = await tx.operation.update({
@@ -125,7 +118,6 @@ export async function updateOperation(
 				name: data.name,
 				amount: data.amount,
 				date: data.date,
-				projectId: data.projectId,
 				categoryId: data.categoryId,
 				payerParticipantId: data.payerParticipantId,
 				isAmountCalculated: data.isAmountCalculated,
@@ -149,17 +141,23 @@ export async function updateOperation(
 				})),
 			});
 		}
+		await resolveAlertIfNeeded(data.projectId, userId, tx);
 		await checkAndCreateAlert(data.projectId, userId, tx);
-		
+
 		return updatedOperation;
 	});
 }
 
-export async function deleteOperationsByPojectId(data: DeleteOperationInput) {
-	await prisma.operation.delete({
-		where: {
-			id: data.operationId,
-			projectId: data.projectId,
-		},
+export async function deleteOperationsByPojectId(
+	data: DeleteOperationInput,
+	userId: number,
+) {
+	await assertProjectOwner(data.projectId, userId);
+
+	return prisma.$transaction(async (tx) => {
+		await tx.operation.delete({
+			where: { id: data.operationId, projectId: data.projectId },
+		});
+		await resolveAlertIfNeeded(data.projectId, userId, tx);
 	});
 }

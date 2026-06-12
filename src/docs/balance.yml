@@ -1,0 +1,46 @@
+tags:
+  - name: Balance
+    description: Calcul des soldes et remboursements
+
+components:
+  schemas:
+    GlobalBalance:
+      type: object
+      properties:
+        toDo:
+          type: number
+          description: Montant total que l'utilisateur doit rembourser
+          example: 35.5
+        toReceive:
+          type: number
+          description: Montant total que l'utilisateur doit recevoir
+          example: 120
+        netBalance:
+          type: number
+          description: "Solde net (toReceive - toDo)"
+          example: 84.5
+
+paths:
+  /api/balance:
+    get:
+      tags:
+        - Balance
+      summary: Solde global de l'utilisateur connecté
+      description: >
+        Calcule le solde net de l'utilisateur sur l'ensemble de ses projets :
+        montant total dû, montant total à recevoir, et solde net.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Solde global calculé
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GlobalBalance"
+              example:
+                toDo: 35.5
+                toReceive: 120
+                netBalance: 84.5
+        "401":
+          description: Token manquant ou invalide

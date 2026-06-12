@@ -22,3 +22,4 @@ if (!globalForPrisma.prisma) {
 }
 
 export const prisma = globalForPrisma.prisma;
+export const pool = globalForPrisma.pool; // expose pool for prevent closing problems in tests

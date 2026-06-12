@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import "./config/global-setup";
 
-const BASE_URL = "http://localhost:3001/api/auth";
+function getBaseUrl() {
+	return `http://localhost:${process.env.PORT}/api/auth`;
+}
 
 // ─── Register ────────────────────────────────────────────────
 describe("[POST] /api/auth/register", () => {
@@ -14,7 +15,7 @@ describe("[POST] /api/auth/register", () => {
 		};
 
 		// ACT
-		const response = await fetch(`${BASE_URL}/register`, {
+		const response = await fetch(`${getBaseUrl()}/register`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(newUser),
@@ -35,14 +36,14 @@ describe("[POST] /api/auth/register", () => {
 			email: "ludo@lapince.fr",
 			password: "Password123",
 		};
-		await fetch(`${BASE_URL}/register`, {
+		await fetch(`${getBaseUrl()}/register`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(newUser),
 		});
 
 		// ACT
-		const response = await fetch(`${BASE_URL}/register`, {
+		const response = await fetch(`${getBaseUrl()}/register`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(newUser),
@@ -54,7 +55,7 @@ describe("[POST] /api/auth/register", () => {
 
 	it("should return 422 if data is invalid", async () => {
 		// ACT
-		const response = await fetch(`${BASE_URL}/register`, {
+		const response = await fetch(`${getBaseUrl()}/register`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -73,7 +74,7 @@ describe("[POST] /api/auth/register", () => {
 describe("[POST] /api/auth/login", () => {
 	it("should return user and token on valid credentials (200)", async () => {
 		// ARRANGE
-		await fetch(`${BASE_URL}/register`, {
+		await fetch(`${getBaseUrl()}/register`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -84,7 +85,7 @@ describe("[POST] /api/auth/login", () => {
 		});
 
 		// ACT
-		const response = await fetch(`${BASE_URL}/login`, {
+		const response = await fetch(`${getBaseUrl()}/login`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -102,7 +103,7 @@ describe("[POST] /api/auth/login", () => {
 
 	it("should return 401 if password is wrong", async () => {
 		// ARRANGE
-		await fetch(`${BASE_URL}/register`, {
+		await fetch(`${getBaseUrl()}/register`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -113,7 +114,7 @@ describe("[POST] /api/auth/login", () => {
 		});
 
 		// ACT
-		const response = await fetch(`${BASE_URL}/login`, {
+		const response = await fetch(`${getBaseUrl()}/login`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -128,7 +129,7 @@ describe("[POST] /api/auth/login", () => {
 
 	it("should return 401 if email does not exist", async () => {
 		// ACT
-		const response = await fetch(`${BASE_URL}/login`, {
+		const response = await fetch(`${getBaseUrl()}/login`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -146,7 +147,7 @@ describe("[POST] /api/auth/login", () => {
 describe("[POST] /api/auth/logout", () => {
 	it("should return 200", async () => {
 		// ACT
-		const response = await fetch(`${BASE_URL}/logout`, { method: "POST" });
+		const response = await fetch(`${getBaseUrl()}/logout`, { method: "POST" });
 
 		// ASSERT
 		expect(response.status).toBe(200);
@@ -157,7 +158,7 @@ describe("[POST] /api/auth/logout", () => {
 describe("[GET] /api/auth/me", () => {
 	it("should return authenticated user (200)", async () => {
 		// ARRANGE
-		await fetch(`${BASE_URL}/register`, {
+		await fetch(`${getBaseUrl()}/register`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -166,7 +167,7 @@ describe("[GET] /api/auth/me", () => {
 				password: "Password123",
 			}),
 		});
-		const loginResponse = await fetch(`${BASE_URL}/login`, {
+		const loginResponse = await fetch(`${getBaseUrl()}/login`, {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
@@ -177,7 +178,7 @@ describe("[GET] /api/auth/me", () => {
 		const { token } = await loginResponse.json();
 
 		// ACT
-		const response = await fetch(`${BASE_URL}/me`, {
+		const response = await fetch(`${getBaseUrl()}/me`, {
 			headers: { Authorization: `Bearer ${token}` },
 		});
 		const body = await response.json();
@@ -190,7 +191,7 @@ describe("[GET] /api/auth/me", () => {
 
 	it("should return 401 if no token", async () => {
 		// ACT
-		const response = await fetch(`${BASE_URL}/me`);
+		const response = await fetch(`${getBaseUrl()}/me`);
 
 		// ASSERT
 		expect(response.status).toBe(401);

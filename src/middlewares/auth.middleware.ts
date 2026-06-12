@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { envConfig } from "../config/env.config";
 import { UnauthorizedError } from "../lib/errors";
 
 export function authMiddleware(
@@ -14,11 +15,7 @@ export function authMiddleware(
 	}
 
 	const token = authHeader.split(" ")[1];
-	const secret = process.env.JWT_SECRET;
-
-	if (!secret) {
-		throw new Error("JWT_SECRET is not defined");
-	}
+	const secret = envConfig.jwtSecret;
 
 	try {
 		const payload = jwt.verify(token, secret) as { userId: number };
