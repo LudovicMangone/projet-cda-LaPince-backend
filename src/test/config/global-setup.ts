@@ -17,17 +17,25 @@ export async function setup() {
 	} catch {}
 
 	// Start a fresh PostgreSQL container for the test session
-	execSync(`docker run -d --name lapincetest \
-    -p ${process.env.POSTGRES_PORT}:5432 \
-    -e POSTGRES_USER=${process.env.POSTGRES_USER} \
-    -e POSTGRES_PASSWORD=${process.env.POSTGRES_PASSWORD} \
-    -e POSTGRES_DB=${process.env.POSTGRES_DB} \
-    postgres:18-alpine`);
-
-	// Poll until Postgres is ready to accept connections before running migrations
+	// (single-line command: multi-line "\" continuations only work in POSIX shells)
 	execSync(
-		`until docker exec lapincetest pg_isready -U ${process.env.POSTGRES_USER} > /dev/null 2>&1; do sleep 0.5; done`,
+		`docker run -d --name lapincetest -p ${process.env.POSTGRES_PORT}:5432 -e POSTGRES_USER=${process.env.POSTGRES_USER} -e POSTGRES_PASSWORD=${process.env.POSTGRES_PASSWORD} -e POSTGRES_DB=${process.env.POSTGRES_DB} postgres:18-alpine`,
 	);
+
+	// Poll until Postgres is ready to accept connections before running migrations.
+	// Portable JS loop — the previous bash "until ...; do ...; done" loop made the
+	// whole test suite unrunnable from Windows shells (cmd/PowerShell).
+	for (let attempt = 0; attempt < 60; attempt++) {
+		try {
+			execSync(
+				`docker exec lapincetest pg_isready -U ${process.env.POSTGRES_USER}`,
+				{ stdio: "pipe" },
+			);
+			break;
+		} catch {
+			await new Promise((resolve) => setTimeout(resolve, 500));
+		}
+	}
 
 	// Apply all pending Prisma migrations to the test database
 	execSync(`npx prisma migrate deploy`);
