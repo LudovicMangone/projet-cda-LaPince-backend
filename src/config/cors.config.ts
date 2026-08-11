@@ -1,4 +1,4 @@
 export const allowedOrigins =
 	process.env.NODE_ENV === "production"
-		? ["https://lapince-frontend.vercel.app"]
+		? ["https://projet-cda-la-pince-frontend.vercel.app"]
 		: ["http://localhost:5173"];

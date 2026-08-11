@@ -10,6 +10,10 @@ const options: swaggerJsdoc.Options = {
 		},
 		servers: [
 			{
+				url: "https://lapince-backend-2l9f.onrender.com",
+				description: "Production (Render)",
+			},
+			{
 				url: "http://localhost:3000",
 				description: "Serveur de développement",
 			},
