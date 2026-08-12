@@ -74,7 +74,11 @@ paths:
     post:
       tags:
         - Auth
-      summary: Connexion et retour du token JWT
+      summary: Connexion — access token 15 min + cookie de session
+      description: >
+        Retourne un access token JWT de 15 minutes dans le corps de la réponse,
+        et pose un refresh token (7 jours) en cookie HttpOnly Secure limité à
+        /api/auth. Quand l'access token expire, appeler POST /api/auth/refresh.
       security: []
       requestBody:
         required: true
@@ -137,11 +141,13 @@ paths:
     post:
       tags:
         - Auth
-      summary: Déconnexion
+      summary: Déconnexion — révocation serveur de la session
+      security: []
       description: >
-        Invalide la session côté client.
-        Le token JWT doit être supprimé par le frontend (localStorage).
-        Aucune invalidation serveur — le token reste techniquement valide jusqu'à expiration.
+        Supprime le refresh token en base (la session ne peut plus être
+        rafraîchie, même si le cookie a été volé) et efface le cookie côté
+        navigateur. Le front doit aussi jeter l'access token en mémoire ;
+        celui-ci expire de toute façon en moins de 15 minutes.
       responses:
         "200":
           description: Déconnexion réussie
@@ -155,6 +161,41 @@ paths:
               example:
                 message: Déconnexion réussie
         
+
+  /api/auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: Renouvellement de l'access token (rotation du refresh token)
+      security: []
+      description: >
+        S'authentifie par le cookie HttpOnly « refreshToken » (joint
+        automatiquement par le navigateur avec credentials: "include").
+        Chaque appel CONSOMME le token présenté et en émet un nouveau —
+        un refresh token ne sert qu'une seule fois (rotation).
+        Appelé par le front sur toute réponse 401 et au chargement de
+        l'application pour restaurer la session.
+      responses:
+        "200":
+          description: Nouveau couple émis — access token dans le corps, refresh token dans le cookie
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Nouvel access token JWT (15 minutes)
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        "401":
+          description: Cookie absent, session inconnue, expirée ou déjà consommée
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                status: 401
+                error: Session invalide ou expirée
 
   /api/auth/me:
     get:
