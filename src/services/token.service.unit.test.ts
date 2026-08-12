@@ -43,11 +43,9 @@ describe("[signAccessToken]", () => {
 
 		// ASSERT
 		expect(token).toBe("mocked_access_token");
-		expect(jwt.sign).toHaveBeenCalledWith(
-			{ userId: 42 },
-			expect.any(String),
-			{ expiresIn: "15m" },
-		);
+		expect(jwt.sign).toHaveBeenCalledWith({ userId: 42 }, expect.any(String), {
+			expiresIn: "15m",
+		});
 	});
 });
 
@@ -128,11 +126,9 @@ describe("[rotateRefreshToken]", () => {
 		// ASSERT — nouveau couple access + refresh
 		expect(rotated.accessToken).toBe("mocked_access_token");
 		expect(rotated.rawToken).not.toBe("valid-token");
-		expect(jwt.sign).toHaveBeenCalledWith(
-			{ userId: 42 },
-			expect.any(String),
-			{ expiresIn: "15m" },
-		);
+		expect(jwt.sign).toHaveBeenCalledWith({ userId: 42 }, expect.any(String), {
+			expiresIn: "15m",
+		});
 		// L'ancien est consommé et le nouveau créé dans UNE transaction
 		expect(prisma.$transaction).toHaveBeenCalledOnce();
 		expect(prisma.refreshToken.delete).toHaveBeenCalledWith({
