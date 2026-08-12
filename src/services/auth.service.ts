@@ -1,10 +1,9 @@
 import argon2 from "argon2";
-import jwt from "jsonwebtoken";
 import { Prisma } from "../../generated/prisma";
-import { envConfig } from "../config/env.config";
 import { ConflictError, UnauthorizedError } from "../lib/errors";
 import { prisma } from "../lib/prisma";
 import type { LoginInput, RegisterInput } from "../schemas/auth.schema";
+import { signAccessToken } from "./token.service";
 
 type RegisterUserResult = {
 	user: {
@@ -150,10 +149,9 @@ export async function registerUser(
 		};
 	});
 
-	// Add : token creation for automatique redirect
-	const token = jwt.sign({ userId: result.user.id }, envConfig.jwtSecret, {
-		expiresIn: "7d",
-	});
+	// Token d'accès courte durée (15 min) — la session longue est portée par le
+	// refresh token HttpOnly, créé par le contrôleur au moment de poser le cookie
+	const token = signAccessToken(result.user.id);
 
 	return {
 		user: {
@@ -182,9 +180,8 @@ export async function loginUser(data: LoginInput) {
 		throw new UnauthorizedError("Email ou mot de passe incorrect");
 	}
 
-	const token = jwt.sign({ userId: user.id }, envConfig.jwtSecret, {
-		expiresIn: "7d",
-	});
+	// 15 min au lieu de 7 jours : un access token volé devient vite inutilisable
+	const token = signAccessToken(user.id);
 
 	return {
 		user: { id: user.id, name: user.name, email: user.email },
