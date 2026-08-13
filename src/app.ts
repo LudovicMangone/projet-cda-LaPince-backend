@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import { xss } from "express-xss-sanitizer";
@@ -19,7 +20,11 @@ import projectsRouter from "./routers/projects.router";
 
 export const app = express(); // CORS: allows external clients (frontend, tools, other APIs) to call the API
 app.set("trust proxy", 1); // Required for Render/reverse proxy
-app.use(cors({ origin: allowedOrigins }));
+// credentials: true — required for the cross-site session cookie (vercel.app ->
+// onrender.com); with credentials, CORS forbids wildcard origins.
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+// Cookie header -> req.cookies (refresh token on /api/auth routes)
+app.use(cookieParser());
 // Standard headers reforced, hidden infos and XSS attack blocker
 app.use((req, res, next) => {
 	if (req.path === "/" || req.path.startsWith("/-/")) return next();

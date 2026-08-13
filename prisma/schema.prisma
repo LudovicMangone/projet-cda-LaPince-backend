@@ -19,8 +19,24 @@ model AppUser {
   operations    Operation[]
   participants  Participant[]
   appUserAlerts AppUserAlert[]
+  refreshTokens RefreshToken[]
 
   @@map("app_user")
+}
+
+// Revocable session: only the SHA-256 hash of the refresh token is stored.
+// One row = one active session; deleting the row logs it out server-side.
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  tokenHash String   @unique @db.VarChar(64)
+  appUserId Int
+  expiresAt DateTime @db.Timestamptz()
+  createdAt DateTime @default(now()) @db.Timestamptz()
+
+  // Cascade: deleting a user revokes all of their sessions
+  appUser AppUser @relation(fields: [appUserId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_token")
 }
 
 model Category {
