@@ -149,8 +149,8 @@ export async function registerUser(
 		};
 	});
 
-	// Token d'accès courte durée (15 min) — la session longue est portée par le
-	// refresh token HttpOnly, créé par le contrôleur au moment de poser le cookie
+	// Short-lived access token — the long-lived session is carried by the
+	// refresh cookie, created by the controller
 	const token = signAccessToken(result.user.id);
 
 	return {
@@ -180,7 +180,6 @@ export async function loginUser(data: LoginInput) {
 		throw new UnauthorizedError("Email ou mot de passe incorrect");
 	}
 
-	// 15 min au lieu de 7 jours : un access token volé devient vite inutilisable
 	const token = signAccessToken(user.id);
 
 	return {

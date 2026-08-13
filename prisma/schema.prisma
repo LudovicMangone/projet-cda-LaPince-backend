@@ -24,10 +24,8 @@ model AppUser {
   @@map("app_user")
 }
 
-// Session longue durée révocable : on ne stocke JAMAIS le refresh token en clair,
-// uniquement son empreinte SHA-256 — si la base fuite, les tokens restent inutilisables.
-// Une ligne = une session active. La supprimer = déconnexion réelle côté serveur
-// (c'est ce que le JWT seul, sans état, ne permettait pas).
+// Revocable session: only the SHA-256 hash of the refresh token is stored.
+// One row = one active session; deleting the row logs it out server-side.
 model RefreshToken {
   id        Int      @id @default(autoincrement())
   tokenHash String   @unique @db.VarChar(64)
@@ -35,7 +33,7 @@ model RefreshToken {
   expiresAt DateTime @db.Timestamptz()
   createdAt DateTime @default(now()) @db.Timestamptz()
 
-  // onDelete: Cascade — supprimer un compte révoque automatiquement toutes ses sessions
+  // Cascade: deleting a user revokes all of their sessions
   appUser AppUser @relation(fields: [appUserId], references: [id], onDelete: Cascade)
 
   @@map("refresh_token")

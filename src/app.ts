@@ -20,13 +20,10 @@ import projectsRouter from "./routers/projects.router";
 
 export const app = express(); // CORS: allows external clients (frontend, tools, other APIs) to call the API
 app.set("trust proxy", 1); // Required for Render/reverse proxy
-// credentials: true — indispensable au cookie de session cross-site : il autorise
-// le navigateur à joindre/accepter les cookies quand le front appelle l'API
-// depuis un autre domaine (vercel.app -> onrender.com). Avec credentials, CORS
-// interdit le wildcard "*" : la whitelist d'origines explicites devient obligatoire.
+// credentials: true — required for the cross-site session cookie (vercel.app ->
+// onrender.com); with credentials, CORS forbids wildcard origins.
 app.use(cors({ origin: allowedOrigins, credentials: true }));
-// Parse l'en-tête Cookie -> req.cookies : nécessaire pour lire le refresh token
-// sur /api/auth/refresh et /api/auth/logout
+// Cookie header -> req.cookies (refresh token on /api/auth routes)
 app.use(cookieParser());
 // Standard headers reforced, hidden infos and XSS attack blocker
 app.use((req, res, next) => {

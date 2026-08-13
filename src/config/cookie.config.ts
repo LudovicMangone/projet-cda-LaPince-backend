@@ -2,17 +2,12 @@ import type { CookieOptions } from "express";
 
 export const REFRESH_COOKIE_NAME = "refreshToken";
 
-// Le cookie de session, verrouillé au maximum :
-// - httpOnly : invisible pour le JavaScript de la page → un XSS ne peut pas le LIRE
-//   (c'est la différence fondamentale avec l'ancien localStorage)
-// - secure   : ne circule qu'en HTTPS — désactivé en dev local (HTTP)
-// - sameSite : "none" en prod car le front (vercel.app) et l'API (onrender.com)
-//   sont deux SITES différents — sans "none", le navigateur ne joindrait jamais
-//   le cookie en cross-site. En dev (localhost des deux côtés), "lax" plus strict.
-//   NB : "none" exige secure=true, les deux vont donc toujours ensemble.
-// - path     : le cookie n'est envoyé QU'AUX routes /api/auth — les routes métier
-//   ne le voient jamais (surface d'exposition minimale, et un octet de moins
-//   par requête sur tout le reste de l'API)
+// Session cookie, locked down:
+// - httpOnly: invisible to page JavaScript — an XSS cannot read it
+// - secure + sameSite "none" in prod: front (vercel.app) and API (onrender.com)
+//   are two different sites; "none" is required for the browser to send the
+//   cookie cross-site, and "none" requires secure. Stricter "lax" in local dev.
+// - path: the cookie only travels to /api/auth routes (least exposure)
 export function refreshCookieOptions(expiresAt: Date): CookieOptions {
 	const isProd = process.env.NODE_ENV === "production";
 	return {

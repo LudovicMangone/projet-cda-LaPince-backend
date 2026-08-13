@@ -12,9 +12,7 @@ import {
 	rotateRefreshToken,
 } from "../services/token.service";
 
-// Pose le cookie de session : appelé à chaque fois qu'un refresh token est émis
-// (register, login, rotation). Le token en clair ne transite QUE par ce cookie,
-// jamais par le corps JSON — le JavaScript du front ne le voit jamais.
+// The raw refresh token only ever travels through this cookie — never in JSON.
 function setRefreshCookie(
 	res: Response,
 	session: { rawToken: string; expiresAt: Date },
@@ -30,7 +28,7 @@ export async function register(req: Request, res: Response) {
 	const data = await registerSchema.parseAsync(req.body);
 	const { user, token } = await registerUser(data);
 
-	// Ouvre la session longue durée dès l'inscription (connexion automatique)
+	// Open the long-lived session right away (auto-login after signup)
 	const session = await createRefreshToken(user.id);
 	setRefreshCookie(res, session);
 
@@ -48,18 +46,14 @@ export async function login(req: Request, res: Response) {
 	res.status(200).json({ user, token });
 }
 
-// Échange le refresh token (cookie) contre un nouvel access token.
-// Appelé par le front quand l'access token expire (toutes les ~15 min)
-// et au chargement de l'application pour restaurer la session.
+// Exchanges the session cookie for a fresh access token (called by the front
+// on 401 responses and on app load to restore the session).
 export async function refresh(req: Request, res: Response) {
-	// Le cookie est joint automatiquement par le navigateur (credentials: "include") ;
-	// s'il est absent, il n'y a simplement pas de session à restaurer
 	const rawToken = req.cookies?.[REFRESH_COOKIE_NAME];
 	if (!rawToken) {
 		throw new UnauthorizedError("Aucune session active");
 	}
 
-	// Rotation : le token présenté est consommé, un nouveau couple est émis
 	const rotated = await rotateRefreshToken(rawToken);
 	setRefreshCookie(res, rotated);
 
@@ -67,16 +61,14 @@ export async function refresh(req: Request, res: Response) {
 }
 
 export async function logout(req: Request, res: Response) {
-	// Déconnexion RÉELLE : la session est supprimée en base — le cookie volé
-	// éventuel devient inutilisable (impossible avec le JWT seul d'avant)
+	// Server-side revocation: the session dies in DB even if the cookie was stolen
 	const rawToken = req.cookies?.[REFRESH_COOKIE_NAME];
 	if (rawToken) {
 		await revokeRefreshToken(rawToken);
 	}
 
-	// clearCookie doit reprendre les mêmes attributs (path, sameSite, secure)
-	// sinon le navigateur considère que c'est un AUTRE cookie et garde l'ancien.
-	// Express 5 ignore expires/maxAge ici et pose lui-même une date passée.
+	// clearCookie must repeat the cookie attributes (path, sameSite, secure),
+	// otherwise the browser treats it as a different cookie and keeps the old one
 	res.clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions(new Date()));
 
 	res.status(200).json({ message: "Déconnexion réussie" });
