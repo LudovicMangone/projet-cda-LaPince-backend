@@ -28,6 +28,7 @@
   - [Routes API](#routes-api)
     - [Résumé des endpoints](#résumé-des-endpoints)
   - [Tests](#tests)
+    - [Prérequis](#prérequis-1)
   - [Qualité de code](#qualité-de-code)
   - [Workflow Git](#workflow-git)
     - [Convention de nommage des branches](#convention-de-nommage-des-branches)
@@ -140,6 +141,7 @@ cd projet-cda-LaPince-backend
 ```bash
 npm install
 ```
+> ⚠️ Ne pas audit fix (Une vunérabilité qui ne nous concerne pas, car sinon repasse en prisma 6 et génération d'erreurs)
 
 ### 3. Configurer les variables d'environnement
 
@@ -155,15 +157,20 @@ npm run docker:up
 
 Lance les containers : API Express, PostgreSQL et Adminer.
 
+> ⚠️ Après le lancement des conteneurs, certaines erreurs initiales peuvent être normales
+
 ### 5. Appliquer les migrations et le seed
 
 Lors de la première installation du projet où à chaque changement de Schema Prisma
+
+> Ouvrir un second terminal pour exécuter les commandes Prisma :
 
 ```bash
 npm run db:generate
 npm run db:migrate
 npm run db:seed
 ```
+> Une fois les manipulations terminées, relancer les conteneurs Docker
 
 ### 6. L'API est disponible
 
@@ -308,6 +315,11 @@ Authorization: Bearer <token>
 
 ## Tests
 
+### Prérequis
+
+- Docker doit être en cours d'exécution (les tests d'intégration créent un container PostgreSQL dédié)
+- Copie `.env.test.example` en `.env.test` et renseigne les valeurs.
+
 ```bash
 # Tests unitaires
 npm run test:unit
@@ -318,10 +330,10 @@ npm run test:integration
 
 Les tests utilisent **Vitest 4**.
 
-Les tests unitaires couvrent notamment :
-- La logique de calcul des balances
-- L'algorithme glouton de remboursement
-- La validation des règles métier (répartition des montants...)
+Les tests d'intégration gèrent automatiquement le cycle de vie de la base de données :
+- Création d'un container PostgreSQL dédié (`lapincetest`) au lancement
+- Truncate de toutes les tables entre chaque test
+- Suppression du container à la fin
 
 ---
 

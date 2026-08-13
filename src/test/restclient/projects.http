@@ -1,6 +1,103 @@
-@baseUrl = http://localhost:{{$dotenv PORT}}/api/projects
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDA1NTI1OSwiZXhwIjoxNzgwNjYwMDU5fQ.ktkLzN3ip6D57En3Rxat5uocgmt8yA5xG6KPKl15FS0
+@baseUrl = http://localhost:{{$dotenv PORT}}/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MTI1MDQwMywiZXhwIjoxNzgxODU1MjAzfQ.F7ganpEfYvlqkOrsDB87l7U1STWcdykcbVRgJ7ptFrM
 
-###
-GET {{baseUrl}}/1
+### Login — seeded user Steve
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "steve@lapince.fr",
+  "password": "password123"
+}
+
+### Get one project by ID
+GET {{baseUrl}}/projects/10
+Authorization: Bearer {{token}}
+
+### Delet one project by ID
+DELETE {{baseUrl}}/projects/19
+Authorization: Bearer {{token}}
+
+### Patch one project
+PATCH {{baseUrl}}/projects/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Nouveau nom de projet",
+  "description": "Un projet simple",
+  "isArchived": true,
+  "type": "Maison_Coloc",
+  "budget": {
+    "amount": 1200,
+    "limitCriteria": 67
+  }
+}
+
+### GET ALL PROJECTS (dashboard)
+GET {{baseUrl}}/projects
+Authorization: Bearer {{token}}
+
+### POST CREATE / PARTIAL PROJECT
+POST {{baseUrl}}/projects
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "name": "Week-end à Lisbonne"
+}
+
+### POST CREATE / COMPLETE PROJECT
+POST {{baseUrl}}/projects
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "name": "Coloc rue Pasteur",
+    "description": "Dépenses de la coloc",
+    "type": "Maison_Coloc",
+    "budget": {
+        "amount": 1000,
+        "alertEnabled": true,
+        "limitCriteria": 80
+    },
+    "participants": [
+    { "name": "Ludo" },
+    { "name": "Aurore" }
+    ]
+}
+
+### POST CREATE / INVALID PROJECT
+POST {{baseUrl}}/projects
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "name": ""
+}
+
+### GET / 5 PROJECTS
+GET {{baseUrl}}/projects
+Authorization: Bearer {{token}}
+
+### GET / NEXT PROJECTS
+GET {{baseUrl}}/projects?cursor=1
+Authorization: Bearer {{token}}
+
+### GET GLOBAL BALANCE
+GET http://localhost:3000/api/balance
+Authorization: Bearer {{token}}
+
+
+### PATCH - Delete budget
+PATCH {{baseUrl}}/projects/4
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "deleteBudget": true
+}
+
+### GET - Budgets (doit retourner totalLimit: null)
+GET {{baseUrl}}/projects/4/budgets
 Authorization: Bearer {{token}}

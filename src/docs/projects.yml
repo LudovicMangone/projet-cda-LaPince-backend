@@ -1,0 +1,643 @@
+tags:
+  - name: Projects
+    description: Gestion des projets de dépenses partagées
+
+components:
+  schemas:
+    ProjectType:
+      type: string
+      enum:
+        - Voyage
+        - Maison_Coloc
+        - Anniversaire
+        - Repas_Sortie
+        - Pro_Travail
+        - Autre
+
+    BudgetInput:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: number
+          example: 1000
+        alertEnabled:
+          type: boolean
+          default: false
+        limitCriteria:
+          type: number
+          minimum: 1
+          maximum: 100
+          default: 80
+          example: 80
+
+    ParticipantInput:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Alice
+        isMe:
+          type: boolean
+          example: true
+
+    ProjectCreateBody:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          example: Voyage à Barcelone
+        description:
+          type: string
+          maxLength: 1000
+          example: Weekend entre amis
+        type:
+          $ref: "#/components/schemas/ProjectType"
+        budget:
+          $ref: "#/components/schemas/BudgetInput"
+        participants:
+          type: array
+          items:
+            $ref: "#/components/schemas/ParticipantInput"
+
+    ProjectSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Voyage à Barcelone
+        type:
+          $ref: "#/components/schemas/ProjectType"
+        isArchived:
+          type: boolean
+          example: false
+        updatedAt:
+          type: string
+          format: date-time
+        operationsCount:
+          type: integer
+          example: 3
+        participants:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              appUserId:
+                type: integer
+                nullable: true
+        budget:
+          nullable: true
+          type: object
+          properties:
+            limit:
+              type: number
+              example: 1000
+            limitCriteria:
+              type: number
+              example: 80
+            spent:
+              type: number
+              example: 250
+            unreadAlertsCount:
+              type: integer
+              example: 1
+        userBalance:
+          type: number
+          nullable: true
+          description: "Solde net de l'utilisateur (positif = on lui doit, négatif = il doit)"
+          example: 42.5
+
+    PaginatedProjects:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProjectSummary"
+        nextCursor:
+          type: integer
+          nullable: true
+          example: 5
+        hasMore:
+          type: boolean
+          example: false
+        total:
+          type: integer
+          example: 2
+
+    ProjectParticipantUpdate:
+      type: object
+      required:
+        - name
+      properties:
+        id:
+          type: integer
+          example: 1
+          description: >
+            Identifiant du participant.
+            Omettre ce champ pour créer un nouveau participant.
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          example: Steve
+        appUser:
+          nullable: true
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+
+    ProjectParticipantRelation:
+      type: object
+      properties:
+        projectId:
+          type: integer
+          example: 1
+        participantId:
+          type: integer
+          example: 1
+        participant:
+          type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            name:
+              type: string
+              example: Steve
+            appUserId:
+              type: integer
+              nullable: true
+              example: 1
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+paths:
+  /api/projects:
+    get:
+      tags:
+        - Projects
+      summary: Dashboard — liste paginée des projets
+      description: >
+        Retourne les projets de l'utilisateur connecté (5 par page, cursor-based).
+        Chaque projet inclut le nombre d'opérations, les participants, le budget consommé
+        et le solde net de l'utilisateur dans ce projet.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: cursor
+          schema:
+            type: integer
+          description: ID du dernier projet de la page précédente (pagination)
+          example: 5
+      responses:
+        "200":
+          description: Liste paginée de projets
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedProjects"
+              example:
+                projects:
+                  - id: 1
+                    name: Voyage à Barcelone
+                    type: Voyage
+                    isArchived: false
+                    updatedAt: "2026-06-10T08:00:00.000Z"
+                    operationsCount: 3
+                    participants:
+                      - id: 1
+                        name: Alice
+                        appUserId: 42
+                      - id: 2
+                        name: Bob
+                        appUserId: null
+                    budget:
+                      limit: 800
+                      limitCriteria: 80
+                      spent: 250
+                      unreadAlertsCount: 0
+                    userBalance: 50
+                nextCursor: null
+                hasMore: false
+                total: 1
+        "401":
+          description: Token manquant ou invalide
+
+    post:
+      tags:
+        - Projects
+      summary: Créer un nouveau projet
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectCreateBody"
+            example:
+              name: Voyage à Rome
+              type: Voyage
+              budget:
+                amount: 800
+                alertEnabled: true
+                limitCriteria: 80
+              participants:
+                - name: Alice
+                  isMe: true
+                - name: Bob
+      responses:
+        "201":
+          description: Projet créé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 1
+                      name:
+                        type: string
+                        example: Voyage à Rome
+                      description:
+                        type: string
+                        nullable: true
+                      type:
+                        $ref: "#/components/schemas/ProjectType"
+                      isArchived:
+                        type: boolean
+                        example: false
+                      createdAt:
+                        type: string
+                        format: date-time
+                      budget:
+                        nullable: true
+                        type: object
+                        properties:
+                          amount:
+                            type: number
+                          limitCriteria:
+                            type: number
+                      projectParticipants:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            participant:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+        "401":
+          description: Token manquant ou invalide
+        "422":
+          description: Données invalides (Zod)
+
+
+# ============================================================
+# GET /api/projects/{id}
+# Récupération d'un projet par son id
+# ============================================================
+
+  /api/projects/{id}:
+    get:
+      tags:
+        - Projects
+      summary: Récupérer un projet par son identifiant
+      description: >
+        Retourne le détail complet d'un projet appartenant à l'utilisateur connecté,
+        incluant les participants et le budget associé.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "200":
+          description: Projet récupéré avec succès
+          content:
+            application/json:
+              example:
+                project:
+                  id: 1
+                  name: Voyage à Barcelone
+                  description: Weekend entre amis
+                  isArchived: false
+                  type: Voyage
+                  projectParticipants:
+                    - participant:
+                        id: 1
+                        name: Alice
+                        appUser:
+                          id: 42
+                    - participant:
+                        id: 2
+                        name: Bob
+                        appUser: null
+                  budget:
+                    id: 1
+                    amount: 1000
+                    limitCriteria: 80
+        "401":
+          description: Token manquant ou invalide
+        "403":
+          description: Projet non accessible à cet utilisateur
+        "404":
+          description: Projet introuvable
+
+    patch:
+      tags:
+        - Projects
+      summary: Modifier un projet
+      description: >
+        Met à jour partiellement un projet.
+        Au moins un champ doit être renseigné.
+        Le budget est créé ou mis à jour automatiquement lorsqu'il est fourni.
+        Un budget existant peut être supprimé en envoyant deleteBudget à true.
+        Si budget et deleteBudget sont envoyés simultanément,
+        la suppression du budget est prioritaire.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  minLength: 2
+                  maxLength: 100
+                  example: Voyage à Madrid
+                description:
+                  type: string
+                  maxLength: 500
+                  example: Voyage modifié
+                isArchived:
+                  type: boolean
+                  example: false
+                type:
+                  $ref: "#/components/schemas/ProjectType"
+                deleteBudget:
+                  type: boolean
+                  description: Supprime le budget associé au projet s'il existe.
+                  example: true
+                budget:
+                  type: object
+                  properties:
+                    amount:
+                      type: number
+                      example: 1200
+                    limitCriteria:
+                      type: number
+                      minimum: 1
+                      maximum: 100
+                      example: 90
+            examples:
+              updateName:
+                summary: Modifier le nom du projet
+                value:
+                  name: Voyage à Madrid
+
+              updateBudget:
+                summary: Ajouter ou modifier un budget
+                value:
+                  budget:
+                    amount: 1200
+                    limitCriteria: 90
+
+              deleteBudget:
+                summary: Supprimer le budget existant
+                value:
+                  deleteBudget: true
+
+              archiveProject:
+                summary: Archiver un projet
+                value:
+                  isArchived: true
+
+      responses:
+        "200":
+          description: Projet mis à jour
+          content:
+            application/json:
+              example:
+                projectUpdate:
+                  project:
+                    id: 1
+                    name: Voyage à Madrid
+                    description: Voyage modifié
+                    type: Voyage
+                    isArchived: false
+                  budget:
+                    amount: 1200
+                    limitCriteria: 90
+
+        "401":
+          description: Token manquant ou invalide
+
+        "403":
+          description: Projet non accessible à cet utilisateur
+
+        "404":
+          description: Projet introuvable
+
+        "422":
+          description: Données invalides (Zod)
+
+    delete:
+      tags:
+        - Projects
+      summary: Supprimer un projet
+      description: >
+        Supprime définitivement un projet appartenant à l'utilisateur connecté.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+      responses:
+        "204":
+          description: Projet supprimé
+
+        "401":
+          description: Token manquant ou invalide
+
+        "403":
+          description: Projet non accessible à cet utilisateur
+
+        "404":
+          description: Projet introuvable
+
+# ============================================================
+# PATCH /api/projects/{id}/participants
+# Gestion des participants d'un projet
+# ============================================================
+
+  /api/projects/{id}/participants:
+    patch:
+      tags:
+        - Projects
+      summary: Mettre à jour les participants d'un projet
+      description: >
+        Remplace la liste des participants d'un projet.
+
+        Cette opération est exécutée dans une transaction unique :
+        si une erreur survient, aucune modification n'est enregistrée.
+
+        Le comportement dépend des participants envoyés :
+
+        - Participant avec un `id` existant → mise à jour du nom.
+        - Participant sans `id` → création d'un nouveau participant.
+        - Participant existant absent de la liste → suppression.
+
+        Un participant ne peut pas être supprimé s'il est déjà
+        associé à une ou plusieurs opérations du projet.
+
+      security:
+        - bearerAuth: []
+
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          example: 1
+          description: Identifiant du projet
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/ProjectParticipantUpdate"
+            example:
+              - id: 1
+                appUser:
+                  id: 1
+                name: Steve
+
+              - id: 2
+                appUser:
+                  id: 2
+                name: Aurore
+
+              - name: Ludo
+
+      responses:
+        "200":
+          description: Participants mis à jour avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    projectId:
+                      type: integer
+                      example: 1
+                    participantId:
+                      type: integer
+                      example: 1
+                    participant:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        name:
+                          type: string
+                          example: Steve
+                        appUserId:
+                          type: integer
+                          nullable: true
+                          example: 1
+                        createdAt:
+                          type: string
+                          format: date-time
+                        updatedAt:
+                          type: string
+                          format: date-time
+              example:
+                - projectId: 1
+                  participantId: 1
+                  participant:
+                    id: 1
+                    name: Steve
+                    appUserId: 1
+                    createdAt: "2026-06-12T06:45:22.864Z"
+                    updatedAt: "2026-06-12T08:14:40.719Z"
+                - projectId: 1
+                  participantId: 3
+                  participant:
+                    id: 3
+                    name: Ludo
+                    appUserId: null
+                    createdAt: "2026-06-12T06:45:22.875Z"
+                    updatedAt: "2026-06-12T08:14:40.724Z"
+
+        "400":
+          description: >
+            Impossible de supprimer un participant lié à une ou plusieurs opérations.
+
+        "401":
+          description: Token manquant ou invalide
+
+        "403":
+          description: Projet non accessible
+
+        "404":
+          description: Projet introuvable
+
+        "422":
+          description: Données invalides

@@ -1,0 +1,38 @@
+@baseUrl = http://localhost:{{$dotenv PORT}}/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDY1NDY2OSwiZXhwIjoxNzgxMjU5NDY5fQ.BuAkm_2QAHLhnj5I58CT9CPHjaQYoAifOP8FCzDnHbg
+
+### Login — seeded user Steve
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "steve@lapince.fr",
+  "password": "password123"
+}
+
+### Patch project participants 
+PATCH {{baseUrl}}/projects/1/participants
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+[
+  {
+    "id": 1,
+    "appUser": {
+      "id": 1
+    },
+    "name": "Steve"
+  },
+  {
+    "id": 2,
+    "appUser": {
+      "id": 2
+    },
+    "name": "SQFDQDAurore"
+  },
+  {
+    "id": 3,
+    "appUser": null,
+    "name": "Ludo"
+  }
+]

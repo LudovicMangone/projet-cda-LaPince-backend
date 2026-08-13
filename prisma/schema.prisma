@@ -19,8 +19,24 @@ model AppUser {
   operations    Operation[]
   participants  Participant[]
   appUserAlerts AppUserAlert[]
+  refreshTokens RefreshToken[]
 
   @@map("app_user")
+}
+
+// Revocable session: only the SHA-256 hash of the refresh token is stored.
+// One row = one active session; deleting the row logs it out server-side.
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  tokenHash String   @unique @db.VarChar(64)
+  appUserId Int
+  expiresAt DateTime @db.Timestamptz()
+  createdAt DateTime @default(now()) @db.Timestamptz()
+
+  // Cascade: deleting a user revokes all of their sessions
+  appUser AppUser @relation(fields: [appUserId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_token")
 }
 
 model Category {
@@ -35,11 +51,23 @@ model Category {
   @@map("category")
 }
 
+enum ProjectType {
+  Voyage
+  Maison_Coloc   @map("Maison / Coloc")
+  Anniversaire
+  Repas_Sortie   @map("Repas / Sortie")
+  Pro_Travail    @map("Pro / Travail")
+  Autre
+
+  @@map("project_type")
+}
+
 model Project {
-  id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(100)
-  description String?  @db.Text
-  isArchived  Boolean  @default(false)
+  id          Int         @id @default(autoincrement())
+  name        String      @db.VarChar(100)
+  description String?     @db.Text
+  type        ProjectType @default(Voyage)
+  isArchived  Boolean     @default(false)
   appUserId   Int
   createdAt   DateTime @default(now()) @db.Timestamptz()
   updatedAt   DateTime @updatedAt @db.Timestamptz()
@@ -120,7 +148,8 @@ model ProjectParticipant {
 model Operation {
   id                 Int      @id @default(autoincrement())
   name               String   @db.VarChar(255)
-  amount             Decimal  @db.Decimal(10, 2)
+  amount             Decimal  @db.Decimal(10,2)
+  isAmountCalculated Boolean  @default(true)
   date               DateTime @default(now()) @db.Date
   payerParticipantId Int
   appUserId          Int
@@ -132,16 +161,17 @@ model Operation {
   payerParticipant      Participant            @relation("Payer", fields: [payerParticipantId], references: [id], onDelete: Restrict)
   appUser               AppUser                @relation(fields: [appUserId], references: [id], onDelete: Cascade)
   category              Category               @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  project               Project                @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  project               Project                @relation(fields: [projectId], references: [id], onDelete: Cascade)
   operationParticipants OperationParticipant[]
 
   @@map("operation")
 }
 
 model OperationParticipant {
-  operationId       Int
-  participantId     Int
-  repartitionAmount Decimal @db.Decimal(10, 2)
+  operationId                     Int
+  participantId                   Int
+  repartitionAmount               Decimal @db.Decimal(10, 2)
+  isRepartitionAmountCalculated   Boolean @default(true)
 
   operation   Operation   @relation(fields: [operationId], references: [id], onDelete: Cascade)
   participant Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)

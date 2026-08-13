@@ -1,0 +1,163 @@
+import { ForbiddenError, NotFoundError } from "../lib/errors";
+import { prisma } from "../lib/prisma";
+import { assertProjectOwner } from "../lib/projectOwner";
+import type {
+	CreateOperationInput,
+	DeleteOperationInput,
+} from "../schemas/operation.schema";
+import { checkAndCreateAlert, resolveAlertIfNeeded } from "./alert.service";
+
+export async function getOperationsByPojectId(
+	projectId: number,
+	userId: number,
+) {
+	await assertProjectOwner(projectId, userId);
+
+	const operations = await prisma.operation.findMany({
+		orderBy: {
+			createdAt: "asc",
+		},
+		where: {
+			projectId,
+		},
+		select: {
+			id: true,
+			name: true,
+			appUserId: true,
+			categoryId: true,
+			amount: true,
+			isAmountCalculated: true,
+			date: true,
+			payerParticipantId: true,
+			appUser: {
+				select: {
+					id: true,
+					name: true,
+				},
+			},
+			operationParticipants: {
+				select: {
+					repartitionAmount: true,
+					isRepartitionAmountCalculated: true,
+					participant: {
+						select: {
+							id: true,
+							name: true,
+						},
+					},
+				},
+			},
+		},
+	});
+
+	return operations;
+}
+
+export async function createOperation(
+	data: CreateOperationInput,
+	userId: number,
+) {
+	await assertProjectOwner(data.projectId, userId);
+
+	return prisma.$transaction(async (tx) => {
+		const operation = await tx.operation.create({
+			data: {
+				name: data.name,
+				amount: data.amount,
+				date: data.date,
+				projectId: data.projectId,
+				categoryId: data.categoryId,
+				payerParticipantId: data.payerParticipantId,
+				isAmountCalculated: data.isAmountCalculated,
+				appUserId: userId,
+			},
+		});
+		if (data.operationParticipants?.length) {
+			await tx.operationParticipant.createMany({
+				data: data.operationParticipants.map((participant) => ({
+					operationId: operation.id,
+					participantId: participant.participantId,
+					repartitionAmount: participant.repartitionAmount,
+					isRepartitionAmountCalculated:
+						participant.isRepartitionAmountCalculated,
+				})),
+			});
+		}
+		await checkAndCreateAlert(data.projectId, userId, tx);
+		return operation;
+	});
+}
+
+export async function updateOperation(
+	operationId: number,
+	data: CreateOperationInput,
+	userId: number,
+) {
+	await assertProjectOwner(data.projectId, userId);
+
+	return prisma.$transaction(async (tx) => {
+		const operation = await tx.operation.findUnique({
+			where: { id: operationId },
+			select: {
+				id: true,
+				projectId: true,
+			},
+		});
+
+		if (!operation) {
+			throw new NotFoundError("Operation not found");
+		}
+
+		if (operation.projectId !== data.projectId) {
+			throw new ForbiddenError("Operation does not belong to this project");
+		}
+
+		const updatedOperation = await tx.operation.update({
+			where: { id: operationId },
+			data: {
+				name: data.name,
+				amount: data.amount,
+				date: data.date,
+				categoryId: data.categoryId,
+				payerParticipantId: data.payerParticipantId,
+				isAmountCalculated: data.isAmountCalculated,
+			},
+		});
+
+		// Remove all existing participants before recreating them
+		// it avoid to duplicate an operation
+		await tx.operationParticipant.deleteMany({
+			where: { operationId },
+		});
+
+		if (data.operationParticipants?.length) {
+			await tx.operationParticipant.createMany({
+				data: data.operationParticipants.map((participant) => ({
+					operationId,
+					participantId: participant.participantId,
+					repartitionAmount: participant.repartitionAmount,
+					isRepartitionAmountCalculated:
+						participant.isRepartitionAmountCalculated,
+				})),
+			});
+		}
+		await resolveAlertIfNeeded(data.projectId, userId, tx);
+		await checkAndCreateAlert(data.projectId, userId, tx);
+
+		return updatedOperation;
+	});
+}
+
+export async function deleteOperationsByPojectId(
+	data: DeleteOperationInput,
+	userId: number,
+) {
+	await assertProjectOwner(data.projectId, userId);
+
+	return prisma.$transaction(async (tx) => {
+		await tx.operation.delete({
+			where: { id: data.operationId, projectId: data.projectId },
+		});
+		await resolveAlertIfNeeded(data.projectId, userId, tx);
+	});
+}

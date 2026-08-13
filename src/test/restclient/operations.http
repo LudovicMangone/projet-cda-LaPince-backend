@@ -1,0 +1,32 @@
+@baseUrl = http://localhost:{{$dotenv PORT}}/api/projects
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsImlhdCI6MTc4MDA1NTI1OSwiZXhwIjoxNzgwNjYwMDU5fQ.ktkLzN3ip6D57En3Rxat5uocgmt8yA5xG6KPKl15FS0
+
+###
+GET {{baseUrl}}/1/operations
+Authorization: Bearer {{token}}
+
+
+###
+POST {{baseUrl}}/1/operations
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "Restaurant",
+  "description": "Dîner du vendredi",
+  "amount": 125.50,
+  "date": "2026-06-04",
+  "categoryId": 1,
+  "projectId": 1,
+  "payerParticipantId": 2,
+  "operationParticipants": [
+    {
+      "participantId": 2,
+      "repartitionAmount": 62.75
+    },
+    {
+      "participantId": 3,
+      "repartitionAmount": 62.75
+    }
+  ]
+}
