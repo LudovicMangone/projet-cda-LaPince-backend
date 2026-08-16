@@ -59,7 +59,9 @@
 - Calculer automatiquement les remboursements entre participants
 
 Ce repository contient exclusivement la **couche back-end** : API REST, logique métier, accès aux données.
-Le repository front-end est disponible ici : [`la-pince.frontend`](https://github.com/O-clock-Helsinki/projet-cda-LaPince-frontend)
+Le repository front-end est disponible ici : [`la-pince.frontend`](https://github.com/LudovicMangone/projet-cda-LaPince-frontend)
+
+> 🔄 **Évolution post-projet (août 2026)** — la gestion de session a évolué sur ce fork : access token de 15 minutes couplé à un refresh token en cookie HttpOnly avec rotation à chaque usage et révocation en base à la déconnexion (routes `POST /api/auth/refresh` et `POST /api/auth/logout`). Détail dans la documentation Swagger servie à la racine de l'API.
 
 ---
 
@@ -79,9 +81,10 @@ Le back-end applique les principes de **Separation of Concerns (SoC)** en couche
 
 ```
 src/
-├── routes/        → définition des endpoints
+├── routers/       → définition des endpoints
 ├── controllers/   → traitement des requêtes et réponses HTTP
 ├── services/      → logique métier pure
+├── schemas/       → validation Zod des données entrantes
 ├── middlewares/   → auth, validation, gestion des erreurs
 └── lib/           → utilitaires partagés (Prisma client, erreurs custom...)
 ```
@@ -132,7 +135,7 @@ Avant de démarrer, assure-toi d'avoir installé :
 ### 1. Cloner le repository
 
 ```bash
-git clone https://github.com/O-clock-Helsinki/projet-cda-LaPince-backend.git
+git clone https://github.com/LudovicMangone/projet-cda-LaPince-backend.git
 cd projet-cda-LaPince-backend
 ```
 
@@ -141,7 +144,7 @@ cd projet-cda-LaPince-backend
 ```bash
 npm install
 ```
-> ⚠️ Ne pas audit fix (Une vunérabilité qui ne nous concerne pas, car sinon repasse en prisma 6 et génération d'erreurs)
+> ℹ️ **Historique sécurité** — pendant le projet, `npm audit fix` était volontairement évité (il rétrogradait Prisma 7 → 6). Un audit complet a été mené le **11/08/2026** : dépendances mises à jour, suites de tests re-vérifiées, et il ne reste que 2 alertes modérées limitées à l'outillage de développement de Prisma (code non exposé en production). Dependabot est activé sur le dépôt.
 
 ### 3. Configurer les variables d'environnement
 
@@ -238,16 +241,15 @@ projet-cda-LaPince-backend/
 │   ├── seed.ts              ← données initiales (catégories)
 │   └── schema.prisma        ← modèle de données
 ├── src/
-│   ├── config/              ← configuration (env, cors...)
+│   ├── config/              ← configuration (env, cors, cookie, swagger)
 │   ├── controllers/         ← traitement des requêtes HTTP
 │   ├── middlewares/         ← auth, validation, erreurs, rate limiter
-│   ├── routes/              ← définition des endpoints
-│   ├── services/            ← logique métier pure
+│   ├── routers/             ← définition des endpoints
+│   ├── schemas/             ← validation Zod
+│   ├── services/            ← logique métier pure (+ tests unitaires colocalisés *.unit.test.ts)
+│   ├── test/                ← tests d'intégration + configuration Vitest
 │   ├── lib/                 ← prisma client, classes d'erreurs custom
 │   └── app.ts               ← configuration Express principale
-├── tests/
-│   ├── unit/
-│   └── integration/
 ├── docs/                    ← documentation du projet
 ├── .env.example
 ├── .gitignore
@@ -257,7 +259,7 @@ projet-cda-LaPince-backend/
 └── tsconfig.json
 ```
 
-> 📄 Schéma visuel de l'arborescence : [`docs/arborescence.png`](docs/s0.conception/conception/arborescence_front_end.PNG)
+
 
 ---
 
@@ -298,18 +300,17 @@ Authorization: Bearer <token>
 
 | Domaine | Méthodes | Base URL |
 |---|---|---|
-| Auth | POST, GET | `/api/auth` |
-| Utilisateurs | POST, PATCH, DELETE | `/api/users` |
+| Auth | POST, GET | `/api/auth` — register, login, refresh, logout, me |
 | Projets | GET, POST, PATCH, DELETE | `/api/projects` |
-| Participants | GET, POST, PATCH, DELETE | `/api/projects/:id/participants` |
+| Participants | PATCH | `/api/projects/:id/participants` — remplacement de la liste complète |
 | Opérations | GET, POST, PATCH, DELETE | `/api/projects/:id/operations` |
-| Budgets | GET, POST, PATCH, DELETE | `/api/projects/:id/budgets` |
+| Budgets | GET | `/api/projects/:id/budgets` — création/modification via `PATCH /api/projects/:id` |
 | Catégories | GET | `/api/categories` |
-| Alertes | GET, PATCH | `/api/alertes` |
-| Remboursements | GET | `/api/projects/:id/reimbursements` |
+| Alertes | GET, PATCH | `/api/alertes` et GET `/api/projects/:id/alertes` |
+| Balance & remboursements | GET | `/api/balance` et `/api/projects/:id/balance` |
 
 > 📄 Liste complète et détaillée des routes : [`docs/routes-api.md`](docs/s0.conception/cahier.des.charges/liste.routes.api.md)
-> 📄 Documentation interactive Swagger disponible sur : `http://localhost:3000/api-docs` *(à venir)*
+> 📄 Documentation interactive Swagger servie **à la racine de l'API** : `http://localhost:3000/` — et en production : `https://lapince-backend-2l9f.onrender.com/`
 
 ---
 
@@ -409,7 +410,7 @@ Chaque Pull Request doit :
 | Merise (MCD / MLD / MPD) | Modélisation de la base de données | `docs/merise/` |
 | Algorithme de répartition | Logique de calcul des balances et remboursements | `docs/algorithme-repartition.md` |
 | Charte graphique & maquettes | Éléments visuels du projet | `docs/design/` |
-| Swagger UI | Documentation interactive de l'API | `http://localhost:3000/api-docs` |
+| Swagger UI | Documentation interactive de l'API | `http://localhost:3000/` (racine) — prod : `https://lapince-backend-2l9f.onrender.com/` |
 
 ---
 
@@ -449,7 +450,7 @@ This backend provides the core logic for:
 - Budget tracking and alerts
 - Automatic reimbursement calculations
 
-[Frontend repo](https://github.com/O-clock-Helsinki/projet-cda-LaPince-frontend)
+[Frontend repo](https://github.com/LudovicMangone/projet-cda-LaPince-frontend)
 
 ---
 
@@ -498,7 +499,7 @@ src/
 ## Setup
 
 ```bash
-git clone https://github.com/O-clock-Helsinki/projet-cda-LaPince-backend.git
+git clone https://github.com/LudovicMangone/projet-cda-LaPince-backend.git
 cd projet-cda-LaPince-backend
 npm install
 cp .env.example .env
@@ -536,12 +537,9 @@ http://localhost:8080
 
 Main routes:
 
-* `/api/auth`
-* `/api/users`
-* `/api/projects`
-* `/api/operations`
-* `/api/participants`
-* `/api/budgets`
+* `/api/auth` — register, login, refresh, logout, me
+* `/api/projects` (+ nested participants, operations, budgets, balance, alertes)
+* `/api/balance`
 * `/api/categories`
 * `/api/alertes`
 
@@ -551,7 +549,9 @@ JWT required:
 Authorization: Bearer <token>
 ```
 
-Swagger: `/api-docs`
+Session evolution on this fork (Aug 2026): 15-minute access token + rotating HttpOnly refresh cookie with server-side revocation.
+
+Swagger: served at the API root (`/`) — production: `https://lapince-backend-2l9f.onrender.com/`
 
 ---
 
