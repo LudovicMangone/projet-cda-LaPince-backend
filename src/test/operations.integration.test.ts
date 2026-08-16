@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import "./config/global-setup";
 import { prisma } from "../lib/prisma";
 
-const BASE_URL = "http://localhost:3001/api";
+// Port read from the environment (like the other integration files): the test
+// server listens on process.env.PORT, which differs between local and CI.
+const BASE_URL = `http://localhost:${process.env.PORT}/api`;
 const AUTH_URL = `${BASE_URL}/auth`;
 const PROJECTS_URL = `${BASE_URL}/projects`;
 
