@@ -36,7 +36,10 @@ jobs:
       NODE_ENV: test
       PORT: 3000
       DATABASE_URL: postgresql://lapince_user:lapince_password@localhost:5432/lapince_db
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      # Repository secrets are NOT inherited when a repository is forked.
+      # The workflow falls back to a dummy value used only by the CI test run,
+      # so the pipeline stays reproducible on any fork or clone.
+      JWT_SECRET: ${{ secrets.JWT_SECRET || 'ci-test-secret-not-used-in-production' }}
 
     steps:
       - name: Checkout code
@@ -68,6 +71,10 @@ jobs:
       - name: Unit tests project
       #   # Run units tests
         run: npm run test:unit
+
+      - name: Prepare test environment file
+        # .env.test is git-ignored; the integration script loads it through dotenv-cli
+        run: cp .env.test.example .env.test
 
       - name: Integration tests
       #   # Run integration tests
