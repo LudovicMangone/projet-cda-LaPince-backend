@@ -403,13 +403,15 @@ Chaque Pull Request doit :
 
 | Document | Description | Lien |
 |---|---|---|
-| Architecture & choix techniques | Justification des technologies et de l'architecture | `docs/architecture.md` |
-| Spécifications techniques | Stack complète avec versions et justifications | `docs/specifications-techniques.md` |
-| Routes API | Liste complète des endpoints | `docs/routes-api.md` |
-| Dictionnaire de données | Description de chaque champ de chaque table | `docs/dictionnaire-de-donnees.md` |
-| Merise (MCD / MLD / MPD) | Modélisation de la base de données | `docs/merise/` |
-| Algorithme de répartition | Logique de calcul des balances et remboursements | `docs/algorithme-repartition.md` |
-| Charte graphique & maquettes | Éléments visuels du projet | `docs/design/` |
+| Architecture & choix techniques | Justification des technologies et de l'architecture | [`choix.architecture.md`](docs/s0.conception/cahier.des.charges/choix.architecture.md) |
+| Spécifications techniques | Stack complète avec versions et justifications | [`listes.technos.utilisees.md`](docs/s0.conception/cahier.des.charges/listes.technos.utilisees.md) |
+| Cas d'utilisation | Acteurs, scénarios nominaux et alternatifs du MVP | [`use.cases.md`](docs/s0.conception/cahier.des.charges/use.cases.md) |
+| Routes API | Liste complète des endpoints | [`liste.routes.api.md`](docs/s0.conception/cahier.des.charges/liste.routes.api.md) |
+| Dictionnaire de données | Description de chaque champ de chaque table | [`dictionnaire.donnes.md`](docs/s0.conception/conception/dictionnaire.donnes.md) |
+| Merise (MCD / MLD / MPD) | Modélisation de la base de données | [`MERISE.MCD.MLD.MPD/`](docs/s0.conception/conception/MERISE.MCD.MLD.MPD) |
+| Algorithme de répartition | Logique de calcul des balances et remboursements | [`algorithme.repartition.depenses.md`](docs/s0.conception/conception/algorithme.glouton/algorithme.repartition.depenses.md) |
+| Charte graphique & maquettes | Éléments visuels du projet (charte, wireframes, maquettes desktop / tablette / mobile) | [`elements.graphiques/`](docs/s0.conception/elements.graphiques) |
+| **Conception réalignée (15/06/2026)** | MPD, MCD, cas d'utilisation et routes mis à jour sur l'application livrée, en fin de projet | [`conception.realignee.15-06/`](docs/s3.finitions/conception.realignee.15-06) |
 | Swagger UI | Documentation interactive de l'API | `http://localhost:3000/` (racine) — prod : `https://lapince-backend-2l9f.onrender.com/` |
 
 ---
@@ -425,7 +427,7 @@ Le projet applique des principes de base de conformité RGPD et de sécurité de
 - gestion sécurisée des variables d’environnement,
 - contrôle des accès aux ressources utilisateur.
 
-> Voir le dossier `docs/rgpd/` pour plus de détails :
+> Voir le dossier [`docs/s1.mise.en.place/rgpd/`](docs/s1.mise.en.place/rgpd) pour plus de détails :
 
 - [politique-confidentialite.md](docs/s1.mise.en.place/rgpd/politique.confidentialite.md)
 - [gestion-des-donnees.md](docs/s1.mise.en.place/rgpd/gestion.des.donnes.md)
